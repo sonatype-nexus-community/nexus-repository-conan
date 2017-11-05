@@ -238,6 +238,6 @@ class ConanProxyRecipe
   }
 
   static TokenMatcher conanPackageMatcher() {
-    new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/conan_package.tgz")
+    new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conan_package.tgz")
   }
 }

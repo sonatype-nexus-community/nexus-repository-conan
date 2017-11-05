@@ -25,9 +25,14 @@ import org.mockito.Mock;
 
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Request;
+import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import static com.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanManifestMatcher;
+import static com.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanPackageMatcher;
 import static com.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.downloadUrlsMatcher;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -68,11 +73,21 @@ public class ConanProxyRecipeTest
     assertTrue(downloadUrlsMatcher().matches(context));
   }
 
-
   @Test
   public void canMatchOnConanManifest() {
     //repository/conan-proxy            /vthiery/jsonformoderncpp/2.1.1/stable/export/conanmanifest.txt
     when(request.getPath()).thenReturn("/vthiery/jsonformoderncpp/2.1.1/stable/export/conanmanifest.txt");
     assertTrue(conanManifestMatcher().matches(context));
+  }
+
+  @Test
+  public void canMatchOnConanPackage() {
+    //repository/conan-proxy              /vthiery/jsonformoderncpp/2.1.1/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz
+    when(request.getPath()).thenReturn("/vthiery/jsonformoderncpp/2.1.1/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz");
+    assertTrue(conanPackageMatcher().matches(context));
+    TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
+    assertThat(matcherState.getTokens().get("author"), is(equalTo("vthiery")));
+    assertThat(matcherState.getTokens().get("project"), is(equalTo("jsonformoderncpp")));
+    assertThat(matcherState.getTokens().get("version"), is(equalTo("2.1.1")));
   }
 }

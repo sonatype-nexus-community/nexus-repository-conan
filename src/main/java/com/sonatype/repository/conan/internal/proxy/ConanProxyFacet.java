@@ -14,7 +14,6 @@ package com.sonatype.repository.conan.internal.proxy;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
@@ -23,7 +22,6 @@ import javax.inject.Named;
 
 import com.sonatype.repository.conan.internal.AssetKind;
 import com.sonatype.repository.conan.internal.metadata.ConanAbsoluteUrlRemover;
-import com.sonatype.repository.conan.internal.metadata.ConanMetadata;
 
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.cache.CacheController;
@@ -33,6 +31,7 @@ import org.sonatype.nexus.repository.proxy.ProxyFacetSupport;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.AssetBlob;
 import org.sonatype.nexus.repository.storage.Bucket;
+import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.storage.StorageFacet;
 import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.nexus.repository.storage.TempBlob;
@@ -47,11 +46,13 @@ import org.sonatype.nexus.transaction.UnitOfWork;
 import com.google.common.base.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.sonatype.repository.conan.internal.AssetKind.CONAN_SRC;
 import static com.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
-import static com.sonatype.repository.conan.internal.proxy.ConanProxyHelper.matcherState;
-import static com.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPath;
 import static com.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
+import static com.sonatype.repository.conan.internal.proxy.ConanProxyHelper.project;
 import static com.sonatype.repository.conan.internal.proxy.ConanProxyHelper.toContent;
+import static com.sonatype.repository.conan.internal.proxy.ConanProxyHelper.version;
+import static com.sonatype.repository.conan.internal.utils.ConanFacetUtils.findComponent;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 
@@ -59,7 +60,10 @@ import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 public class ConanProxyFacet
     extends ProxyFacetSupport
 {
+
   private static final ConanAbsoluteUrlRemover absoluteUrlRemover = new ConanAbsoluteUrlRemover();
+
+  public static final String CONAN_BINARY_BASE_URL = "http://api.bintray.com/conan/conan/conan-center/v1/files";
 
   // HACK: Workaround for known CGLIB issue, forces an Import-Package for org.sonatype.nexus.repository.config
   @Override
@@ -97,19 +101,20 @@ public class ConanProxyFacet
     //String assetPath = buildAssetPath(matcherState);
     String assetPath = context.getRequest().getPath().substring(1);
 
-    if(assetKind.equals(AssetKind.DOWNLOAD_URL)) {
-      return putDownloadUrlMetaAndAsset(assetPath, content, assetKind);
+    if (assetKind.equals(CONAN_SRC)) {
+      return putPackage(assetPath, content, project(matcherState), version(matcherState));
     }
-
     return putMetadata(assetPath, content, assetKind, new AttributesMap());
   }
 
-  private Content putDownloadUrlMetaAndAsset(final String assetPath, final Content content, final AssetKind assetKind)
-      throws IOException
-  {
-    AttributesMap attributesMap = new AttributesMap();
-    attributesMap.set(ConanMetadata.AUTHOR, "foobar");
-    return putMetadata(assetPath, content, assetKind, attributesMap);
+  private Content putPackage(final String assetPath,
+                             final Content content,
+                             final String project,
+                             final String version) throws IOException {
+    StorageFacet storageFacet = facet(StorageFacet.class);
+    try (TempBlob tempBlob = storageFacet.createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
+      return doPutPackage(assetPath, project, version, tempBlob, content);
+    }
   }
 
   private Content putMetadata(final String assetPath,
@@ -122,18 +127,43 @@ public class ConanProxyFacet
     try (TempBlob tempBlob = storageFacet.createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
       if(AssetKind.DOWNLOAD_URL.equals(assetKind)) {
         TempBlob absoluteUrlBlob = absoluteUrlRemover.removeAbsoluteUrls(tempBlob, getRepository());
-        return saveMetadataAsAsset(assetPath, absoluteUrlBlob, content, assetKind, attributesMap);
+        return doSaveMetadata(assetPath, absoluteUrlBlob, content, assetKind, attributesMap);
       }
-      return saveMetadataAsAsset(assetPath, tempBlob, content, assetKind, attributesMap);
+      return doSaveMetadata(assetPath, tempBlob, content, assetKind, attributesMap);
     }
   }
 
   @TransactionalStoreBlob
-  protected Content saveMetadataAsAsset(final String assetPath,
-                                        final TempBlob metadataContent,
-                                        final Payload payload,
-                                        final AssetKind assetKind,
-                                        final AttributesMap attributesMap) throws IOException
+  protected Content doPutPackage(final String assetPath,
+                               final String project,
+                               final String version,
+                               final TempBlob tempBlob,
+                               final Payload content) throws IOException
+  {
+    StorageTx tx = UnitOfWork.currentTx();
+    Bucket bucket = tx.findBucket(getRepository());
+
+    Component component = findComponent(tx, getRepository(), project, version);
+    if(component == null) {
+      component = tx.createComponent(bucket, getRepository().getFormat()).name(project).version(version);
+    }
+    tx.saveComponent(component);
+
+    Asset asset = findAsset(tx, bucket, assetPath);
+    if (asset == null) {
+      asset = tx.createAsset(bucket, component);
+      asset.name(assetPath);
+      asset.formatAttributes().set(P_ASSET_KIND, CONAN_SRC.name());
+    }
+    return saveAsset(tx, asset, tempBlob, content);
+  }
+
+  @TransactionalStoreBlob
+  protected Content doSaveMetadata(final String assetPath,
+                                   final TempBlob metadataContent,
+                                   final Payload payload,
+                                   final AssetKind assetKind,
+                                   final AttributesMap attributesMap) throws IOException
   {
     StorageTx tx = UnitOfWork.currentTx();
     Bucket bucket = tx.findBucket(getRepository());
@@ -204,7 +234,7 @@ public class ConanProxyFacet
     if(AssetKind.DOWNLOAD_URL.equals(assetKind)) {
       return context.getRequest().getPath();
     }
-    return "http://api.bintray.com/conan/conan/conan-center/v1/files" + context.getRequest().getPath();
+    return CONAN_BINARY_BASE_URL + context.getRequest().getPath();
   }
 
   @Nonnull

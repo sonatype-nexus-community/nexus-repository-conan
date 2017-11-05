@@ -40,11 +40,11 @@ class ConanProxyHelper
     return project + "/" + version + "/" + author + "/download_urls";
   }
 
-  private static String project(final State state) {
+  static String project(final State state) {
     return match(state, "${PROJECT}")
   }
 
-  private static String version(final State state) {
+  static String version(final State state) {
     return match(state, "${VERSION}")
   }
 

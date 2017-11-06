@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import com.sonatype.repository.conan.internal.ConanFormat;
+import org.sonatype.repository.conan.internal.ConanFormat;
 
 import org.sonatype.nexus.repository.Format;
 import org.sonatype.nexus.repository.security.RepositoryFormatSecurityContributor;

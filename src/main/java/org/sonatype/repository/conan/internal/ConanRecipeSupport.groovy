@@ -15,7 +15,7 @@ package org.sonatype.repository.conan.internal
 import javax.inject.Inject
 import javax.inject.Provider
 
-import com.sonatype.repository.conan.internal.security.ConanSecurityFacet
+import org.sonatype.repository.conan.internal.security.ConanSecurityFacet
 
 import org.sonatype.nexus.repository.Format
 import org.sonatype.nexus.repository.RecipeSupport
@@ -31,7 +31,6 @@ import org.sonatype.nexus.repository.storage.DefaultComponentMaintenanceImpl
 import org.sonatype.nexus.repository.storage.StorageFacet
 import org.sonatype.nexus.repository.storage.UnitOfWorkHandler
 import org.sonatype.nexus.repository.view.ConfigurableViewFacet
-import org.sonatype.nexus.repository.view.Router.Builder
 import org.sonatype.nexus.repository.view.handlers.BrowseUnsupportedHandler
 import org.sonatype.nexus.repository.view.handlers.ConditionalRequestHandler
 import org.sonatype.nexus.repository.view.handlers.ContentHeadersHandler

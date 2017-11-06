@@ -12,8 +12,6 @@
  */
 package org.sonatype.repository.conan.internal.proxy
 
-import com.sonatype.repository.conan.internal.metadata.ConanMetadata
-
 import org.sonatype.nexus.blobstore.api.Blob
 import org.sonatype.nexus.common.hash.HashAlgorithm
 import org.sonatype.nexus.repository.storage.Asset
@@ -28,9 +26,9 @@ import org.sonatype.nexus.repository.view.payloads.BlobPayload
 import com.google.common.collect.ImmutableList
 
 import static com.google.common.base.Preconditions.checkNotNull
-import static com.sonatype.repository.conan.internal.metadata.ConanMetadata.AUTHOR
-import static com.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
-import static com.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.AUTHOR
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION
 import static org.sonatype.nexus.common.hash.HashAlgorithm.MD5
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA256

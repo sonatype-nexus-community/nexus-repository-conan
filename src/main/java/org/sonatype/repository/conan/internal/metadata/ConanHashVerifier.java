@@ -9,7 +9,7 @@ import org.sonatype.nexus.repository.storage.StorageTx;
 import com.google.common.hash.HashCode;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
 
 /**
  * Responsible for looking up the hashes to verify against

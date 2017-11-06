@@ -18,9 +18,9 @@ import javax.inject.Named
 import javax.inject.Singleton
 import javax.naming.Name
 
-import com.sonatype.repository.conan.internal.AssetKind
-import com.sonatype.repository.conan.internal.ConanFormat
-import com.sonatype.repository.conan.internal.ConanRecipeSupport
+import org.sonatype.repository.conan.internal.AssetKind
+import org.sonatype.repository.conan.internal.ConanFormat
+import org.sonatype.repository.conan.internal.ConanRecipeSupport
 
 import org.sonatype.nexus.repository.Format
 import org.sonatype.nexus.repository.Repository
@@ -41,15 +41,15 @@ import org.sonatype.repository.conan.internal.AssetKind
 
 import com.google.inject.Provider
 
-import static com.sonatype.repository.conan.internal.AssetKind.CONAN_FILE
-import static com.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST
-import static com.sonatype.repository.conan.internal.AssetKind.CONAN_SRC
-import static com.sonatype.repository.conan.internal.AssetKind.CONAN_INFO
-import static com.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL
-import static com.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
-import static com.sonatype.repository.conan.internal.metadata.ConanMetadata.AUTHOR
-import static com.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION
-import static com.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO
+import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.AUTHOR
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE
 import static org.sonatype.nexus.repository.http.HttpHandlers.notFound
 import static org.sonatype.nexus.repository.http.HttpMethods.GET
 import static org.sonatype.nexus.repository.http.HttpMethods.HEAD

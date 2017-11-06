@@ -12,11 +12,9 @@
  */
 package org.sonatype.repository.conan.internal.proxy;
 
-import com.sonatype.repository.conan.internal.ConanFormat;
 
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
-import org.sonatype.nexus.repository.types.ProxyType;
 
 import org.junit.After;
 import org.junit.Before;
@@ -27,11 +25,11 @@ import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Request;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
-import static com.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanFileMatcher;
-import static com.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanInfoMatcher;
-import static com.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanManifestMatcher;
-import static com.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanPackageMatcher;
-import static com.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.downloadUrlsMatcher;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanFileMatcher;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanInfoMatcher;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanManifestMatcher;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanPackageMatcher;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.downloadUrlsMatcher;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;

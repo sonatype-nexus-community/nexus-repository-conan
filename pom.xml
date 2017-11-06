@@ -48,11 +48,6 @@
     </dependency>
 
     <dependency>
-      <groupId>se.sawano.java</groupId>
-      <artifactId>alphanumeric-comparator</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.sonatype.goodies</groupId>
       <artifactId>goodies-testsupport</artifactId>
       <scope>test</scope>

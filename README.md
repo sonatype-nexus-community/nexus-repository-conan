@@ -49,7 +49,7 @@ To build the project and generate the bundle use Maven
 
     mvn clean install
 
-If everything checks out, the bundle for R should be available in the `target` folder
+If everything checks out, the bundle for Conan should be available in the `target` folder
 
 ## Using Conan With Nexus Repository Manager 3
 
@@ -94,7 +94,7 @@ is running. You will still need to start the bundle using the karaf commands men
 
 ### (most) Permanent Install
 
-If you are trying to use the R plugin permanently, it likely makes more sense to do the following:
+If you are trying to use the Conan plugin permanently, it likely makes more sense to do the following:
 
 * Copy the bundle into `<nexus_dir>/system/org/sonatype/nexus/plugins/nexus-repository-conan/1.0.0/nexus-repository-conan-1.0.0.jar`
 * If you are using OSS edition, make these mods in: `<nexus_dir>/system/com/sonatype/nexus/assemblies/nexus-oss-feature/3.x.y/nexus-oss-feature-3.x.y-features.xml`

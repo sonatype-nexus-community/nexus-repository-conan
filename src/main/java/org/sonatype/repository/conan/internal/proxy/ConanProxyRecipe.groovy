@@ -16,9 +16,7 @@ import javax.annotation.Nonnull
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
-import javax.naming.Name
 
-import org.sonatype.repository.conan.internal.AssetKind
 import org.sonatype.repository.conan.internal.ConanFormat
 import org.sonatype.repository.conan.internal.ConanRecipeSupport
 
@@ -172,8 +170,6 @@ class ConanProxyRecipe
 
     builder.defaultHandlers(notFound())
     facet.configure(builder.create())
-
-    log.error("Exited configure {}", facet)
     return facet
   }
 

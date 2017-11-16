@@ -16,14 +16,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.sonatype.goodies.common.Loggers;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.storage.TempBlob;
+
+import org.slf4j.Logger;
 
 /**
  * A conan manifest file contains md5 values for subsequent files
  */
 public class ConanManifest
 {
+  private static final Logger LOGGER = Loggers.getLogger(ConanManifest.class);
+
   /**
    * Extract all the md5 for files and add to attributes for later lookup
    * @param blob
@@ -40,7 +45,7 @@ public class ConanManifest
         }
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.warn("Unable to parse manifest file");
     }
     return attributesMap;
   }

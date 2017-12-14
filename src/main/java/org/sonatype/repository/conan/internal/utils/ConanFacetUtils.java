@@ -20,6 +20,7 @@ import org.sonatype.nexus.repository.storage.Query;
 import org.sonatype.nexus.repository.storage.StorageTx;
 
 import static java.util.Collections.singletonList;
+import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_GROUP;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_VERSION;
 import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME;
 
@@ -35,11 +36,13 @@ public class ConanFacetUtils
   public static Component findComponent(final StorageTx tx,
                                         final Repository repository,
                                         final String name,
-                                        final String version)
+                                        final String version,
+                                        final String group)
   {
     Iterable<Component> components = tx.findComponents(
         Query.builder()
-            .where(P_NAME).eq(name)
+            .where(P_GROUP).eq(group)
+            .and(P_NAME).eq(name)
             .and(P_VERSION).eq(version)
             .build(),
         singletonList(repository)

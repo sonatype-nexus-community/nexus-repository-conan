@@ -39,6 +39,7 @@ import org.sonatype.repository.conan.internal.AssetKind
 
 import com.google.inject.Provider
 
+import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.or
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC
@@ -67,13 +68,9 @@ class ConanProxyRecipe
   ProxyHandler proxyHandler
 
   @Inject
-  NegativeCacheHandler negativeCacheHandler
-
-  @Inject
   protected ConanProxyRecipe(@Named(ProxyType.NAME) final Type type,
                              @Named(ConanFormat.NAME) final Format format) {
     super(type, format)
-    log.error("proxy constructor")
   }
 
   Closure assetKindHandler = { Context context, AssetKind value ->
@@ -173,32 +170,58 @@ class ConanProxyRecipe
     return facet
   }
 
+  /**
+   * Matches on urls ending with download_urls
+   * @return
+   */
   static Builder downloadUrls() {
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
-            downloadUrlsMatcher()
+            or(
+                downloadUrlsPackagesMatcher(),
+                downloadUrlsMatcher()
+            )
         )
     )
   }
 
   static TokenMatcher downloadUrlsMatcher() {
-    new TokenMatcher("{path:.+}/download_urls")
+    new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${AUTHOR}:.+}/{${STATE}:.+}/download_urls")
   }
 
+  static TokenMatcher downloadUrlsPackagesMatcher() {
+    new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${AUTHOR}:.+}/{${STATE}:.+}/packages/{sha:.+}/download_urls")
+  }
+
+  /**
+   * Matches on the manifest files
+   * @return
+   */
   static Builder conanManifest() {
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
-            conanManifestMatcher()
+            or(
+                conanManifestMatcher(),
+                conanManifestPackagesMatcher()
+            )
         )
     )
   }
 
   static TokenMatcher conanManifestMatcher() {
-    new TokenMatcher("/{path:.+}/conanmanifest.txt")
+    new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanmanifest.txt")
   }
 
+  static TokenMatcher conanManifestPackagesMatcher() {
+    new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conanmanifest.txt")
+  }
+
+  /**
+   * Matches on conanfile.py
+   * @return
+   */
   static Builder conanFile() {
     new Builder().matcher(
         and(
@@ -209,7 +232,7 @@ class ConanProxyRecipe
   }
 
   static TokenMatcher conanFileMatcher() {
-    new TokenMatcher("/{path:.+}/conanfile.py")
+    new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanfile.py")
   }
 
   static Builder conanInfo() {
@@ -222,7 +245,7 @@ class ConanProxyRecipe
 }
 
   static TokenMatcher conanInfoMatcher() {
-    new TokenMatcher("/{path:.+}/conaninfo.txt")
+    new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conaninfo.txt")
   }
 
   static Builder conanPackage() {

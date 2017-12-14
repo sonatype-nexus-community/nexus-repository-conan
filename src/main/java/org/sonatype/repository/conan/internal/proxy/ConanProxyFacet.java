@@ -51,6 +51,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.author;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPath;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.project;
@@ -108,33 +109,38 @@ public class ConanProxyFacet
     String assetPath = buildAssetPath(context);
 
     if (assetKind.equals(CONAN_SRC)) {
-      return putPackage(assetPath, content, project(matcherState), version(matcherState));
+      return putPackage(assetPath, content, project(matcherState), version(matcherState), author(matcherState));
     }
-    return putMetadata(assetPath, content, assetKind);
+    return putMetadata(assetPath, content, assetKind, project(matcherState), version(matcherState), author(matcherState));
   }
 
   private Content putPackage(final String assetPath,
                              final Content content,
                              final String project,
-                             final String version) throws IOException {
+                             final String version,
+                             final String group) throws IOException {
     StorageFacet storageFacet = facet(StorageFacet.class);
     try (TempBlob tempBlob = storageFacet.createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
-      return doPutPackage(assetPath, project, version, tempBlob, content);
+      return doPutPackage(assetPath, project, version, tempBlob, content, group);
     }
   }
 
   private Content putMetadata(final String assetPath,
                               final Content content,
-                              final AssetKind assetKind)
+                              final AssetKind assetKind,
+                              final String project,
+                              final String version,
+                              final String group)
       throws IOException
   {
     StorageFacet storageFacet = facet(StorageFacet.class);
     try (TempBlob tempBlob = storageFacet.createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
       AttributesMap attributesMap;
+      TempBlob blob = tempBlob;
       switch (assetKind) {
         case DOWNLOAD_URL:
-          TempBlob blob = absoluteUrlRemover.removeAbsoluteUrls(tempBlob, getRepository());
-          return doSaveMetadata(assetPath, blob, content, assetKind, new AttributesMap());
+          blob = absoluteUrlRemover.removeAbsoluteUrls(tempBlob, getRepository());
+          // break intentionally left out!
         case CONAN_MANIFEST:
           attributesMap = ConanManifest.parse(tempBlob);
           break;
@@ -145,25 +151,37 @@ public class ConanProxyFacet
           attributesMap = new AttributesMap();
           break;
       }
-      return doSaveMetadata(assetPath, tempBlob, content, assetKind, attributesMap);
+      return doSaveMetadata(assetPath, blob, content, assetKind, attributesMap, project, version, group);
     }
+  }
+
+  private Component getOrCreateComponent(final StorageTx tx,
+                                         final Bucket bucket,
+                                         final String project,
+                                         final String version,
+                                         final String group) {
+    Component component = findComponent(tx, getRepository(), project, version, group);
+    if(component == null) {
+      component = tx.createComponent(bucket, getRepository().getFormat())
+          .group(group)
+          .name(project)
+          .version(version);
+    }
+    tx.saveComponent(component);
+    return component;
   }
 
   @TransactionalStoreBlob
   protected Content doPutPackage(final String assetPath,
-                               final String project,
-                               final String version,
-                               final TempBlob tempBlob,
-                               final Payload content) throws IOException
+                                 final String project,
+                                 final String version,
+                                 final TempBlob tempBlob,
+                                 final Payload content,
+                                 final String group) throws IOException
   {
     StorageTx tx = UnitOfWork.currentTx();
     Bucket bucket = tx.findBucket(getRepository());
-
-    Component component = findComponent(tx, getRepository(), project, version);
-    if(component == null) {
-      component = tx.createComponent(bucket, getRepository().getFormat()).name(project).version(version);
-    }
-    tx.saveComponent(component);
+    Component component = getOrCreateComponent(tx, bucket, project, version, group);
 
     Asset asset = findAsset(tx, bucket, assetPath);
     if (asset == null) {
@@ -179,15 +197,19 @@ public class ConanProxyFacet
                                    final TempBlob metadataContent,
                                    final Payload payload,
                                    final AssetKind assetKind,
-                                   final AttributesMap attributesMap) throws IOException
+                                   final AttributesMap attributesMap,
+                                   final String project,
+                                   final String version,
+                                   final String group) throws IOException
   {
     HashCode hash = null;
     StorageTx tx = UnitOfWork.currentTx();
     Bucket bucket = tx.findBucket(getRepository());
+    Component component = getOrCreateComponent(tx, bucket, project, version, group);
 
     Asset asset = findAsset(tx, bucket, assetPath);
     if (asset == null) {
-      asset = tx.createAsset(bucket, getRepository().getFormat());
+      asset = tx.createAsset(bucket, component);
       asset.name(assetPath);
       asset.formatAttributes().set(P_ASSET_KIND, assetKind.name());
       for (Entry<String, Object> entry : attributesMap) {

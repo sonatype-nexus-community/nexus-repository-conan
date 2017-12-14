@@ -15,7 +15,7 @@ package org.sonatype.repository.conan.internal
 import javax.inject.Inject
 import javax.inject.Provider
 
-import org.sonatype.repository.conan.internal.security.ConanSecurityFacet
+import org.sonatype.nexus.repository.cache.NegativeCacheHandler
 
 import org.sonatype.nexus.repository.Format
 import org.sonatype.nexus.repository.RecipeSupport
@@ -38,8 +38,6 @@ import org.sonatype.nexus.repository.view.handlers.ExceptionHandler
 import org.sonatype.nexus.repository.view.handlers.HandlerContributor
 import org.sonatype.nexus.repository.view.handlers.TimingHandler
 import org.sonatype.repository.conan.internal.security.ConanSecurityFacet
-
-import com.google.common.base.Preconditions
 
 /**
  * Support for Conan recipes.
@@ -100,6 +98,9 @@ abstract class ConanRecipeSupport
 
   @Inject
   Provider<NegativeCacheFacet> negativeCacheFacet
+
+  @Inject
+  NegativeCacheHandler negativeCacheHandler
 
   protected ConanRecipeSupport(final Type type, final Format format) {
     super(type, format)

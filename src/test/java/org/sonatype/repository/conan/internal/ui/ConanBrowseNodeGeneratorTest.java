@@ -5,7 +5,7 @@ import java.util.List;
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
-import org.sonatype.nexus.repository.storage.DefaultComponent;
+import org.sonatype.nexus.repository.storage.Component;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class ConanBrowseNodeGeneratorTest
 
   @Before
   public void setUp() throws Exception {
-    component = new DefaultComponent().group("vthiery")
+    component = new Component().group("vthiery")
         .name("jsonformoderncpp")
         .version("2.1.1");
   }

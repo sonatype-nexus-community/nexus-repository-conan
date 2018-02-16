@@ -14,7 +14,7 @@
 -->
 # Nexus Repository Conan Format
 
-[![Join the chat at https://gitter.im/sonatype/nexus-developers](https://badges.gitter.im/sonatype/nexus-developers.svg)](https://gitter.im/sonatype/nexus-developers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/sonatype-nexus-community/nexus-repository-conan.svg?branch=master)](https://travis-ci.org/sonatype-nexus-community/nexus-repository-conan) [![Join the chat at https://gitter.im/sonatype/nexus-developers](https://badges.gitter.im/sonatype/nexus-developers.svg)](https://gitter.im/sonatype/nexus-developers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Table Of Contents
 * [Developing](#developing)

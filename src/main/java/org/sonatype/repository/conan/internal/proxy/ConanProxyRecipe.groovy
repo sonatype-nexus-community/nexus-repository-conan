@@ -241,8 +241,8 @@ class ConanProxyRecipe
           new ActionMatcher(GET, HEAD),
           conanInfoMatcher()
       )
-  )
-}
+    )
+  }
 
   static TokenMatcher conanInfoMatcher() {
     new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conaninfo.txt")
@@ -252,12 +252,19 @@ class ConanProxyRecipe
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
-            conanPackageMatcher()
+            or(
+              conanPackageMatcher(),
+              conanSourcesMatcher()
+            )
         )
     )
   }
 
   static TokenMatcher conanPackageMatcher() {
     new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conan_package.tgz")
+  }
+
+  static TokenMatcher conanSourcesMatcher() {
+    new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conan_sources.tgz")
   }
 }

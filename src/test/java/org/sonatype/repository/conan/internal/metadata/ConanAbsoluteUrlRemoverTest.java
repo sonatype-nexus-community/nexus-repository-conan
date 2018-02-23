@@ -1,6 +1,5 @@
 package org.sonatype.repository.conan.internal.metadata;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,24 +8,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.sonatype.goodies.testsupport.TestSupport;
-import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.storage.StorageFacet;
 import org.sonatype.nexus.repository.storage.TempBlob;
 import org.sonatype.nexus.repository.view.Payload;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
-import static org.sonatype.goodies.testsupport.hamcrest.DiffMatchers.equalTo;
 
 public class ConanAbsoluteUrlRemoverTest
     extends TestSupport
@@ -34,8 +29,6 @@ public class ConanAbsoluteUrlRemoverTest
   private static final String DOWNLOAD_URL = "jsonformoderncpp_download_url.json";
 
   private static final String EXPECTED_DOWNLOAD_URL = "jsonformoderncpp_download_url_converted.json";
-
-  private static final String OUTPUT_FILE = "output.json";
 
   @Mock
   TempBlob download_url;
@@ -58,7 +51,6 @@ public class ConanAbsoluteUrlRemoverTest
     underTest = new ConanAbsoluteUrlRemover();
   }
 
-  @Ignore
   @Test
   public void replacesUrl() throws Exception {
     when(download_url.get()).thenReturn(getClass().getResourceAsStream(DOWNLOAD_URL));
@@ -67,7 +59,7 @@ public class ConanAbsoluteUrlRemoverTest
     Map<String, URL> attributesMap = new HashMap<>();
     TempBlob tempBlob = underTest.removeAbsoluteUrls(download_url, repository, attributesMap);
 
-    assertAbsoluteUrlMatches(tempBlob.get(), EXPECTED_DOWNLOAD_URL);
+    assertAbsoluteUrlMatches(tempBlob.get(), getClass().getResourceAsStream(EXPECTED_DOWNLOAD_URL));
   }
 
   private void setupRepositoryMock() {
@@ -80,9 +72,13 @@ public class ConanAbsoluteUrlRemoverTest
     });
   }
 
-  private void assertAbsoluteUrlMatches(final InputStream json, final String expected) throws IOException {
-    String expectedJson = IOUtils.toString(getClass().getResourceAsStream(expected));
-    String resultJson = IOUtils.toString(json);
-    assertThat(resultJson, equalTo(expectedJson));
+  private void assertAbsoluteUrlMatches(final InputStream json, final InputStream expected) throws IOException {
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    TypeReference<HashMap<String, URL>> typeRef = new TypeReference<HashMap<String, URL>>() {};
+    Map<String, URL> actualResponse = objectMapper.readValue(json, typeRef);
+    Map<String, URL> expectedResponse = objectMapper.readValue(expected, typeRef);
+
+    actualResponse.forEach((key, value) -> expectedResponse.get(key).equals(value));
   }
 }

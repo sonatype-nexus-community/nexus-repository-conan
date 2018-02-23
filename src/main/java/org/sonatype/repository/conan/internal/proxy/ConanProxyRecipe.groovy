@@ -17,13 +17,9 @@ import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
 
-import org.sonatype.repository.conan.internal.ConanFormat
-import org.sonatype.repository.conan.internal.ConanRecipeSupport
-
 import org.sonatype.nexus.repository.Format
 import org.sonatype.nexus.repository.Repository
 import org.sonatype.nexus.repository.Type
-import org.sonatype.nexus.repository.cache.NegativeCacheHandler
 import org.sonatype.nexus.repository.proxy.ProxyHandler
 import org.sonatype.nexus.repository.types.ProxyType
 import org.sonatype.nexus.repository.view.ConfigurableViewFacet
@@ -36,23 +32,25 @@ import org.sonatype.nexus.repository.view.handlers.BrowseUnsupportedHandler
 import org.sonatype.nexus.repository.view.matchers.ActionMatcher
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher
 import org.sonatype.repository.conan.internal.AssetKind
+import org.sonatype.repository.conan.internal.ConanFormat
+import org.sonatype.repository.conan.internal.ConanRecipeSupport
 
 import com.google.inject.Provider
 
-import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.or
-import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE
-import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST
-import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC
-import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO
-import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.AUTHOR
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE
 import static org.sonatype.nexus.repository.http.HttpHandlers.notFound
 import static org.sonatype.nexus.repository.http.HttpMethods.GET
 import static org.sonatype.nexus.repository.http.HttpMethods.HEAD
 import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.and
+import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.or
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC
+import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.AUTHOR
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION
 
 /**
  * @since 0.0.1
@@ -214,11 +212,11 @@ class ConanProxyRecipe
   }
 
   static TokenMatcher conanManifestMatcher() {
-    new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanmanifest.txt")
+    new TokenMatcher("/{path:.*}/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanmanifest.txt")
   }
 
   static TokenMatcher conanManifestPackagesMatcher() {
-    new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conanmanifest.txt")
+    new TokenMatcher("/{path:.*}/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conanmanifest.txt")
   }
 
   /**
@@ -235,7 +233,7 @@ class ConanProxyRecipe
   }
 
   static TokenMatcher conanFileMatcher() {
-    new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanfile.py")
+    new TokenMatcher("/{path:.*}/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanfile.py")
   }
 
   static Builder conanInfo() {
@@ -248,7 +246,7 @@ class ConanProxyRecipe
   }
 
   static TokenMatcher conanInfoMatcher() {
-    new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conaninfo.txt")
+    new TokenMatcher("/{path:.*}/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conaninfo.txt")
   }
 
   static Builder conanPackage() {
@@ -264,10 +262,10 @@ class ConanProxyRecipe
   }
 
   static TokenMatcher conanPackageMatcher() {
-    new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conan_package.tgz")
+    new TokenMatcher("/{path:.*}/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conan_package.tgz")
   }
 
   static TokenMatcher conanSourcesMatcher() {
-    new TokenMatcher("/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conan_sources.tgz")
+    new TokenMatcher("/{path:.*}/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conan_sources.tgz")
   }
 }

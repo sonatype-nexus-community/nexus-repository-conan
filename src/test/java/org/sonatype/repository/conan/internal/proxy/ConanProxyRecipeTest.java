@@ -15,26 +15,25 @@ package org.sonatype.repository.conan.internal.proxy;
 
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
+import org.sonatype.nexus.repository.view.Context;
+import org.sonatype.nexus.repository.view.Request;
+import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import org.sonatype.nexus.repository.view.Context;
-import org.sonatype.nexus.repository.view.Request;
-import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
-
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanFileMatcher;
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanInfoMatcher;
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanManifestMatcher;
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanPackageMatcher;
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.downloadUrlsMatcher;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanFileMatcher;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanInfoMatcher;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanManifestMatcher;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.conanPackageMatcher;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.downloadUrlsMatcher;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyRecipe.downloadUrlsPackagesMatcher;
 
 public class ConanProxyRecipeTest
@@ -91,7 +90,7 @@ public class ConanProxyRecipeTest
 
   @Test
   public void canMatchOnConanfile() {
-    when(request.getPath()).thenReturn("/vthiery/jsonformoderncpp/2.1.1/stable/export/conanfile.py");
+    when(request.getPath()).thenReturn("/conan/conan/conan-center/v1/files/vthiery/jsonformoderncpp/2.1.1/stable/export/conanfile.py");
     assertTrue(conanFileMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("author"), is(equalTo("vthiery")));
@@ -101,7 +100,7 @@ public class ConanProxyRecipeTest
 
   @Test
   public void canMatchOnConanManifest() {
-    when(request.getPath()).thenReturn("/vthiery/jsonformoderncpp/2.1.1/stable/export/conanmanifest.txt");
+    when(request.getPath()).thenReturn("/conan/conan/conan-center/v1/files/vthiery/jsonformoderncpp/2.1.1/stable/export/conanmanifest.txt");
     assertTrue(conanManifestMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("author"), is(equalTo("vthiery")));
@@ -111,7 +110,7 @@ public class ConanProxyRecipeTest
 
   @Test
   public void canMatchOnConanInfo() {
-    when(request.getPath()).thenReturn("/vthiery/jsonformoderncpp/2.1.1/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt");
+    when(request.getPath()).thenReturn("/conan/conan/conan-center/v1/files/vthiery/jsonformoderncpp/2.1.1/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt");
     assertTrue(conanInfoMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("author"), is(equalTo("vthiery")));
@@ -121,7 +120,7 @@ public class ConanProxyRecipeTest
 
   @Test
   public void canMatchOnConanPackage() {
-    when(request.getPath()).thenReturn("/vthiery/jsonformoderncpp/2.1.1/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz");
+    when(request.getPath()).thenReturn("/conan/conan/conan-center/v1/files/vthiery/jsonformoderncpp/2.1.1/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz");
     assertTrue(conanPackageMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("author"), is(equalTo("vthiery")));

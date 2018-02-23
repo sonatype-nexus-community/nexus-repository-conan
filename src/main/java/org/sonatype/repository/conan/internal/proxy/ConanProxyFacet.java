@@ -12,14 +12,22 @@
  */
 package org.sonatype.repository.conan.internal.proxy;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Named;
 
+import org.sonatype.nexus.blobstore.api.Blob;
+import org.sonatype.nexus.repository.transaction.TransactionalStoreMetadata;
+import org.sonatype.nexus.repository.view.payloads.BlobPayload;
 import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.metadata.ConanAbsoluteUrlRemover;
 import org.sonatype.repository.conan.internal.metadata.ConanHashVerifier;
@@ -44,10 +52,14 @@ import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.transaction.UnitOfWork;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Supplier;
 import com.google.common.hash.HashCode;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Collections.emptyMap;
+import static org.sonatype.nexus.repository.view.ContentTypes.APPLICATION_JSON;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
@@ -55,7 +67,6 @@ import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.auth
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPath;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.project;
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.toContent;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.version;
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findComponent;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.MD5;
@@ -69,12 +80,9 @@ import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 public class ConanProxyFacet
     extends ProxyFacetSupport
 {
-
   private static final ConanAbsoluteUrlRemover absoluteUrlRemover = new ConanAbsoluteUrlRemover();
 
   private static final ConanHashVerifier hashVerifier = new ConanHashVerifier();
-
-  private static final String CONAN_BINARY_BASE_URL = "http://api.bintray.com/conan/conan/conan-center/v1/files";
 
   // HACK: Workaround for known CGLIB issue, forces an Import-Package for org.sonatype.nexus.repository.config
   @Override
@@ -141,8 +149,9 @@ public class ConanProxyFacet
       TempBlob blob = tempBlob;
       switch (assetKind) {
         case DOWNLOAD_URL:
-          blob = absoluteUrlRemover.removeAbsoluteUrls(tempBlob, getRepository());
-          // break intentionally left out!
+          Map<String, URL> indexes = new HashMap();
+          blob = absoluteUrlRemover.removeAbsoluteUrls(tempBlob, getRepository(), indexes);
+          handleUpdatingIndexes(project, version, group, indexes);
         case CONAN_MANIFEST:
           attributesMap = ConanManifest.parse(tempBlob);
           break;
@@ -155,6 +164,107 @@ public class ConanProxyFacet
       }
       return doSaveMetadata(assetPath, blob, content, assetKind, attributesMap, project, version, group);
     }
+  }
+
+  @TransactionalStoreMetadata
+  protected Map<String, URL> handleReadingIndexes(final String group,
+                                               final String project,
+                                               final String version)
+  {
+    StorageTx tx = UnitOfWork.currentTx();
+    Bucket bucket = tx.findBucket(getRepository());
+    String assetName = group + "/" + project + "/" + version + "/index.json";
+    Asset asset = findAsset(tx, bucket, assetName);
+    if (asset == null) {
+      log.error("Index {}-{}-{} not found", project, group, version);
+      return emptyMap();
+    }
+
+    try {
+      Content content = toContent(asset, tx.requireBlob(asset.requireBlobRef()));
+      return readIndex(content.openInputStream(), assetName);
+    }
+    catch (IOException e) {
+      log.warn("Unable to read index file for {}-{}-{}", project, group, version);
+    }
+    return emptyMap();
+  }
+
+  @TransactionalStoreMetadata
+  protected void handleUpdatingIndexes(final String project,
+                                       final String version,
+                                       final String group,
+                                       final Map<String, URL> newIndexes) {
+    StorageTx tx = UnitOfWork.currentTx();
+    Bucket bucket = tx.findBucket(getRepository());
+    String assetName = group + "/" + project + "/" + version + "/index.json";
+    Asset asset = findAsset(tx, bucket, assetName);
+    if(asset == null) {
+      asset = tx.createAsset(bucket, getRepository().getFormat());
+      asset.name(assetName);
+      asset.formatAttributes().set(P_ASSET_KIND, CONAN_SRC.name());
+      tx.saveAsset(asset);
+      asset = findAsset(tx, bucket, assetName);
+      try {
+        saveIndexes(tx, asset, emptyMap());
+      }
+      catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+
+    try {
+      Content content = toContent(asset, tx.requireBlob(asset.requireBlobRef()));
+      Map<String, URL> currentIndexes = readIndex(content.openInputStream(), assetName);
+      Map<String, URL> updatedIndexes = updateIndexes(currentIndexes, newIndexes);
+      saveIndexes(tx, asset, updatedIndexes);
+    }
+    catch (IOException e) {
+      log.warn("Unable to update index for {}-{}-{}", project, group, version, e);
+    }
+  }
+
+  private void saveIndexes(final StorageTx tx, final Asset asset, final Map<String, URL> updatedIndexes) throws
+                                                                                                      IOException
+  {
+    ObjectMapper mapper = new ObjectMapper();
+    String valueAsString = mapper.writeValueAsString(updatedIndexes);
+
+    Content.applyToAsset(asset, maintainLastModified(asset, null));
+
+    updateAsset(tx, asset, () -> new ByteArrayInputStream(valueAsString.getBytes()));
+
+    asset.markAsDownloaded();
+    tx.saveAsset(asset);
+  }
+
+  private void updateAsset(final StorageTx tx, final Asset asset, final Supplier<InputStream> stream) throws IOException {
+    tx.setBlob(asset, asset.name(), stream , HASH_ALGORITHMS, null, APPLICATION_JSON, false);
+  }
+
+  private Map<String, URL> readIndex(final InputStream stream, final String assetName) {
+
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    TypeReference<HashMap<String, URL>> typeRef = new TypeReference<HashMap<String, URL>>() {};
+    try {
+      return objectMapper.readValue(stream, typeRef);
+    }
+    catch (IOException e) {
+      log.warn("Unable to read index for asset {}", assetName, e);
+    }
+    return emptyMap();
+  }
+
+  private Map<String, URL> updateIndexes(final Map<String, URL> indexes, final Map<String, URL> lookups) {
+    lookups.forEach((key, value) -> indexes.put(key, value));
+    return indexes;
+  }
+
+  static Content toContent(final Asset asset, final Blob blob) {
+    Content content = new Content(new BlobPayload(blob, asset.requireContentType()));
+    Content.extractFromAsset(asset, HASH_ALGORITHMS, content.getAttributes());
+    return content;
   }
 
   private Component getOrCreateComponent(final StorageTx tx,
@@ -280,7 +390,16 @@ public class ConanProxyFacet
     if(DOWNLOAD_URL.equals(assetKind)) {
       return context.getRequest().getPath();
     }
-    return CONAN_BINARY_BASE_URL + context.getRequest().getPath();
+
+    TokenMatcher.State matcherState = context.getAttributes().require(TokenMatcher.State.class);
+    String project = project(matcherState);
+    String group = author(matcherState);
+    String version = version(matcherState);
+    Map<String, URL> indexes = handleReadingIndexes(group, project, version);
+    if(indexes.containsKey(context.getRequest().getPath())) {
+      return indexes.get(context.getRequest().getPath()).toString();
+    };
+    return context.getRequest().getPath();
   }
 
   @Nonnull

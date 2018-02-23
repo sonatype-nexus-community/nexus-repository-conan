@@ -16,17 +16,27 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
 import org.sonatype.goodies.common.ComponentSupport;
+import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.storage.StorageFacet;
 import org.sonatype.nexus.repository.storage.TempBlob;
+import org.sonatype.nexus.repository.view.payloads.StringPayload;
 
-import org.apache.commons.io.IOUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static java.nio.charset.Charset.defaultCharset;
 import static java.nio.file.Files.createTempFile;
 import static java.nio.file.Files.delete;
 import static java.nio.file.Files.newInputStream;
@@ -43,34 +53,34 @@ import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH
 public class ConanAbsoluteUrlRemover
     extends ComponentSupport
 {
-  private static final String CONAN_BASE_URL = "https://api.bintray.com/conan/conan/conan-center/v1/files";
+  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   @Nullable
   public TempBlob removeAbsoluteUrls(final TempBlob tempBlob,
-                                     final Repository repository) {
-    try {
-      Path tempFile = createTempFile("conan-download_url-" + randomUUID().toString(), "json");
+                                     final Repository repository,
+                                     final Map<String, URL> indexMap) {
 
-      try {
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(tempFile.toFile()))) {
-          String input = IOUtils.toString(tempBlob.get());
-          input = input.replaceAll(CONAN_BASE_URL, repository.getUrl());
-          bufferedWriter.write(input);
-        }
-        return convertFileToTempBlob(tempFile, repository);
-      } finally {
-        delete(tempFile);
+    TypeReference<HashMap<String, URL>> typeRef = new TypeReference<HashMap<String, URL>>() {};
+    try {
+      Map<String, URL> response = MAPPER.readValue(tempBlob.get(), typeRef);
+
+      for (Map.Entry<String, URL> entry : response.entrySet()) {
+        URL originalUrl = entry.getValue();
+        URL indexUrl = new URL(repository.getUrl() + entry.getValue().getPath());
+        indexMap.put(entry.getValue().getPath(), originalUrl);
+        entry.setValue(indexUrl);
       }
-    } catch (IOException e) {
-      log.warn("Unable to create temp file");
+
+      return convertFileToTempBlob(MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(response), repository);
     }
-    return null;
+    catch (IOException e) {
+      log.warn("Unable to document", e);
+      return null;
+    }
   }
 
-  private TempBlob convertFileToTempBlob(final Path tempFile, final Repository repository) throws IOException {
+  private TempBlob convertFileToTempBlob(final String resolvedMap, final Repository repository) throws IOException {
     StorageFacet storageFacet = repository.facet(StorageFacet.class);
-    try (InputStream tempFileInputStream = newInputStream(tempFile)) {
-      return storageFacet.createTempBlob(tempFileInputStream, HASH_ALGORITHMS);
-    }
+    return storageFacet.createTempBlob(new StringPayload(resolvedMap, defaultCharset(), null), HASH_ALGORITHMS);
   }
 }

@@ -23,7 +23,7 @@ import org.mockito.Mock;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-public class ConanAbsoluteUrlRemoverTest
+public class ConanAbsoluteUrlIndexerTest
     extends TestSupport
 {
   private static final String DOWNLOAD_URL = "jsonformoderncpp_download_url.json";
@@ -42,13 +42,22 @@ public class ConanAbsoluteUrlRemoverTest
   @Mock
   StorageFacet storageFacet;
 
-  ConanAbsoluteUrlRemover underTest;
+  ConanAbsoluteUrlIndexer underTest;
 
   @Before
   public void setUp() throws Exception {
     setupRepositoryMock();
 
-    underTest = new ConanAbsoluteUrlRemover();
+    class ConanAbsoluteUrlIndexerForTest
+        extends ConanAbsoluteUrlIndexer
+    {
+      @Override
+      protected void handleUpdatingIndexes(final String assetName,
+                                           final Map<String, URL> newIndexes,
+                                           final Repository repository)
+      {}
+    };
+    underTest = new ConanAbsoluteUrlIndexerForTest();
   }
 
   @Test
@@ -56,8 +65,7 @@ public class ConanAbsoluteUrlRemoverTest
     when(download_url.get()).thenReturn(getClass().getResourceAsStream(DOWNLOAD_URL));
     when(repository.getUrl()).thenReturn("http://localhost/repository/conan-proxy");
 
-    Map<String, URL> attributesMap = new HashMap<>();
-    TempBlob tempBlob = underTest.removeAbsoluteUrls(download_url, repository, attributesMap);
+    TempBlob tempBlob = underTest.updateAbsoluteUrls(download_url, repository, "assetName");
 
     assertAbsoluteUrlMatches(tempBlob.get(), getClass().getResourceAsStream(EXPECTED_DOWNLOAD_URL));
   }

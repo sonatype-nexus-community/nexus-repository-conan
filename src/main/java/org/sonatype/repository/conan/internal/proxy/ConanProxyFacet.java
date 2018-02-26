@@ -143,26 +143,37 @@ public class ConanProxyFacet
                               final String group)
       throws IOException
   {
+    TempBlob updatedBlob = null;
     StorageFacet storageFacet = facet(StorageFacet.class);
     try (TempBlob tempBlob = storageFacet.createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
       AttributesMap attributesMap;
-      TempBlob blob = tempBlob;
       switch (assetKind) {
         case DOWNLOAD_URL:
-          String assetName = group + "/" + project + "/" + version + "/index.json";
-          blob = absoluteUrlRemover.updateAbsoluteUrls(tempBlob, getRepository(), assetName);
+          String indexAssetName = getProjectIndexName(project, version, group);
+          updatedBlob = absoluteUrlRemover.updateAbsoluteUrls(tempBlob, getRepository(), indexAssetName);
+          attributesMap = ConanManifest.parse(tempBlob);
+          break;
         case CONAN_MANIFEST:
           attributesMap = ConanManifest.parse(tempBlob);
           break;
         case CONAN_FILE:
           //TODO: Parse file using to get license information and description, email, author etc
-
+          attributesMap = new AttributesMap();
+          break;
         default:
           attributesMap = new AttributesMap();
           break;
       }
-      return doSaveMetadata(assetPath, blob, content, assetKind, attributesMap, project, version, group);
+      return doSaveMetadata(assetPath, tempBlob, content, assetKind, attributesMap, project, version, group);
+    } finally {
+      if(updatedBlob != null && DOWNLOAD_URL.equals(assetKind)) {
+        updatedBlob.close();
+      }
     }
+  }
+
+  private String getProjectIndexName(final String project, final String version, final String group) {
+    return group + "/" + project + "/" + version + "/index.json";
   }
 
   static Content toContent(final Asset asset, final Blob blob) {
@@ -300,7 +311,7 @@ public class ConanProxyFacet
     String project = project(matcherState);
     String group = author(matcherState);
     String version = version(matcherState);
-    Map<String, URL> indexes = absoluteUrlRemover.handleReadingIndexes(String.format("%s/%s/%s/index.json", group, project, version), getRepository());
+    Map<String, URL> indexes = absoluteUrlRemover.handleReadingIndexes(getProjectIndexName(group, project, version), getRepository());
     if(indexes.containsKey(context.getRequest().getPath())) {
       return indexes.get(context.getRequest().getPath()).toString();
     };

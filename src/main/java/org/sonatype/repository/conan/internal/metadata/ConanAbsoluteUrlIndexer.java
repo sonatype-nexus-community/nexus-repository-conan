@@ -46,7 +46,7 @@ import static java.util.Collections.emptyMap;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 import static org.sonatype.nexus.repository.view.ContentTypes.APPLICATION_JSON;
-import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC;
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INDEX;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.toContent;
@@ -69,10 +69,10 @@ public class ConanAbsoluteUrlIndexer
   public TempBlob updateAbsoluteUrls(final TempBlob tempBlob,
                                      final Repository repository,
                                      final String assetName) {
-    Map<String, URL> currentURLMap = readIndex(tempBlob.get(), assetName);
+    Map<String, URL> downloadUrlContents = readIndex(tempBlob.get(), assetName);
     Map<String, URL> indexes = new HashMap<>();
 
-    for (Map.Entry<String, URL> entry : currentURLMap.entrySet()) {
+    for (Map.Entry<String, URL> entry : downloadUrlContents.entrySet()) {
       URL originalUrl = entry.getValue();
       URL indexUrl = getIndexedUrl(repository.getUrl(), entry.getValue().getPath());
       indexes.put(entry.getValue().getPath(), originalUrl);
@@ -80,9 +80,13 @@ public class ConanAbsoluteUrlIndexer
     }
 
     handleUpdatingIndexes(assetName, indexes, repository);
+    return updateDownloadUrlContents(repository, downloadUrlContents);
+  }
 
+  @Nullable
+  private TempBlob updateDownloadUrlContents(final Repository repository, final Map<String, URL> downloadUrlContents) {
     try {
-      return convertFileToTempBlob(MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(currentURLMap), repository);
+      return convertFileToTempBlob(MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(downloadUrlContents), repository);
     }
     catch (JsonProcessingException e) {
       log.warn("Unable to write to blob", e);
@@ -90,9 +94,10 @@ public class ConanAbsoluteUrlIndexer
     }
   }
 
-  private URL getIndexedUrl(final String localHost, final String path) {
+  @Nullable
+  private URL getIndexedUrl(final String repositoryUrl, final String path) {
     try {
-      return new URL(localHost + path);
+      return new URL(repositoryUrl + path);
     }
     catch (MalformedURLException e) {
       log.error("Unable to create indexed url", e);
@@ -133,7 +138,7 @@ public class ConanAbsoluteUrlIndexer
                                  final Bucket bucket) {
     Asset asset = tx.createAsset(bucket, repository.getFormat());
     asset.name(assetName);
-    asset.formatAttributes().set(P_ASSET_KIND, CONAN_SRC.name());
+    asset.formatAttributes().set(P_ASSET_KIND, CONAN_INDEX.name());
     tx.saveAsset(asset);
     asset = findAsset(tx, bucket, assetName);
     try {

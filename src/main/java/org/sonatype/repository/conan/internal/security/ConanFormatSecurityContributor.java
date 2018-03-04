@@ -23,6 +23,8 @@ import org.sonatype.nexus.repository.security.RepositoryFormatSecurityContributo
 
 /**
  * Conan format security resource.
+ *
+ * @since 0.0.1
  */
 @Named
 @Singleton

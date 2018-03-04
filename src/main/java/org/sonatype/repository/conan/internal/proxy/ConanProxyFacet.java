@@ -62,7 +62,9 @@ import static org.sonatype.nexus.common.hash.HashAlgorithm.MD5;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 
-
+/**
+ * @since 0.0.1
+ */
 @Named
 public class ConanProxyFacet
     extends ProxyFacetSupport

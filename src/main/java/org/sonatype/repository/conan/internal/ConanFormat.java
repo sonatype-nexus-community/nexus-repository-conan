@@ -19,6 +19,8 @@ import org.sonatype.nexus.repository.Format;
 
 /**
  * Conan repository format.
+ *
+ * @since 0.0.1
  */
 @Named(ConanFormat.NAME)
 @Singleton

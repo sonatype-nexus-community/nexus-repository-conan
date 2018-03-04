@@ -18,6 +18,9 @@ import javax.inject.Singleton;
 
 import org.sonatype.nexus.rapture.UiPluginDescriptorSupport;
 
+/**
+ * @since 0.0.1
+ */
 @Named
 @Singleton
 @Priority(Integer.MAX_VALUE - 200)

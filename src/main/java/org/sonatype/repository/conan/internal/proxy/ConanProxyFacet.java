@@ -308,8 +308,8 @@ public class ConanProxyFacet
 
     log.info("AssetKind {} to be fetched is {}", assetKind, context.getRequest().getPath());
     TokenMatcher.State matcherState = context.getAttributes().require(TokenMatcher.State.class);
-    String project = project(matcherState);
     String group = group(matcherState);
+    String project = project(matcherState);
     String version = version(matcherState);
     Map<String, URL> indexes = absoluteUrlRemover.handleReadingIndexes(getProjectIndexName(group, project, version), getRepository());
     if(indexes.containsKey(context.getRequest().getPath())) {

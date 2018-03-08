@@ -31,7 +31,7 @@ import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA256
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA512
 import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.AUTHOR
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION
 
@@ -59,7 +59,7 @@ class ConanProxyHelper
   }
 
   static String group(final State state) {
-    return match(state, "${AUTHOR}")
+    return match(state, "${GROUP}")
   }
 
   private static String match(final TokenMatcher.State state, final String name) {

@@ -47,7 +47,7 @@ import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.AUTHOR
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION
@@ -188,11 +188,11 @@ class ConanProxyRecipe
   }
 
   static TokenMatcher downloadUrlsMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${AUTHOR}:.+}/{${STATE}:.+}/download_urls")
+    new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/download_urls")
   }
 
   static TokenMatcher downloadUrlsPackagesMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${AUTHOR}:.+}/{${STATE}:.+}/packages/{sha:.+}/download_urls")
+    new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/packages/{sha:.+}/download_urls")
   }
 
   /**
@@ -212,11 +212,11 @@ class ConanProxyRecipe
   }
 
   static TokenMatcher conanManifestMatcher() {
-    new TokenMatcher("/{path:.*}/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanmanifest.txt")
+    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanmanifest.txt")
   }
 
   static TokenMatcher conanManifestPackagesMatcher() {
-    new TokenMatcher("/{path:.*}/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conanmanifest.txt")
+    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conanmanifest.txt")
   }
 
   /**
@@ -233,7 +233,7 @@ class ConanProxyRecipe
   }
 
   static TokenMatcher conanFileMatcher() {
-    new TokenMatcher("/{path:.*}/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanfile.py")
+    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanfile.py")
   }
 
   static Builder conanInfo() {
@@ -246,7 +246,7 @@ class ConanProxyRecipe
   }
 
   static TokenMatcher conanInfoMatcher() {
-    new TokenMatcher("/{path:.*}/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conaninfo.txt")
+    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conaninfo.txt")
   }
 
   static Builder conanPackage() {
@@ -262,10 +262,10 @@ class ConanProxyRecipe
   }
 
   static TokenMatcher conanPackageMatcher() {
-    new TokenMatcher("/{path:.*}/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conan_package.tgz")
+    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conan_package.tgz")
   }
 
   static TokenMatcher conanSourcesMatcher() {
-    new TokenMatcher("/{path:.*}/{${AUTHOR}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conan_sources.tgz")
+    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conan_sources.tgz")
   }
 }

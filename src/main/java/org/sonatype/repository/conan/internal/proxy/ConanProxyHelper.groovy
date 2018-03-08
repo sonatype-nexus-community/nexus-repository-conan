@@ -58,7 +58,7 @@ class ConanProxyHelper
     return match(state, "${VERSION}")
   }
 
-  static String author(final State state) {
+  static String group(final State state) {
     return match(state, "${AUTHOR}")
   }
 

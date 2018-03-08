@@ -59,7 +59,7 @@ import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.author;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.group;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPath;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.project;
@@ -119,16 +119,16 @@ public class ConanProxyFacet
     String assetPath = buildAssetPath(context);
 
     if (assetKind.equals(CONAN_SRC)) {
-      return putPackage(assetPath, content, project(matcherState), version(matcherState), author(matcherState));
+      return putPackage(assetPath, content, group(matcherState), project(matcherState), version(matcherState));
     }
-    return putMetadata(assetPath, content, assetKind, project(matcherState), version(matcherState), author(matcherState));
+    return putMetadata(assetPath, content, assetKind, group(matcherState), project(matcherState), version(matcherState));
   }
 
   private Content putPackage(final String assetPath,
                              final Content content,
+                             final String group,
                              final String project,
-                             final String version,
-                             final String group) throws IOException {
+                             final String version) throws IOException {
     StorageFacet storageFacet = facet(StorageFacet.class);
     try (TempBlob tempBlob = storageFacet.createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
       return doPutPackage(assetPath, project, version, tempBlob, content, group);
@@ -138,9 +138,9 @@ public class ConanProxyFacet
   private Content putMetadata(final String assetPath,
                               final Content content,
                               final AssetKind assetKind,
+                              final String group,
                               final String project,
-                              final String version,
-                              final String group)
+                              final String version)
       throws IOException
   {
     TempBlob updatedBlob = null;
@@ -149,22 +149,22 @@ public class ConanProxyFacet
       AttributesMap attributesMap;
       switch (assetKind) {
         case DOWNLOAD_URL:
-          String indexAssetName = getProjectIndexName(project, version, group);
+          String indexAssetName = getProjectIndexName(group, project, version);
           updatedBlob = absoluteUrlRemover.updateAbsoluteUrls(tempBlob, getRepository(), indexAssetName);
-          attributesMap = ConanManifest.parse(tempBlob);
+          attributesMap = ConanManifest.parse(updatedBlob);
           break;
         case CONAN_MANIFEST:
           attributesMap = ConanManifest.parse(tempBlob);
           break;
         case CONAN_FILE:
-          //TODO: Parse file using to get license information and description, email, author etc
+          //TODO: Parse file using to get license information and description, email, group etc
           attributesMap = new AttributesMap();
           break;
         default:
           attributesMap = new AttributesMap();
           break;
       }
-      return doSaveMetadata(assetPath, tempBlob, content, assetKind, attributesMap, project, version, group);
+      return doSaveMetadata(assetPath, updatedBlob != null ? updatedBlob : tempBlob, content, assetKind, attributesMap, project, version, group);
     } finally {
       if(updatedBlob != null && DOWNLOAD_URL.equals(assetKind)) {
         updatedBlob.close();
@@ -172,7 +172,7 @@ public class ConanProxyFacet
     }
   }
 
-  private String getProjectIndexName(final String project, final String version, final String group) {
+  private String getProjectIndexName(final String group, final String project, final String version) {
     return group + "/" + project + "/" + version + "/index.json";
   }
 
@@ -309,7 +309,7 @@ public class ConanProxyFacet
     log.info("AssetKind {} to be fetched is {}", assetKind, context.getRequest().getPath());
     TokenMatcher.State matcherState = context.getAttributes().require(TokenMatcher.State.class);
     String project = project(matcherState);
-    String group = author(matcherState);
+    String group = group(matcherState);
     String version = version(matcherState);
     Map<String, URL> indexes = absoluteUrlRemover.handleReadingIndexes(getProjectIndexName(group, project, version), getRepository());
     if(indexes.containsKey(context.getRequest().getPath())) {

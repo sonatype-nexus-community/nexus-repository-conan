@@ -63,7 +63,7 @@ public class ConanProxyRecipeTest
     when(request.getPath()).thenReturn("/v1/conans/jsonformoderncpp/2.1.1/vthiery/stable/download_urls");
     assertTrue(downloadUrlsMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
-    assertThat(matcherState.getTokens().get("author"), is(equalTo("vthiery")));
+    assertThat(matcherState.getTokens().get("group"), is(equalTo("vthiery")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("jsonformoderncpp")));
     assertThat(matcherState.getTokens().get("version"), is(equalTo("2.1.1")));
   }
@@ -73,7 +73,7 @@ public class ConanProxyRecipeTest
     when(request.getPath()).thenReturn("/v1/conans/jsonformoderncpp/2.1.1/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/download_urls");
     assertTrue(downloadUrlsPackagesMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
-    assertThat(matcherState.getTokens().get("author"), is(equalTo("vthiery")));
+    assertThat(matcherState.getTokens().get("group"), is(equalTo("vthiery")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("jsonformoderncpp")));
     assertThat(matcherState.getTokens().get("version"), is(equalTo("2.1.1")));
   }
@@ -83,7 +83,7 @@ public class ConanProxyRecipeTest
     when(request.getPath()).thenReturn("/v1/conans/zlib/1.2.11/conan/stable/packages/8018a4df6e7d2b4630a814fa40c81b85b9182d2b/download_urls");
     assertTrue(downloadUrlsPackagesMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
-    assertThat(matcherState.getTokens().get("author"), is(equalTo("conan")));
+    assertThat(matcherState.getTokens().get("group"), is(equalTo("conan")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("zlib")));
     assertThat(matcherState.getTokens().get("version"), is(equalTo("1.2.11")));
   }
@@ -93,7 +93,7 @@ public class ConanProxyRecipeTest
     when(request.getPath()).thenReturn("/conan/conan/conan-center/v1/files/vthiery/jsonformoderncpp/2.1.1/stable/export/conanfile.py");
     assertTrue(conanFileMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
-    assertThat(matcherState.getTokens().get("author"), is(equalTo("vthiery")));
+    assertThat(matcherState.getTokens().get("group"), is(equalTo("vthiery")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("jsonformoderncpp")));
     assertThat(matcherState.getTokens().get("version"), is(equalTo("2.1.1")));
   }
@@ -103,7 +103,7 @@ public class ConanProxyRecipeTest
     when(request.getPath()).thenReturn("/conan/conan/conan-center/v1/files/vthiery/jsonformoderncpp/2.1.1/stable/export/conanmanifest.txt");
     assertTrue(conanManifestMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
-    assertThat(matcherState.getTokens().get("author"), is(equalTo("vthiery")));
+    assertThat(matcherState.getTokens().get("group"), is(equalTo("vthiery")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("jsonformoderncpp")));
     assertThat(matcherState.getTokens().get("version"), is(equalTo("2.1.1")));
   }
@@ -113,7 +113,7 @@ public class ConanProxyRecipeTest
     when(request.getPath()).thenReturn("/conan/conan/conan-center/v1/files/vthiery/jsonformoderncpp/2.1.1/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt");
     assertTrue(conanInfoMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
-    assertThat(matcherState.getTokens().get("author"), is(equalTo("vthiery")));
+    assertThat(matcherState.getTokens().get("group"), is(equalTo("vthiery")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("jsonformoderncpp")));
     assertThat(matcherState.getTokens().get("version"), is(equalTo("2.1.1")));
   }
@@ -123,7 +123,7 @@ public class ConanProxyRecipeTest
     when(request.getPath()).thenReturn("/conan/conan/conan-center/v1/files/vthiery/jsonformoderncpp/2.1.1/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz");
     assertTrue(conanPackageMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
-    assertThat(matcherState.getTokens().get("author"), is(equalTo("vthiery")));
+    assertThat(matcherState.getTokens().get("group"), is(equalTo("vthiery")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("jsonformoderncpp")));
     assertThat(matcherState.getTokens().get("version"), is(equalTo("2.1.1")));
   }

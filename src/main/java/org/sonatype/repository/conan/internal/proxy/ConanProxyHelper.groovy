@@ -42,31 +42,8 @@ class ConanProxyHelper
 {
   public static final List<HashAlgorithm> HASH_ALGORITHMS = ImmutableList.of(SHA256, SHA1, SHA512, MD5)
 
-  static TokenMatcher.State matcherState(final Context context) {
-    return context.getAttributes().require(TokenMatcher.State.class)
-  }
-
   static String buildAssetPath(final Context context) {
     return context.getRequest().getPath().substring(1);
-  }
-
-  static String project(final State state) {
-    return match(state, "${PROJECT}")
-  }
-
-  static String version(final State state) {
-    return match(state, "${VERSION}")
-  }
-
-  static String group(final State state) {
-    return match(state, "${GROUP}")
-  }
-
-  private static String match(final TokenMatcher.State state, final String name) {
-    checkNotNull(state)
-    String result = state.getTokens().get(name)
-    checkNotNull(result)
-    return result
   }
 
   static Asset findAsset(final StorageTx tx, final Bucket bucket, final String assetName) {

@@ -58,12 +58,14 @@ import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_K
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
+import static org.sonatype.repository.conan.internal.proxy.ConanMatch.group;
+import static org.sonatype.repository.conan.internal.proxy.ConanMatch.matcherState;
+import static org.sonatype.repository.conan.internal.proxy.ConanMatch.project;
+import static org.sonatype.repository.conan.internal.proxy.ConanMatch.version;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.group;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPath;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.project;
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.version;
+
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findComponent;
 
 /**
@@ -115,7 +117,7 @@ public class ConanProxyFacet
   @Override
   protected Content store(final Context context, final Content content) throws IOException {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
-    TokenMatcher.State matcherState = context.getAttributes().require(TokenMatcher.State.class);
+    TokenMatcher.State matcherState = matcherState(context);
     String assetPath = buildAssetPath(context);
 
     if (assetKind.equals(CONAN_SRC)) {

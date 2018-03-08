@@ -17,6 +17,9 @@ import org.sonatype.nexus.repository.cache.CacheControllerHolder.CacheType
 import static org.sonatype.nexus.repository.cache.CacheControllerHolder.CONTENT;
 import static org.sonatype.nexus.repository.cache.CacheControllerHolder.METADATA;
 
+/**
+ * @since 0.0.1
+ */
 enum AssetKind {
   DOWNLOAD_URL(METADATA),
   CONAN_MANIFEST(METADATA),

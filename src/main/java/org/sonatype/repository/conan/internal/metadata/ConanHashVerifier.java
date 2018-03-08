@@ -25,6 +25,8 @@ import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.find
 
 /**
  * Responsible for looking up the hashes to verify against
+ *
+ * @since 0.0.1
  */
 public class ConanHashVerifier
     extends ComponentSupport

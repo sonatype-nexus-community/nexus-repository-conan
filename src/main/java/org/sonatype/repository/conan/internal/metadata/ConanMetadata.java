@@ -12,6 +12,9 @@
  */
 package org.sonatype.repository.conan.internal.metadata;
 
+/**
+ * @since 0.0.1
+ */
 public class ConanMetadata
 {
   public static String PROJECT = "project";

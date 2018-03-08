@@ -15,6 +15,9 @@ import com.google.common.collect.ImmutableList;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * @since 0.0.1
+ */
 @Singleton
 @Named(ConanFormat.NAME)
 public class ConanBrowseNodeGenerator

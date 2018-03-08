@@ -24,9 +24,11 @@ import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_GRO
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_VERSION;
 import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME;
 
+/**
+ * @since 0.0.1
+ */
 public class ConanFacetUtils
 {
-
   /**
    * Find a component by its name and tag (version)
    *

@@ -35,6 +35,9 @@ import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA256
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA512
 import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME
 
+/**
+ * @since 0.0.1
+ */
 class ConanProxyHelper
 {
   public static final List<HashAlgorithm> HASH_ALGORITHMS = ImmutableList.of(SHA256, SHA1, SHA512, MD5)

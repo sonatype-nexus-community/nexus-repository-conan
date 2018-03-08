@@ -54,6 +54,9 @@ import static org.sonatype.nexus.repository.http.HttpMethods.GET
 import static org.sonatype.nexus.repository.http.HttpMethods.HEAD
 import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.and
 
+/**
+ * @since 0.0.1
+ */
 @Named(ConanProxyRecipe.NAME)
 @Singleton
 class ConanProxyRecipe

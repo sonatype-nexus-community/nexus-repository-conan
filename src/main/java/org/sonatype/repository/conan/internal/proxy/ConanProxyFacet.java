@@ -45,7 +45,7 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.payloads.BlobPayload;
 import org.sonatype.nexus.transaction.UnitOfWork;
 import org.sonatype.repository.conan.internal.AssetKind;
-import org.sonatype.repository.conan.internal.metadata.ConanAbsoluteUrlIndexer;
+import org.sonatype.repository.conan.internal.metadata.ConanUrlIndexer;
 import org.sonatype.repository.conan.internal.metadata.ConanHashVerifier;
 import org.sonatype.repository.conan.internal.metadata.ConanManifest;
 
@@ -75,12 +75,12 @@ import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findC
 public class ConanProxyFacet
     extends ProxyFacetSupport
 {
-  private final ConanAbsoluteUrlIndexer absoluteUrlRemover;
+  private final ConanUrlIndexer absoluteUrlRemover;
 
   private final ConanHashVerifier hashVerifier;
 
   @Inject
-  public ConanProxyFacet(final ConanAbsoluteUrlIndexer absoluteUrlRemover,
+  public ConanProxyFacet(final ConanUrlIndexer absoluteUrlRemover,
                          final ConanHashVerifier hashVerifier) {
     this.absoluteUrlRemover = absoluteUrlRemover;
     this.hashVerifier = hashVerifier;

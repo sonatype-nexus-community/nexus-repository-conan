@@ -23,7 +23,7 @@ import org.mockito.Mock;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-public class ConanAbsoluteUrlIndexerTest
+public class ConanUrlIndexerTest
     extends TestSupport
 {
   private static final String DOWNLOAD_URL = "jsonformoderncpp_download_url.json";
@@ -42,14 +42,14 @@ public class ConanAbsoluteUrlIndexerTest
   @Mock
   StorageFacet storageFacet;
 
-  ConanAbsoluteUrlIndexer underTest;
+  ConanUrlIndexer underTest;
 
   @Before
   public void setUp() throws Exception {
     setupRepositoryMock();
 
-    class ConanAbsoluteUrlIndexerForTest
-        extends ConanAbsoluteUrlIndexer
+    class ConanUrlIndexerForTest
+        extends ConanUrlIndexer
     {
       @Override
       protected void handleUpdatingIndexes(final String assetName,
@@ -57,7 +57,7 @@ public class ConanAbsoluteUrlIndexerTest
                                            final Repository repository)
       {}
     };
-    underTest = new ConanAbsoluteUrlIndexerForTest();
+    underTest = new ConanUrlIndexerForTest();
   }
 
   @Test

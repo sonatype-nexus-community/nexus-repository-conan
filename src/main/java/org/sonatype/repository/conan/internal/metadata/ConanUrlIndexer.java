@@ -60,7 +60,7 @@ import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.toCo
  */
 @Singleton
 @Named
-public class ConanAbsoluteUrlIndexer
+public class ConanUrlIndexer
     extends ComponentSupport
 {
   private static final ObjectMapper MAPPER = new ObjectMapper();

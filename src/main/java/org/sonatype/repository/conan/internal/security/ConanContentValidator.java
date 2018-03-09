@@ -42,7 +42,7 @@ public class ConanContentValidator
                                      @Nullable final String contentName,
                                      @Nullable final String declaredContentType) throws IOException
   {
-    if (contentName.endsWith(".tgz")) {
+    if (contentName != null && contentName.endsWith(".tgz")) {
       return ContentTypes.APPLICATION_GZIP;
     }
     return defaultContentValidator.determineContentType(

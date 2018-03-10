@@ -28,6 +28,7 @@ import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.cache.CacheController;
 import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.config.Configuration;
+import org.sonatype.nexus.repository.config.ConfigurationFacet;
 import org.sonatype.nexus.repository.proxy.ProxyFacetSupport;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.AssetBlob;
@@ -45,10 +46,16 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.payloads.BlobPayload;
 import org.sonatype.nexus.transaction.UnitOfWork;
 import org.sonatype.repository.conan.internal.AssetKind;
-import org.sonatype.repository.conan.internal.metadata.ConanUrlIndexer;
 import org.sonatype.repository.conan.internal.metadata.ConanHashVerifier;
 import org.sonatype.repository.conan.internal.metadata.ConanManifest;
+import org.sonatype.repository.conan.internal.metadata.ConanUrlIndexer;
+import org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher;
+import org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcherDeserializer;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Supplier;
 import com.google.common.hash.HashCode;
 
@@ -58,14 +65,9 @@ import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_K
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
-import static org.sonatype.repository.conan.internal.proxy.ConanMatch.group;
-import static org.sonatype.repository.conan.internal.proxy.ConanMatch.matcherState;
-import static org.sonatype.repository.conan.internal.proxy.ConanMatch.project;
-import static org.sonatype.repository.conan.internal.proxy.ConanMatch.version;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPath;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
-
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findComponent;
 
 /**
@@ -75,9 +77,16 @@ import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findC
 public class ConanProxyFacet
     extends ProxyFacetSupport
 {
+  private static final String CONFIG_KEY = "conan";
+
+  @VisibleForTesting
+  Config config;
+
   private final ConanUrlIndexer absoluteUrlRemover;
 
   private final ConanHashVerifier hashVerifier;
+
+  private ConanMatcher conanMatcher;
 
   @Inject
   public ConanProxyFacet(final ConanUrlIndexer absoluteUrlRemover,
@@ -91,6 +100,13 @@ public class ConanProxyFacet
   protected void doValidate(final Configuration configuration) throws Exception {
     log.error("doValidate with config {}", configuration);
     super.doValidate(configuration);
+  }
+
+  @Override
+  protected void doConfigure(final Configuration configuration) throws Exception {
+    config = facet(ConfigurationFacet.class).readSection(configuration, CONFIG_KEY, Config.class);
+    conanMatcher = config.conanMatcher;
+    super.doConfigure(configuration);
   }
 
   @Nullable
@@ -117,13 +133,13 @@ public class ConanProxyFacet
   @Override
   protected Content store(final Context context, final Content content) throws IOException {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
-    TokenMatcher.State matcherState = matcherState(context);
+    TokenMatcher.State matcherState = ConanMatcher.matcherState(context);
     String assetPath = buildAssetPath(context);
 
     if (assetKind.equals(CONAN_SRC)) {
-      return putPackage(assetPath, content, group(matcherState), project(matcherState), version(matcherState));
+      return putPackage(assetPath, content, conanMatcher.group(matcherState), conanMatcher.project(matcherState), conanMatcher.version(matcherState));
     }
-    return putMetadata(assetPath, content, assetKind, group(matcherState), project(matcherState), version(matcherState));
+    return putMetadata(assetPath, content, assetKind, conanMatcher.group(matcherState), conanMatcher.project(matcherState), conanMatcher.version(matcherState));
   }
 
   private Content putPackage(final String assetPath,
@@ -306,9 +322,9 @@ public class ConanProxyFacet
 
     log.info("AssetKind {} to be fetched is {}", assetKind, context.getRequest().getPath());
     TokenMatcher.State matcherState = context.getAttributes().require(TokenMatcher.State.class);
-    String group = group(matcherState);
-    String project = project(matcherState);
-    String version = version(matcherState);
+    String group = conanMatcher.group(matcherState);
+    String project = conanMatcher.project(matcherState);
+    String version = conanMatcher.version(matcherState);
     Map<String, URL> indexes = absoluteUrlRemover.handleReadingIndexes(getProjectIndexName(group, project, version), getRepository());
     if(indexes.containsKey(context.getRequest().getPath())) {
       return indexes.get(context.getRequest().getPath()).toString();
@@ -321,5 +337,20 @@ public class ConanProxyFacet
   protected CacheController getCacheController(@Nonnull final Context context) {
     final AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     return checkNotNull(cacheControllerHolder.get(assetKind.getCacheType()));
+  }
+
+  @VisibleForTesting
+  static class Config
+  {
+    @JsonDeserialize(using = ConanMatcherDeserializer.class)
+    @JsonTypeInfo(use = Id.NONE)
+    public ConanMatcher conanMatcher;
+
+    @Override
+    public String toString() {
+      return getClass().getSimpleName() + "{" +
+          "conanMatcher=" + conanMatcher +
+          '}';
+    }
   }
 }

@@ -1,6 +1,7 @@
-package org.sonatype.repository.conan.internal.proxy
+package org.sonatype.repository.conan.internal.proxy.matcher
 
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State
+import org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher
 
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
@@ -9,18 +10,20 @@ import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERS
 /**
  * @since 0.0.2
  */
-class LocalMatcher
-    implements ConanMatcher
+class RemoteMatcher
+    extends ConanMatcher
 {
-  static String group(final State state) {
-    return match(state, "${VERSION}")
-  }
+  public static final String NAME = "remote";
 
-  static String project(final State state) {
+  String group(final State state) {
     return match(state, "${GROUP}")
   }
 
-  static String version(final State state) {
+  String project(final State state) {
     return match(state, "${PROJECT}")
+  }
+
+  String version(final State state) {
+    return match(state, "${VERSION}")
   }
 }

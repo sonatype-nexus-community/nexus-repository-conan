@@ -30,6 +30,12 @@ Ext.define('NX.conan.app.PluginStrings', {
     SearchConan_License_FieldLabel: 'License',
     SearchConan_Text: 'Conan',
     SearchConan_Description: 'Search for components in Conan repositories',
+
+    Repository_Facet_ConanProxyGAVFacet_Title: 'GAV Ordering',
+    Repository_Facet_ConanProxyGAVFacet_Order_FieldLabel: 'GAV ordering',
+    Repository_Facet_ConanProxyGAVFacet_Order_HelpText: 'Servers can response using various path sequences',
+    Repository_Facet_ConanProxyGAVFacet_Order_GAVItem: 'remote',
+    Repository_Facet_ConanProxyGAVFacet_Order_AVGItem: 'local'
   }
 }, function(self) {
   NX.I18n.register(self);

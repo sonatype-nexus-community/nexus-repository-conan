@@ -145,16 +145,16 @@ public class ConanProxyFacet
                               final String version)
       throws IOException
   {
-    TempBlob updatedBlob = null;
     StorageFacet storageFacet = facet(StorageFacet.class);
     try (TempBlob tempBlob = storageFacet.createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
       AttributesMap attributesMap;
       switch (assetKind) {
         case DOWNLOAD_URL:
           String indexAssetName = getProjectIndexName(group, project, version);
-          updatedBlob = absoluteUrlRemover.updateAbsoluteUrls(tempBlob, getRepository(), indexAssetName);
-          attributesMap = ConanManifest.parse(updatedBlob);
-          break;
+          try(TempBlob updatedBlob = absoluteUrlRemover.updateAbsoluteUrls(tempBlob, getRepository(), indexAssetName)) {
+            attributesMap = ConanManifest.parse(updatedBlob);
+            return doSaveMetadata(assetPath, tempBlob, content, assetKind, attributesMap, project, version, group);
+          }
         case CONAN_MANIFEST:
           attributesMap = ConanManifest.parse(tempBlob);
           break;
@@ -166,11 +166,7 @@ public class ConanProxyFacet
           attributesMap = new AttributesMap();
           break;
       }
-      return doSaveMetadata(assetPath, updatedBlob != null ? updatedBlob : tempBlob, content, assetKind, attributesMap, project, version, group);
-    } finally {
-      if(updatedBlob != null && DOWNLOAD_URL.equals(assetKind)) {
-        updatedBlob.close();
-      }
+      return doSaveMetadata(assetPath, tempBlob, content, assetKind, attributesMap, project, version, group);
     }
   }
 

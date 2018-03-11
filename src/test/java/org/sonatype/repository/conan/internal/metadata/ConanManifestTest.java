@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.storage.TempBlob;
-import org.sonatype.nexus.repository.view.Content;
 
 import org.junit.Test;
 import org.mockito.Mock;

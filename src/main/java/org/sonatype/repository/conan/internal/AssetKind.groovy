@@ -14,8 +14,8 @@ package org.sonatype.repository.conan.internal
 
 import org.sonatype.nexus.repository.cache.CacheControllerHolder.CacheType
 
-import static org.sonatype.nexus.repository.cache.CacheControllerHolder.CONTENT;
-import static org.sonatype.nexus.repository.cache.CacheControllerHolder.METADATA;
+import static org.sonatype.nexus.repository.cache.CacheControllerHolder.CONTENT
+import static org.sonatype.nexus.repository.cache.CacheControllerHolder.METADATA
 
 /**
  * @since 0.0.1
@@ -25,7 +25,8 @@ enum AssetKind {
   CONAN_MANIFEST(METADATA),
   CONAN_FILE(METADATA),
   CONAN_INFO(METADATA),
-  CONAN_SRC(CONTENT)
+  CONAN_INDEX(METADATA),
+  CONAN_SRC(METADATA)
 
   private final CacheType cacheType;
 

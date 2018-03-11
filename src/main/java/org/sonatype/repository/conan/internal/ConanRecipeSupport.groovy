@@ -15,13 +15,12 @@ package org.sonatype.repository.conan.internal
 import javax.inject.Inject
 import javax.inject.Provider
 
-import org.sonatype.nexus.repository.cache.NegativeCacheHandler
-
 import org.sonatype.nexus.repository.Format
 import org.sonatype.nexus.repository.RecipeSupport
 import org.sonatype.nexus.repository.Type
 import org.sonatype.nexus.repository.attributes.AttributesFacet
 import org.sonatype.nexus.repository.cache.NegativeCacheFacet
+import org.sonatype.nexus.repository.cache.NegativeCacheHandler
 import org.sonatype.nexus.repository.http.PartialFetchHandler
 import org.sonatype.nexus.repository.httpclient.HttpClientFacet
 import org.sonatype.nexus.repository.purge.PurgeUnusedFacet

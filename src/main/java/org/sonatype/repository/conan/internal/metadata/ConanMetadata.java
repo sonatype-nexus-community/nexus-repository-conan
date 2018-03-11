@@ -21,7 +21,7 @@ public class ConanMetadata
 
   public static String VERSION = "version";
 
-  public static String AUTHOR = "author";
+  public static String GROUP = "group";
 
   public static String STATE = "state";
 }

@@ -24,7 +24,7 @@
   <groupId>org.sonatype.repository</groupId>
   <artifactId>nexus-repository-conan</artifactId>
   <name>${project.groupId}:${project.artifactId}</name>
-  <version>0.0.1</version>
+  <version>0.0.2-SNAPSHOT</version>
   <inceptionYear>2017</inceptionYear>
   <packaging>bundle</packaging>
 

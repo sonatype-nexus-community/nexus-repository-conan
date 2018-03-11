@@ -159,7 +159,7 @@ public class ConanProxyFacet
           attributesMap = ConanManifest.parse(tempBlob);
           break;
         case CONAN_FILE:
-          //TODO: Parse file using to get license information and description, email, group etc
+          //TODO: Parse file to get license information and description, email, group etc
           attributesMap = new AttributesMap();
           break;
         default:

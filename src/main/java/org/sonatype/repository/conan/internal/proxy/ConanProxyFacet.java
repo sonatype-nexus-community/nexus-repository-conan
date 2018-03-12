@@ -46,10 +46,6 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.payloads.BlobPayload;
 import org.sonatype.nexus.transaction.UnitOfWork;
 import org.sonatype.repository.conan.internal.AssetKind;
-import org.sonatype.repository.conan.internal.metadata.ConanUrlIndexer;
-import org.sonatype.repository.conan.internal.metadata.ConanHashVerifier;
-import org.sonatype.repository.conan.internal.metadata.ConanManifest;
-import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.metadata.ConanHashVerifier;
 import org.sonatype.repository.conan.internal.metadata.ConanManifest;
 import org.sonatype.repository.conan.internal.metadata.ConanUrlIndexer;
@@ -69,14 +65,9 @@ import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_K
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
-import static org.sonatype.repository.conan.internal.proxy.ConanMatch.group;
-import static org.sonatype.repository.conan.internal.proxy.ConanMatch.matcherState;
-import static org.sonatype.repository.conan.internal.proxy.ConanMatch.project;
-import static org.sonatype.repository.conan.internal.proxy.ConanMatch.version;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPath;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
-
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findComponent;
 
 /**
@@ -331,9 +322,9 @@ public class ConanProxyFacet
 
     log.info("AssetKind {} to be fetched is {}", assetKind, context.getRequest().getPath());
     TokenMatcher.State matcherState = context.getAttributes().require(TokenMatcher.State.class);
-    String group = group(matcherState);
-    String project = project(matcherState);
-    String version = version(matcherState);
+    String group = conanMatcher.group(matcherState);
+    String project = conanMatcher.project(matcherState);
+    String version = conanMatcher.version(matcherState);
     Map<String, URL> indexes = absoluteUrlRemover.handleReadingIndexes(getProjectIndexName(group, project, version), getRepository());
     if(indexes.containsKey(context.getRequest().getPath())) {
       return indexes.get(context.getRequest().getPath()).toString();

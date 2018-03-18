@@ -3,6 +3,7 @@ package org.sonatype.repository.conan.internal.proxy.matcher;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State;
+import org.sonatype.repository.conan.internal.AssetKind;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -13,11 +14,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public abstract class ConanMatcher
 {
-  public abstract String group(final State state);
+  public abstract String group(final State state, final AssetKind assetKind);
 
-  public abstract String project(final State state);
+  public abstract String project(final State state, final AssetKind assetKind);
 
-  public abstract String version(final State state);
+  public abstract String version(final State state, final AssetKind assetKind);
 
   static String match(final TokenMatcher.State state, final String name) {
     checkNotNull(state);

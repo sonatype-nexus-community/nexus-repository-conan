@@ -137,9 +137,17 @@ public class ConanProxyFacet
     String assetPath = buildAssetPath(context);
 
     if (assetKind.equals(CONAN_SRC)) {
-      return putPackage(assetPath, content, conanMatcher.group(matcherState), conanMatcher.project(matcherState), conanMatcher.version(matcherState));
+      return putPackage(assetPath,
+          content,
+          conanMatcher.group(matcherState, assetKind),
+          conanMatcher.project(matcherState, assetKind),
+          conanMatcher.version(matcherState, assetKind));
     }
-    return putMetadata(assetPath, content, assetKind, conanMatcher.group(matcherState), conanMatcher.project(matcherState), conanMatcher.version(matcherState));
+    return putMetadata(assetPath, content,
+        assetKind,
+        conanMatcher.group(matcherState, assetKind),
+        conanMatcher.project(matcherState, assetKind),
+        conanMatcher.version(matcherState, assetKind));
   }
 
   private Content putPackage(final String assetPath,
@@ -169,7 +177,7 @@ public class ConanProxyFacet
           String indexAssetName = getProjectIndexName(group, project, version);
           try(TempBlob updatedBlob = absoluteUrlRemover.updateAbsoluteUrls(tempBlob, getRepository(), indexAssetName)) {
             attributesMap = ConanManifest.parse(updatedBlob);
-            return doSaveMetadata(assetPath, tempBlob, content, assetKind, attributesMap, project, version, group);
+            return doSaveMetadata(assetPath, updatedBlob, content, assetKind, attributesMap, project, version, group);
           }
         case CONAN_MANIFEST:
           attributesMap = ConanManifest.parse(tempBlob);
@@ -322,9 +330,9 @@ public class ConanProxyFacet
 
     log.info("AssetKind {} to be fetched is {}", assetKind, context.getRequest().getPath());
     TokenMatcher.State matcherState = context.getAttributes().require(TokenMatcher.State.class);
-    String group = conanMatcher.group(matcherState);
-    String project = conanMatcher.project(matcherState);
-    String version = conanMatcher.version(matcherState);
+    String group = conanMatcher.group(matcherState, assetKind);
+    String project = conanMatcher.project(matcherState, assetKind);
+    String version = conanMatcher.version(matcherState, assetKind);
     Map<String, URL> indexes = absoluteUrlRemover.handleReadingIndexes(getProjectIndexName(group, project, version), getRepository());
     if(indexes.containsKey(context.getRequest().getPath())) {
       return indexes.get(context.getRequest().getPath()).toString();

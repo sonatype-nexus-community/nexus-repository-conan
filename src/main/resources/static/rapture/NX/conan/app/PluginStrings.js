@@ -34,8 +34,8 @@ Ext.define('NX.conan.app.PluginStrings', {
     Repository_Facet_ConanProxyGAVFacet_Title: 'GAV Ordering',
     Repository_Facet_ConanProxyGAVFacet_Order_FieldLabel: 'GAV ordering',
     Repository_Facet_ConanProxyGAVFacet_Order_HelpText: 'Servers can response using various path sequences',
-    Repository_Facet_ConanProxyGAVFacet_Order_GAVItem: 'remote',
-    Repository_Facet_ConanProxyGAVFacet_Order_AVGItem: 'local'
+    Repository_Facet_ConanProxyGAVFacet_Order_GAVItem: 'Remote',
+    Repository_Facet_ConanProxyGAVFacet_Order_AVGItem: 'Local'
   }
 }, function(self) {
   NX.I18n.register(self);

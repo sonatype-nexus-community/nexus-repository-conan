@@ -4,12 +4,19 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-public class ConanMatcherTest
+public class ConanMatcherDeserializerTest
 {
+  private static ObjectMapper mapper = new ObjectMapper();
+
+  private static String test = "{" +
+      "\"conanMatcher\": " + "\"" + "%s" + "\"" +
+      "}";
+
   static class MatcherExample {
     @JsonDeserialize(using = ConanMatcherDeserializer.class)
     @JsonTypeInfo(use = Id.NONE)
@@ -18,25 +25,20 @@ public class ConanMatcherTest
 
   @Test
   public void whenValueIsRemoteShouldCreateLocal() throws Exception {
-    String test = "{" +
-        "\"conanMatcher\": " + "\"" + RemoteMatcher.NAME + "\"" +
-        "}";
-
-    ObjectMapper mapper = new ObjectMapper();
-    MatcherExample conanMatcher = mapper.readValue(test, MatcherExample.class);
+    MatcherExample conanMatcher = mapper.readValue(String.format(test, RemoteMatcher.NAME), MatcherExample.class);
 
     assertTrue(conanMatcher.conanMatcher instanceof RemoteMatcher);
   }
 
   @Test
   public void whenValueIsLocalShouldCreateLocal() throws Exception {
-    String test = "{" +
-        "\"conanMatcher\": " + "\"" + LocalMatcher.NAME + "\"" +
-        "}";
-
-    ObjectMapper mapper = new ObjectMapper();
-    MatcherExample conanMatcher = mapper.readValue(test, MatcherExample.class);
+    MatcherExample conanMatcher = mapper.readValue(String.format(test, LocalMatcher.NAME), MatcherExample.class);
 
     assertTrue(conanMatcher.conanMatcher instanceof LocalMatcher);
+  }
+
+  @Test(expected = InvalidFormatException.class)
+  public void whenInvalidShouldThrowException() throws Exception {
+    mapper.readValue(String.format(test, "unknown"), MatcherExample.class);
   }
 }

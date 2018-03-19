@@ -46,8 +46,8 @@ Ext.define('NX.coreui.view.repository.facet.ConanGAVOrder', {
             editable: false,
             allowBlank: false,
             store : [
-                ['remote', NX.I18n.get('Repository_Facet_ConanProxyGAVFacet_Order_GAVItem')],
-                ['local', NX.I18n.get('Repository_Facet_ConanProxyGAVFacet_Order_AVGItem')]
+                ['bintray', NX.I18n.get('Repository_Facet_ConanProxyGAVFacet_Order_GAVItem')],
+                ['standard', NX.I18n.get('Repository_Facet_ConanProxyGAVFacet_Order_AVGItem')]
             ]
           }
         ]

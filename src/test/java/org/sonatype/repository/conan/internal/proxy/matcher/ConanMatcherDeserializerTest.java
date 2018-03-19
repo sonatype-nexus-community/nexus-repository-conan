@@ -25,16 +25,16 @@ public class ConanMatcherDeserializerTest
 
   @Test
   public void whenValueIsRemoteShouldCreateLocal() throws Exception {
-    MatcherExample conanMatcher = mapper.readValue(String.format(test, RemoteMatcher.NAME), MatcherExample.class);
+    MatcherExample conanMatcher = mapper.readValue(String.format(test, BintrayMatcher.NAME), MatcherExample.class);
 
-    assertTrue(conanMatcher.conanMatcher instanceof RemoteMatcher);
+    assertTrue(conanMatcher.conanMatcher instanceof BintrayMatcher);
   }
 
   @Test
   public void whenValueIsLocalShouldCreateLocal() throws Exception {
-    MatcherExample conanMatcher = mapper.readValue(String.format(test, LocalMatcher.NAME), MatcherExample.class);
+    MatcherExample conanMatcher = mapper.readValue(String.format(test, StandardMatcher.NAME), MatcherExample.class);
 
-    assertTrue(conanMatcher.conanMatcher instanceof LocalMatcher);
+    assertTrue(conanMatcher.conanMatcher instanceof StandardMatcher);
   }
 
   @Test(expected = InvalidFormatException.class)

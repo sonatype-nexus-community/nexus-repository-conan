@@ -25,32 +25,21 @@ import org.sonatype.nexus.repository.types.ProxyType
 import org.sonatype.nexus.repository.view.ConfigurableViewFacet
 import org.sonatype.nexus.repository.view.Context
 import org.sonatype.nexus.repository.view.Route
-import org.sonatype.nexus.repository.view.Route.Builder
 import org.sonatype.nexus.repository.view.Router
-import org.sonatype.nexus.repository.view.ViewFacet
 import org.sonatype.nexus.repository.view.handlers.BrowseUnsupportedHandler
-import org.sonatype.nexus.repository.view.matchers.ActionMatcher
-import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher
 import org.sonatype.repository.conan.internal.AssetKind
 import org.sonatype.repository.conan.internal.ConanFormat
 import org.sonatype.repository.conan.internal.ConanRecipeSupport
+import org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher
 
 import com.google.inject.Provider
 
 import static org.sonatype.nexus.repository.http.HttpHandlers.notFound
-import static org.sonatype.nexus.repository.http.HttpMethods.GET
-import static org.sonatype.nexus.repository.http.HttpMethods.HEAD
-import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.and
-import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.or
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION
 
 /**
  * @since 0.0.1
@@ -81,22 +70,26 @@ class ConanProxyRecipe
 
   @Override
   void apply(@Nonnull final Repository repository) throws Exception {
+    def conanProxyFacet = proxyFacet.get()
+    conanProxyFacet.configureDynamicMatcher(viewClosure)
+
     repository.attach(securityFacet.get())
-    repository.attach(configure(viewFacet.get()))
+    repository.attach(viewFacet.get())
     repository.attach(httpClientFacet.get())
     repository.attach(negativeCacheFacet.get())
     repository.attach(componentMaintenanceFacet.get())
-    repository.attach(proxyFacet.get())
+    repository.attach(conanProxyFacet)
     repository.attach(storageFacet.get())
     repository.attach(attributesFacet.get())
     repository.attach(searchFacet.get())
     repository.attach(purgeUnusedFacet.get())
+
   }
 
-  ViewFacet configure(final ConfigurableViewFacet facet) {
+  Closure viewClosure = {ConfigurableViewFacet facet, ConanMatcher matcher ->
     Router.Builder builder = new Router.Builder()
 
-    builder.route(downloadUrls()
+    builder.route(matcher.downloadUrls()
         .handler(timingHandler)
         .handler(assetKindHandler.rcurry(DOWNLOAD_URL))
         .handler(securityHandler)
@@ -109,7 +102,7 @@ class ConanProxyRecipe
         .handler(proxyHandler)
         .create())
 
-    builder.route(conanManifest()
+    builder.route(matcher.conanManifest()
         .handler(timingHandler)
         .handler(assetKindHandler.rcurry(CONAN_MANIFEST))
         .handler(securityHandler)
@@ -122,7 +115,7 @@ class ConanProxyRecipe
         .handler(proxyHandler)
         .create())
 
-    builder.route(conanFile()
+    builder.route(matcher.conanFile()
         .handler(timingHandler)
         .handler(assetKindHandler.rcurry(CONAN_FILE))
         .handler(securityHandler)
@@ -135,7 +128,7 @@ class ConanProxyRecipe
         .handler(proxyHandler)
         .create())
 
-    builder.route(conanInfo()
+    builder.route(matcher.conanInfo()
         .handler(timingHandler)
         .handler(assetKindHandler.rcurry(CONAN_INFO))
         .handler(securityHandler)
@@ -148,7 +141,7 @@ class ConanProxyRecipe
         .handler(proxyHandler)
         .create())
 
-    builder.route(conanPackage()
+    builder.route(matcher.conanPackage()
         .handler(timingHandler)
         .handler(assetKindHandler.rcurry(CONAN_SRC))
         .handler(securityHandler)
@@ -169,103 +162,5 @@ class ConanProxyRecipe
     builder.defaultHandlers(notFound())
     facet.configure(builder.create())
     return facet
-  }
-
-  /**
-   * Matches on urls ending with download_urls
-   * @return
-   */
-  static Builder downloadUrls() {
-    new Builder().matcher(
-        and(
-            new ActionMatcher(GET, HEAD),
-            or(
-                downloadUrlsPackagesMatcher(),
-                downloadUrlsMatcher()
-            )
-        )
-    )
-  }
-
-  static TokenMatcher downloadUrlsMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/download_urls")
-  }
-
-  static TokenMatcher downloadUrlsPackagesMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/packages/{sha:.+}/download_urls")
-  }
-
-  /**
-   * Matches on the manifest files
-   * @return
-   */
-  static Builder conanManifest() {
-    new Builder().matcher(
-        and(
-            new ActionMatcher(GET, HEAD),
-            or(
-                conanManifestMatcher(),
-                conanManifestPackagesMatcher()
-            )
-        )
-    )
-  }
-
-  static TokenMatcher conanManifestMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanmanifest.txt")
-  }
-
-  static TokenMatcher conanManifestPackagesMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conanmanifest.txt")
-  }
-
-  /**
-   * Matches on conanfile.py
-   * @return
-   */
-  static Builder conanFile() {
-    new Builder().matcher(
-        and(
-            new ActionMatcher(GET, HEAD),
-            conanFileMatcher()
-        )
-    )
-  }
-
-  static TokenMatcher conanFileMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanfile.py")
-  }
-
-  static Builder conanInfo() {
-    new Builder().matcher(
-      and(
-          new ActionMatcher(GET, HEAD),
-          conanInfoMatcher()
-      )
-    )
-  }
-
-  static TokenMatcher conanInfoMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conaninfo.txt")
-  }
-
-  static Builder conanPackage() {
-    new Builder().matcher(
-        and(
-            new ActionMatcher(GET, HEAD),
-            or(
-              conanPackageMatcher(),
-              conanSourcesMatcher()
-            )
-        )
-    )
-  }
-
-  static TokenMatcher conanPackageMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conan_package.tgz")
-  }
-
-  static TokenMatcher conanSourcesMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conan_sources.tgz")
   }
 }

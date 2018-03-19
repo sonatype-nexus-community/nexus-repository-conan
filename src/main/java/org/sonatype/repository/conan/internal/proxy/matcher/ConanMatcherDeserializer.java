@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
 /**
- * Based on the configuration will create a {@link RemoteMatcher} or {@link LocalMatcher}
+ * Based on the configuration will create a {@link BintrayMatcher} or {@link StandardMatcher}
  *
  * @since 0.0.2
  */
@@ -18,11 +18,11 @@ public class ConanMatcherDeserializer
   public ConanMatcher deserialize(final JsonParser jsonParser, final DeserializationContext deserializationContext)
       throws IOException
   {
-    if(RemoteMatcher.NAME.equals(jsonParser.getValueAsString())) {
-      return new RemoteMatcher();
+    if(BintrayMatcher.NAME.equals(jsonParser.getValueAsString())) {
+      return new BintrayMatcher();
     }
-    else if(LocalMatcher.NAME.equals(jsonParser.getValueAsString())) {
-      return new LocalMatcher();
+    else if(StandardMatcher.NAME.equals(jsonParser.getValueAsString())) {
+      return new StandardMatcher();
     }
 
     throw deserializationContext.weirdKeyException(ConanMatcher.class, jsonParser.getValueAsString(),

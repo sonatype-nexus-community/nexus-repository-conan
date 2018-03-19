@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,9 +40,11 @@ import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.nexus.repository.storage.TempBlob;
 import org.sonatype.nexus.repository.transaction.TransactionalStoreBlob;
 import org.sonatype.nexus.repository.transaction.TransactionalTouchBlob;
+import org.sonatype.nexus.repository.view.ConfigurableViewFacet;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
+import org.sonatype.nexus.repository.view.ViewFacet;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.payloads.BlobPayload;
 import org.sonatype.nexus.transaction.UnitOfWork;
@@ -68,6 +71,10 @@ import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPath;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
+import static org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher.group;
+import static org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher.project;
+import static org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher.version;
+import static org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher.matcherState;
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findComponent;
 
 /**
@@ -84,14 +91,14 @@ public class ConanProxyFacet
 
   private final ConanHashVerifier hashVerifier;
 
-  private final ConanUrlIndexer absoluteUrlRemover;
+  private final ConanUrlIndexer conanUrlIndexer;
 
-  private ConanMatcher conanMatcher;
+  private BiConsumer<ConfigurableViewFacet, ConanMatcher> urlMatcher;
 
   @Inject
-  public ConanProxyFacet(final ConanUrlIndexer absoluteUrlRemover,
+  public ConanProxyFacet(final ConanUrlIndexer conanUrlIndexer,
                          final ConanHashVerifier hashVerifier) {
-    this.absoluteUrlRemover = absoluteUrlRemover;
+    this.conanUrlIndexer = conanUrlIndexer;
     this.hashVerifier = hashVerifier;
   }
 
@@ -105,8 +112,16 @@ public class ConanProxyFacet
   @Override
   protected void doConfigure(final Configuration configuration) throws Exception {
     config = facet(ConfigurationFacet.class).readSection(configuration, CONFIG_KEY, Config.class);
-    conanMatcher = config.conanMatcher;
+
+    urlMatcher.accept(
+        (ConfigurableViewFacet)getRepository().facet(ViewFacet.class),
+        config.conanMatcher
+    );
     super.doConfigure(configuration);
+  }
+
+  public void configureDynamicMatcher(BiConsumer<ConfigurableViewFacet, ConanMatcher> function) {
+    this.urlMatcher = function;
   }
 
   @Nullable
@@ -133,21 +148,16 @@ public class ConanProxyFacet
   @Override
   protected Content store(final Context context, final Content content) throws IOException {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
-    TokenMatcher.State matcherState = ConanMatcher.matcherState(context);
+    TokenMatcher.State matcherState = matcherState(context);
     String assetPath = buildAssetPath(context);
 
+    String group = group(matcherState);
+    String project = project(matcherState);
+    String version = version(matcherState);
     if (assetKind.equals(CONAN_SRC)) {
-      return putPackage(assetPath,
-          content,
-          conanMatcher.group(matcherState, assetKind),
-          conanMatcher.project(matcherState, assetKind),
-          conanMatcher.version(matcherState, assetKind));
+      return putPackage(assetPath, content, group, project, version);
     }
-    return putMetadata(assetPath, content,
-        assetKind,
-        conanMatcher.group(matcherState, assetKind),
-        conanMatcher.project(matcherState, assetKind),
-        conanMatcher.version(matcherState, assetKind));
+    return putMetadata(assetPath, content, assetKind, group, project, version);
   }
 
   private Content putPackage(final String assetPath,
@@ -175,7 +185,7 @@ public class ConanProxyFacet
       switch (assetKind) {
         case DOWNLOAD_URL:
           String indexAssetName = getProjectIndexName(group, project, version);
-          try(TempBlob updatedBlob = absoluteUrlRemover.updateAbsoluteUrls(tempBlob, getRepository(), indexAssetName)) {
+          try(TempBlob updatedBlob = conanUrlIndexer.updateAbsoluteUrls(tempBlob, getRepository(), indexAssetName)) {
             attributesMap = ConanManifest.parse(updatedBlob);
             return doSaveMetadata(assetPath, updatedBlob, content, assetKind, attributesMap, project, version, group);
           }
@@ -330,10 +340,11 @@ public class ConanProxyFacet
 
     log.info("AssetKind {} to be fetched is {}", assetKind, context.getRequest().getPath());
     TokenMatcher.State matcherState = context.getAttributes().require(TokenMatcher.State.class);
-    String group = conanMatcher.group(matcherState, assetKind);
-    String project = conanMatcher.project(matcherState, assetKind);
-    String version = conanMatcher.version(matcherState, assetKind);
-    Map<String, URL> indexes = absoluteUrlRemover.handleReadingIndexes(getProjectIndexName(group, project, version), getRepository());
+    String group = group(matcherState);
+    String project = project(matcherState);
+    String version = version(matcherState);
+    Map<String, URL> indexes = conanUrlIndexer
+        .handleReadingIndexes(getProjectIndexName(group, project, version), getRepository());
     if(indexes.containsKey(context.getRequest().getPath())) {
       return indexes.get(context.getRequest().getPath()).toString();
     };

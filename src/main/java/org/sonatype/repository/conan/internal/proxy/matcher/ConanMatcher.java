@@ -59,7 +59,6 @@ public abstract class ConanMatcher
     return match(matcherState, VERSION);
   }
 
-
   public static String channel(final State matcherState) {
     return match(matcherState, STATE);
   }

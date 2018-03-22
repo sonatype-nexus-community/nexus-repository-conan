@@ -5,11 +5,13 @@ import org.sonatype.nexus.repository.view.Route.Builder;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State;
 import org.sonatype.repository.conan.internal.AssetKind;
+import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.sonatype.repository.conan.internal.metadata.ConanMetadata;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT;
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION;
 
 /**
@@ -36,6 +38,11 @@ public abstract class ConanMatcher
     return result;
   }
 
+  public static ConanCoords getCoords(final Context context) {
+    State state = matcherState(context);
+    return new ConanCoords(group(state), project(state), version(state), channel(state));
+  }
+
   public static TokenMatcher.State matcherState(final Context context) {
     return context.getAttributes().require(TokenMatcher.State.class);
   }
@@ -50,5 +57,10 @@ public abstract class ConanMatcher
 
   public static String version(final State matcherState) {
     return match(matcherState, VERSION);
+  }
+
+
+  public static String channel(final State matcherState) {
+    return match(matcherState, STATE);
   }
 }

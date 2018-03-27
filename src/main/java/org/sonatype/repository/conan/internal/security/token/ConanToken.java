@@ -10,20 +10,24 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.repository.conan.internal.metadata;
+package org.sonatype.repository.conan.internal.security.token;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+import org.sonatype.nexus.security.token.BearerToken;
 
 /**
- * @since 0.0.1
+ * @since conan.next
  */
-public class ConanMetadata
+@Named(ConanToken.NAME)
+@Singleton
+public class ConanToken
+    extends BearerToken
 {
-  public static String PROJECT = "project";
+  public final static String NAME = "ConanToken";
 
-  public static String VERSION = "version";
-
-  public static String GROUP = "group";
-
-  public static String STATE = "state";
-
-  public static String DIGEST = "sha";
+  public ConanToken() {
+    super(NAME);
+  }
 }

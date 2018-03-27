@@ -47,7 +47,7 @@ public class ConanManifest
         }
       }
     } catch (IOException e) {
-      LOGGER.warn("Unable to parse manifest file");
+      LOGGER.warn("Unable to convertKeys manifest file");
     }
     return attributesMap;
   }

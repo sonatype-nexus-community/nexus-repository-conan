@@ -12,14 +12,22 @@
  */
 package org.sonatype.repository.conan.internal.utils;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
+import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.storage.Query;
 import org.sonatype.nexus.repository.storage.StorageTx;
+import org.sonatype.repository.conan.internal.hosted.ConanHostedCoord;
+
+import com.google.common.collect.ImmutableList;
 
 import static java.util.Collections.singletonList;
+import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1;
+import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA256;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_GROUP;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_VERSION;
 import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME;
@@ -29,6 +37,8 @@ import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_
  */
 public class ConanFacetUtils
 {
+  public static final List<HashAlgorithm> HASH_ALGORITHMS = ImmutableList.of(SHA1, SHA256);
+
   /**
    * Find a component by its name and tag (version)
    *
@@ -46,6 +56,25 @@ public class ConanFacetUtils
             .where(P_GROUP).eq(group)
             .and(P_NAME).eq(name)
             .and(P_VERSION).eq(version)
+            .build(),
+        singletonList(repository)
+    );
+    if (components.iterator().hasNext()) {
+      return components.iterator().next();
+    }
+    return null;
+  }
+
+  @Nullable
+  public static Component findComponent(final StorageTx tx,
+                                        final Repository repository,
+                                        final ConanHostedCoord coord)
+  {
+    Iterable<Component> components = tx.findComponents(
+        Query.builder()
+            .where(P_GROUP).eq(coord.getGroup())
+            .and(P_NAME).eq(coord.getProject())
+            .and(P_VERSION).eq(coord.getVersion())
             .build(),
         singletonList(repository)
     );

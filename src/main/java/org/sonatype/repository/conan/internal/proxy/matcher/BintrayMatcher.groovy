@@ -4,7 +4,6 @@ import org.sonatype.nexus.repository.view.Route.Builder
 import org.sonatype.nexus.repository.view.matchers.ActionMatcher
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher
 import org.sonatype.repository.conan.internal.AssetKind
-import org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher
 
 import static org.sonatype.nexus.repository.http.HttpMethods.GET
 import static org.sonatype.nexus.repository.http.HttpMethods.HEAD
@@ -26,7 +25,7 @@ class BintrayMatcher
 
   /**
    * Matches on urls ending with download_urls
-   * @return
+   * @return matcher for initial and package download_urls endpoints
    */
   Builder downloadUrls() {
     return new Builder().matcher(
@@ -50,7 +49,7 @@ class BintrayMatcher
 
   /**
    * Matches on the manifest files
-   * @return
+   * @return matcher for initial and package conanmanifest.txt
    */
   Builder conanManifest() {
     new Builder().matcher(
@@ -74,7 +73,7 @@ class BintrayMatcher
 
   /**
    * Matches on conanfile.py
-   * @return
+   * @return matcher for conanfile.py
    */
   Builder conanFile() {
     new Builder().matcher(
@@ -89,6 +88,10 @@ class BintrayMatcher
     new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanfile.py")
   }
 
+  /**
+   * Matches on conaninfo.txt
+   * @return matcher for conaninfo.txt
+   */
   public Builder conanInfo() {
     new Builder().matcher(
         and(
@@ -102,6 +105,10 @@ class BintrayMatcher
     new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conaninfo.txt")
   }
 
+  /**
+   * Matches on conan_package.tgz
+   * @return matcher for conan_package.tgz
+   */
   Builder conanPackage() {
     new Builder().matcher(
         and(

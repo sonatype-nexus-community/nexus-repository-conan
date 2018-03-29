@@ -26,7 +26,7 @@ class StandardMatcher
 
   /**
    * Matches on urls ending with download_urls
-   * @return
+   * @return matcher for initial and package download_urls endpoints
    */
   Builder downloadUrls() {
     return new Builder().matcher(
@@ -50,7 +50,7 @@ class StandardMatcher
 
   /**
    * Matches on the manifest files
-   * @return
+   * @return matcher for initial and package conanmanifest.txt endpoints
    */
   Builder conanManifest() {
     new Builder().matcher(
@@ -74,7 +74,7 @@ class StandardMatcher
 
   /**
    * Matches on conanfile.py
-   * @return
+   * @return matcher for conanfile.py
    */
   Builder conanFile() {
     new Builder().matcher(
@@ -89,7 +89,11 @@ class StandardMatcher
     new TokenMatcher("/{path:.*}/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/export/conanfile.py")
   }
 
-  public Builder conanInfo() {
+  /**
+   * Matches on conaninfo.txt
+   * @return matcher for conaninfo.txt
+   */
+  Builder conanInfo() {
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
@@ -102,6 +106,10 @@ class StandardMatcher
     new TokenMatcher("/{path:.*}/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/package/{sha:.+}/conaninfo.txt")
   }
 
+  /**
+   * Matches on conan_package.tgz
+   * @return matcher for conan_package.tgz
+   */
   Builder conanPackage() {
     new Builder().matcher(
         and(

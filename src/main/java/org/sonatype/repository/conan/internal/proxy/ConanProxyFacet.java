@@ -181,7 +181,7 @@ public class ConanProxyFacet
       switch (assetKind) {
         case DOWNLOAD_URL:
           String indexAssetName = getProjectIndexName(coords);
-          try(TempBlob updatedBlob = conanUrlIndexer.updateAbsoluteUrls(tempBlob, getRepository(), indexAssetName)) {
+          try (TempBlob updatedBlob = conanUrlIndexer.updateAbsoluteUrls(tempBlob, getRepository(), indexAssetName)) {
             attributesMap = ConanManifest.parse(updatedBlob);
             return doSaveMetadata(assetPath, updatedBlob, content, assetKind, attributesMap, coords);
           }

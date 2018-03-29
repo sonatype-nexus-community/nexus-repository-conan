@@ -12,21 +12,31 @@
  */
 package org.sonatype.repository.conan.internal.metadata;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+/**
+ * Each project consists of these element. They are grouped here for easier access throughout the code base
+ *
+ * @since 0.0.2
+ */
 public class ConanCoords
 {
-  private String group;
+  final private String group;
 
-  private String project;
+  final private String project;
 
-  private String version;
+  final private String version;
 
-  private String channel;
+  final private String channel;
 
-  public ConanCoords(final String group, final String project, final String version, final String channel) {
-    this.group = group;
-    this.project = project;
-    this.version = version;
-    this.channel = channel;
+  public ConanCoords(final String group,
+                     final String project,
+                     final String version,
+                     final String channel) {
+    this.group = checkNotNull(group);
+    this.project = checkNotNull(project);
+    this.version = checkNotNull(version);
+    this.channel = checkNotNull(channel);
   }
 
   public String getGroup() {

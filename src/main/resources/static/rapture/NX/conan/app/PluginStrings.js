@@ -33,7 +33,7 @@ Ext.define('NX.conan.app.PluginStrings', {
 
     Repository_Facet_ConanProxyGAVFacet_Title: 'GAV Ordering',
     Repository_Facet_ConanProxyGAVFacet_Order_FieldLabel: 'GAV ordering',
-    Repository_Facet_ConanProxyGAVFacet_Order_HelpText: 'Servers can response using various path sequences',
+    Repository_Facet_ConanProxyGAVFacet_Order_HelpText: 'Servers can respond using various path sequences',
     Repository_Facet_ConanProxyGAVFacet_Order_GAVItem: 'Bintray',
     Repository_Facet_ConanProxyGAVFacet_Order_AVGItem: 'Standard'
   }

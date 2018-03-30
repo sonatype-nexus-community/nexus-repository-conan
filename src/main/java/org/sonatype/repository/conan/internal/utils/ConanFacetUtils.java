@@ -24,6 +24,7 @@ import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.repository.conan.internal.hosted.ConanHostedCoord;
 
 import com.google.common.collect.ImmutableList;
+import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import static java.util.Collections.singletonList;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1;
@@ -47,15 +48,13 @@ public class ConanFacetUtils
   @Nullable
   public static Component findComponent(final StorageTx tx,
                                         final Repository repository,
-                                        final String name,
-                                        final String version,
-                                        final String group)
+                                        final ConanCoords coords)
   {
     Iterable<Component> components = tx.findComponents(
         Query.builder()
-            .where(P_GROUP).eq(group)
-            .and(P_NAME).eq(name)
-            .and(P_VERSION).eq(version)
+            .where(P_GROUP).eq(coords.getGroup())
+            .and(P_NAME).eq(coords.getProject())
+            .and(P_VERSION).eq(coords.getVersion())
             .build(),
         singletonList(repository)
     );

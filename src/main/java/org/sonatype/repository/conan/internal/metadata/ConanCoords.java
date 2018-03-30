@@ -12,7 +12,13 @@
  */
 package org.sonatype.repository.conan.internal.metadata;
 
+import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
+
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP;
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT;
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE;
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION;
 
 /**
  * Each project consists of these element. They are grouped here for easier access throughout the code base
@@ -53,5 +59,22 @@ public class ConanCoords
 
   public String getChannel() {
     return channel;
+  }
+
+  public static ConanCoords convertFromState(TokenMatcher.State state) {
+    return new ConanCoords(
+        state.getTokens().get(GROUP),
+        state.getTokens().get(PROJECT),
+        state.getTokens().get(VERSION),
+        state.getTokens().get(STATE)
+    );
+  }
+
+  public static String getPath(ConanCoords coord) {
+    return String.format("%s/%s/%s/%s",
+        coord.getProject(),
+        coord.getVersion(),
+        coord.getGroup(),
+        coord.getChannel());
   }
 }

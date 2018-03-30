@@ -27,12 +27,12 @@ import org.sonatype.nexus.repository.view.Status;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State;
 import org.sonatype.repository.conan.internal.AssetKind;
-import org.sonatype.repository.conan.internal.metadata.ConanMetadata;
+import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.sonatype.repository.conan.internal.security.token.ConanTokenFacet;
 
 import static org.sonatype.nexus.repository.http.HttpStatus.NOT_FOUND;
-import static org.sonatype.repository.conan.internal.hosted.ConanHostedCoord.convertFromState;
-import static org.sonatype.repository.conan.internal.hosted.ConanHostedCoord.getPath;
+import static org.sonatype.repository.conan.internal.metadata.ConanCoords.convertFromState;
+import static org.sonatype.repository.conan.internal.metadata.ConanCoords.getPath;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST;
 
 /**
@@ -50,7 +50,7 @@ public class HostedHandlers
   final Handler uploadUrl = context -> {
     State state = context.getAttributes().require(TokenMatcher.State.class);
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
-    ConanHostedCoord coord = convertFromState(state);
+    ConanCoords coord = convertFromState(state);
 
     String assetPath = getAssetPath(state, coord);
 
@@ -83,7 +83,7 @@ public class HostedHandlers
 
     State state = context.getAttributes().require(State.class);
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
-    ConanHostedCoord coord = convertFromState(state);
+    ConanCoords coord = convertFromState(state);
     String assetPath = getAssetPath(state, coord) + "/" + filename;
 
     return context.getRepository()
@@ -91,7 +91,7 @@ public class HostedHandlers
         .upload(assetPath, coord, context.getRequest().getPayload(), assetKind);
   }
 
-  private String getAssetPath(final State state, final ConanHostedCoord coord) {
+  private String getAssetPath(final State state, final ConanCoords coord) {
     String sha = state.getTokens().getOrDefault(DIGEST, "");
     String path = V1_CONANS + getPath(coord);
     return sha.isEmpty() ? path : path + "/packages/" + sha;

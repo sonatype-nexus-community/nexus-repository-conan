@@ -35,7 +35,6 @@ import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.nexus.repository.storage.TempBlob;
 import org.sonatype.nexus.repository.transaction.TransactionalStoreBlob;
 import org.sonatype.nexus.repository.view.Content;
-import org.sonatype.nexus.repository.view.ContentTypes;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.Response;
@@ -44,6 +43,7 @@ import org.sonatype.nexus.repository.view.payloads.StreamPayload.InputStreamSupp
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
 import org.sonatype.nexus.transaction.UnitOfWork;
 import org.sonatype.repository.conan.internal.AssetKind;
+import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.sonatype.repository.conan.internal.metadata.ConanMetadata;
 import org.sonatype.repository.conan.internal.utils.ConanFacetUtils;
 
@@ -76,7 +76,7 @@ public class ConanHostedFacet
   }
 
   public Response uploadDownloadUrl(final String assetPath,
-                                    final ConanHostedCoord coord,
+                                    final ConanCoords coord,
                                     final Payload payload,
                                     final AssetKind assetKind) throws IOException {
     checkNotNull(assetPath);
@@ -98,7 +98,7 @@ public class ConanHostedFacet
   }
 
   public Response upload(final String assetPath,
-                         final ConanHostedCoord coord,
+                         final ConanCoords coord,
                          final Payload payload,
                          final AssetKind assetKind) throws IOException {
     checkNotNull(assetPath);
@@ -114,7 +114,7 @@ public class ConanHostedFacet
   }
 
   private void doPutArchive(final String assetPath,
-                            final ConanHostedCoord coord,
+                            final ConanCoords coord,
                             final Payload payload,
                             final AssetKind assetKind) throws IOException
   {
@@ -125,7 +125,7 @@ public class ConanHostedFacet
   }
 
   @TransactionalStoreBlob
-  protected void doPutArchive(final ConanHostedCoord coord,
+  protected void doPutArchive(final ConanCoords coord,
                               final String path,
                               final TempBlob tempBlob,
                               final AssetKind assetKind) throws IOException

@@ -21,10 +21,9 @@ import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.storage.Query;
 import org.sonatype.nexus.repository.storage.StorageTx;
-import org.sonatype.repository.conan.internal.hosted.ConanHostedCoord;
+import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import com.google.common.collect.ImmutableList;
-import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import static java.util.Collections.singletonList;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1;
@@ -55,25 +54,6 @@ public class ConanFacetUtils
             .where(P_GROUP).eq(coords.getGroup())
             .and(P_NAME).eq(coords.getProject())
             .and(P_VERSION).eq(coords.getVersion())
-            .build(),
-        singletonList(repository)
-    );
-    if (components.iterator().hasNext()) {
-      return components.iterator().next();
-    }
-    return null;
-  }
-
-  @Nullable
-  public static Component findComponent(final StorageTx tx,
-                                        final Repository repository,
-                                        final ConanHostedCoord coord)
-  {
-    Iterable<Component> components = tx.findComponents(
-        Query.builder()
-            .where(P_GROUP).eq(coord.getGroup())
-            .and(P_NAME).eq(coord.getProject())
-            .and(P_VERSION).eq(coord.getVersion())
             .build(),
         singletonList(repository)
     );

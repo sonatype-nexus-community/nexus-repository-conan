@@ -56,7 +56,7 @@ import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.toCo
  *
  * This class removes the absolute address so as to redirect back to this repository
  *
- * @since 3.conan
+ * @since 0.0.2
  */
 @Singleton
 @Named

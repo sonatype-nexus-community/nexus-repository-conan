@@ -20,6 +20,7 @@ Ext.define('NX.conan.view.repository.recipe.ConanProxy', {
   alias: 'widget.nx-coreui-repository-conan-proxy',
   requires: [
     'NX.coreui.view.repository.facet.ProxyFacet',
+    'NX.coreui.view.repository.facet.ConanGAVOrder',
     'NX.coreui.view.repository.facet.StorageFacet',
     'NX.coreui.view.repository.facet.HttpClientFacet',
     'NX.coreui.view.repository.facet.NegativeCacheFacet'
@@ -33,6 +34,7 @@ Ext.define('NX.conan.view.repository.recipe.ConanProxy', {
 
     me.items = [
       {xtype: 'nx-coreui-repository-proxy-facet'},
+      {xtype: 'nx-coreui-repository-conan-proxy-gav-facet'},
       {xtype: 'nx-coreui-repository-storage-facet'},
       {xtype: 'nx-coreui-repository-negativecache-facet'},
       {xtype: 'nx-coreui-repository-httpclient-facet'}

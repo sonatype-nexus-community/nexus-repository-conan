@@ -49,7 +49,7 @@ import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC
-import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE
@@ -64,6 +64,47 @@ class ConanHostedRecipe
   extends ConanRecipeSupport
 {
   public static final String NAME = 'conan-hosted'
+
+  private static final GString BASE_URL = "/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}"
+
+  private static final GString PACKAGES_URL = BASE_URL + "/packages/{${DIGEST}}"
+
+  private static final String UPLOAD = "/upload_urls"
+
+  private static final GString UPLOAD_URL = BASE_URL + UPLOAD
+
+  private static final GString UPLOAD_PACKAGE_URL = PACKAGES_URL + UPLOAD
+
+  private static final String CONANMANIFEST = "/conanmanifest.txt"
+
+  private static final GString CONAN_MANIFEST_URL = BASE_URL + CONANMANIFEST
+
+  private static final GString CONAN_MANIFEST_PACKAGE_URL = PACKAGES_URL + CONANMANIFEST
+
+  private static final String CONANFILE = "/conanfile.py"
+
+  private static final GString CONAN_FILE_URL = BASE_URL + CONANFILE
+
+  private static final GString CONAN_FILE_PACKAGE_URL = PACKAGES_URL + CONANFILE
+
+  private static final String CONANINFO = "/conaninfo.txt"
+
+  private static final GString CONAN_INFO_URL = BASE_URL + CONANINFO
+
+  private static final GString CONAN_INFO_PACKAGE_URL = PACKAGES_URL + CONANINFO
+
+  private static final GString CONAN_PACKAGE_ZIP_URL = PACKAGES_URL + "/conan_package.tgz"
+
+  private static final String DOWNLOAD = "/download_urls"
+
+  private static final GString DOWNLOAD_URL = BASE_URL + DOWNLOAD
+
+  private static final GString DOWNLOAD_PACKAGE_URL = PACKAGES_URL + DOWNLOAD
+
+  private static final String CHECK_CREDENTIALS_URL = "/v1/users/check_credentials"
+
+  private static final String AUTHENTICATE_URL = "/v1/users/authenticate"
+
 
   @Inject
   Provider<ConanHostedFacet> hostedFacet;
@@ -138,7 +179,6 @@ class ConanHostedRecipe
         .handler(hostedHandler.authenticate)
         .create())
 
-
     builder.route(new Route.Builder()
         .matcher(BrowseUnsupportedHandler.MATCHER)
         .handler(browseUnsupportedHandler)
@@ -169,187 +209,119 @@ class ConanHostedRecipe
 
   /**
    * Matches on urls ending with upload_urls
-   * @return
    */
   static Builder uploadUrls() {
     new Builder().matcher(
         and(
             new ActionMatcher(POST),
             or(
-                uploadUrlsPackagesMatcher(),
-                uploadUrlsMatcher()
+                new TokenMatcher(UPLOAD_URL),
+                new TokenMatcher(UPLOAD_PACKAGE_URL)
             )
         )
     )
   }
 
-  static TokenMatcher uploadUrlsMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/upload_urls")
-  }
-
-  static TokenMatcher uploadUrlsPackagesMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/packages/{sha}/upload_urls")
-  }
-
   /**
    * Matches on urls ending with conanfile.py
-   * @return
    */
   static Builder uploadManifest() {
     new Builder().matcher(
         and(
             new ActionMatcher(PUT),
             or(
-              uploadManifestMatcher(),
-              uploadManifestPackagesMatcher()
+                new TokenMatcher(CONAN_MANIFEST_URL),
+                new TokenMatcher(CONAN_MANIFEST_PACKAGE_URL)
             )
         )
     )
   }
 
-  static TokenMatcher uploadManifestMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/conanmanifest.txt")
-  }
-
-  static TokenMatcher uploadManifestPackagesMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/packages/{sha}/conanmanifest.txt")
-  }
-
   /**
    * Matches on urls ending with conanfile.py
-   * @return
    */
   static Builder uploadConanfile() {
     new Builder().matcher(
         and(
             new ActionMatcher(PUT),
             or(
-                uploadConanfileMatcher(),
-                uploadConanfilePackagesMatcher()
+                new TokenMatcher(CONAN_FILE_URL),
+                new TokenMatcher(CONAN_FILE_PACKAGE_URL)
             )
         )
     )
   }
 
-  static TokenMatcher uploadConanfileMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/conanfile.py")
-  }
-
-  static TokenMatcher uploadConanfilePackagesMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/packages/{sha}/conanfile.py")
-  }
-
   /**
    * Matches on urls ending with conanfile.py
-   * @return
    */
   static Builder uploadConaninfo() {
     new Builder().matcher(
         and(
             new ActionMatcher(PUT),
             or(
-                uploadConaninfoMatcher(),
-                uploadConaninfoPackagesMatcher()
+                new TokenMatcher(CONAN_INFO_URL),
+                new TokenMatcher(CONAN_INFO_PACKAGE_URL)
             )
         )
     )
   }
 
-  static TokenMatcher uploadConaninfoMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/conaninfo.txt")
-  }
-
-  static TokenMatcher uploadConaninfoPackagesMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/packages/{sha}/conaninfo.txt")
-  }
-
   /**
    * Matches on urls ending with conanfile.py
-   * @return
    */
   static Builder uploadConanPackageZip() {
     new Builder().matcher(
         and(
             new ActionMatcher(PUT),
-            uploadConanPackageZipMatcher()
+            new TokenMatcher(CONAN_PACKAGE_ZIP_URL)
         )
     )
   }
 
-  static TokenMatcher uploadConanPackageZipMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/packages/{sha}/conan_package.tgz")
-  }
-
   /**
    * Matches on urls ending with upload_urls
-   * @return
    */
   static Builder downloadUrls() {
     new Builder().matcher(
         and(
             new ActionMatcher(HEAD, GET),
             or(
-                downloadUrlsPackagesMatcher(),
-                downloadUrlsMatcher()
+                new TokenMatcher(DOWNLOAD_URL),
+                new TokenMatcher(DOWNLOAD_PACKAGE_URL)
             )
         )
     )
   }
 
-  static TokenMatcher downloadUrlsMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/download_urls")
-  }
-
-  static TokenMatcher downloadUrlsPackagesMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/packages/{sha}/download_urls")
-  }
-
   /**
    * Matches on urls ending with conanfile.py
-   * @return
    */
   static Builder downloadManifest() {
     new Builder().matcher(
         and(
             new ActionMatcher(HEAD, GET),
             or(
-                downloadManifestMatcher(),
-                downloadManifestPackagesMatcher()
+                new TokenMatcher(CONAN_MANIFEST_URL),
+                new TokenMatcher(CONAN_MANIFEST_PACKAGE_URL)
             )
         )
     )
   }
 
-  static TokenMatcher downloadManifestMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/conanmanifest.txt")
-  }
-
-  static TokenMatcher downloadManifestPackagesMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/packages/{sha}/conanmanifest.txt")
-  }
-
   /**
    * Matches on urls ending with conanfile.py
-   * @return
    */
   static Builder downloadConanfile() {
     new Builder().matcher(
         and(
             new ActionMatcher(HEAD, GET),
             or(
-                downloadConanfileMatcher(),
-                downloadConanfilePackagesMatcher()
+                new TokenMatcher(CONAN_FILE_URL),
+                new TokenMatcher(CONAN_FILE_PACKAGE_URL)
             )
         )
     )
-  }
-
-  static TokenMatcher downloadConanfileMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/conanfile.py")
-  }
-
-  static TokenMatcher downloadConanfilePackagesMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/packages/{sha}/conanfile.py")
   }
 
   static Builder downloadConaninfo() {
@@ -357,61 +329,43 @@ class ConanHostedRecipe
         and(
             new ActionMatcher(HEAD, GET),
             or(
-                downloadConaninfoMatcher(),
-                downloadConaninfoPackagesMatcher()
+                new TokenMatcher(CONAN_INFO_URL),
+                new TokenMatcher(CONAN_INFO_PACKAGE_URL)
             )
         )
     )
-  }
-
-  static TokenMatcher downloadConaninfoMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/conaninfo.txt")
-  }
-
-  static TokenMatcher downloadConaninfoPackagesMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/packages/{sha}/conaninfo.txt")
   }
 
   static Builder downloadConanPackageZip() {
     new Builder().matcher(
         and(
             new ActionMatcher(HEAD, GET),
-            downloadConanPackageZipPackagesMatcher()
-        )
-    )
-  }
-
-  static TokenMatcher downloadConanPackageZipPackagesMatcher() {
-    new TokenMatcher("/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}/packages/{sha}/conan_package.tgz")
-  }
-
-  static Builder checkCredentials() {
-    new Builder().matcher(
-        and(
-            new ActionMatcher(HEAD, GET),
-            checkCredentialsMatcher()
+            new TokenMatcher(CONAN_PACKAGE_ZIP_URL)
         )
     )
   }
 
   /**
-   * Matches on urls ending with upload_urls
-   * @return
+   * Matches on authentication endpoint
+   */
+  static Builder checkCredentials() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET),
+            new TokenMatcher(CHECK_CREDENTIALS_URL)
+        )
+    )
+  }
+
+  /**
+   * Matches on credential checking endpoint
    */
   static Builder authenticate() {
     new Builder().matcher(
         and(
             new ActionMatcher(GET),
-            authenticateMatcher()
+            new TokenMatcher(AUTHENTICATE_URL)
         )
     )
-  }
-
-  static TokenMatcher checkCredentialsMatcher() {
-    new TokenMatcher("/v1/users/check_credentials")
-  }
-
-  static TokenMatcher authenticateMatcher() {
-    new TokenMatcher("/v1/users/authenticate")
   }
 }

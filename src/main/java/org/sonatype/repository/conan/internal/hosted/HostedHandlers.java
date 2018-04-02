@@ -51,7 +51,6 @@ public class HostedHandlers
     State state = context.getAttributes().require(TokenMatcher.State.class);
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     ConanCoords coord = convertFromState(state);
-
     String assetPath = getAssetPath(state, coord);
 
     return context.getRepository()

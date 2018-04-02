@@ -55,6 +55,10 @@ import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_K
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 import static org.sonatype.nexus.repository.view.ContentTypes.APPLICATION_JSON;
 import static org.sonatype.nexus.repository.view.Status.success;
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT;
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP;
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE;
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.toContent;
@@ -75,6 +79,16 @@ public class ConanHostedFacet
     this.uploadUrlManager = uploadUrlManager;
   }
 
+  /**
+   * Services the upload_url endpoint which is basically the same as
+   * the get of download_url.
+   * @param assetPath
+   * @param coord
+   * @param payload
+   * @param assetKind
+   * @return if successful content of the download_url is returned
+   * @throws IOException
+   */
   public Response uploadDownloadUrl(final String assetPath,
                                     final ConanCoords coord,
                                     final Payload payload,
@@ -84,17 +98,30 @@ public class ConanHostedFacet
     checkNotNull(payload);
     checkNotNull(assetKind);
 
-    String savedJson = uploadUrlManager.convertKeys(assetPath + "/", payload.openInputStream());
-
+    String savedJson = getSavedJson(assetPath, payload);
     doPutArchive(assetPath + "/download_urls", coord, new StringPayload(savedJson, APPLICATION_JSON), assetKind);
-
-    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(savedJson.getBytes());
-    String response = uploadUrlManager.prefixToValues(getRepository().getUrl(), byteArrayInputStream);
+    String response = getResponseJson(savedJson);
 
     return new Response.Builder()
         .status(success(OK))
         .payload(new StringPayload(response, APPLICATION_JSON))
         .build();
+  }
+
+  private String getResponseJson(final String savedJson) throws IOException {
+    String response;
+    try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(savedJson.getBytes())) {
+      response = uploadUrlManager.prefixToValues(getRepository().getUrl(), byteArrayInputStream);
+    }
+    return response;
+  }
+
+  private String getSavedJson(final String assetPath, final Payload payload) throws IOException {
+    String savedJson;
+    try (InputStream inputStream = payload.openInputStream()) {
+      savedJson = uploadUrlManager.convertKeys(assetPath + "/", inputStream);
+    }
+    return savedJson;
   }
 
   public Response upload(final String assetPath,
@@ -137,10 +164,10 @@ public class ConanHostedFacet
     Bucket bucket = tx.findBucket(getRepository());
 
     Map<String, String> attributes = new HashMap<>();
-    attributes.put(ConanMetadata.GROUP, coord.getGroup());
-    attributes.put(ConanMetadata.PROJECT, coord.getProject());
-    attributes.put(ConanMetadata.VERSION, coord.getVersion());
-    attributes.put(ConanMetadata.STATE, coord.getChannel());
+    attributes.put(GROUP, coord.getGroup());
+    attributes.put(PROJECT, coord.getProject());
+    attributes.put(VERSION, coord.getVersion());
+    attributes.put(STATE, coord.getChannel());
 
     Component component = findComponent(tx, getRepository(), coord);
     if (component == null) {
@@ -184,13 +211,22 @@ public class ConanHostedFacet
     return toContent(asset, assetBlob.getBlob());
   }
 
+  /**
+   * Services the download_urls endpoint for root and package data
+   * @param context
+   * @return json response of conan files to lookup
+   * @throws IOException
+   */
   public Response getDownloadUrl(final Context context) throws IOException {
     Content content = doGet(context.getRequest().getPath());
+    if(content == null) {
+      return null;
+    }
 
-    String response = uploadUrlManager.prefixToValues(
-        getRepository().getUrl(),
-        content.openInputStream()
-    );
+    String response;
+    try (InputStream inputStream = content.openInputStream()) {
+      response = uploadUrlManager.prefixToValues(getRepository().getUrl(), inputStream);
+    }
 
     return new Response.Builder()
         .status(success(OK))

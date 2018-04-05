@@ -1,6 +1,6 @@
 package com.sonatype.repository.conan.internal.proxy;
 
-import com.sonatype.repository.conan.internal.ConanCliTestContainer;
+import com.sonatype.repository.conan.internal.ConanCliContainer;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -10,7 +10,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class ConanProxyIT
 {
   @Rule
-  public ConanCliTestContainer container = new ConanCliTestContainer();
+  public ConanCliContainer container = new ConanCliContainer();
 
   @Test
   public void proxyIsSetup() throws Exception {

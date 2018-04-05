@@ -1,4 +1,4 @@
-package org.sonatype.repository.conan.internal;
+package com.sonatype.repository.conan.internal;
 
 import java.io.IOException;
 

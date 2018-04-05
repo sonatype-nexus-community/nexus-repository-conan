@@ -1,11 +1,13 @@
-package org.sonatype.repository.conan.internal;
+package com.sonatype.repository.conan.internal.proxy;
+
+import com.sonatype.repository.conan.internal.ConanCliContainer;
 
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-public class ConanListPackagesIT
+public class ConanProxyIT
 {
   @Rule
   public ConanCliContainer container = new ConanCliContainer();

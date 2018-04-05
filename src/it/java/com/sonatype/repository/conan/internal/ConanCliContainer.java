@@ -1,8 +1,10 @@
-package org.sonatype.repository.conan.internal;
+package com.sonatype.repository.conan.internal;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
+import com.sonatype.repository.conan.internal.NexusCliContainer;
 
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.images.builder.ImageFromDockerfile;

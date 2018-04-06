@@ -2,6 +2,8 @@ package com.sonatype.repository.conan.internal.proxy;
 
 import com.sonatype.repository.conan.internal.ConanCliContainer;
 
+import org.sonatype.nexus.it.support.NexusContainer;
+
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -11,6 +13,9 @@ public class ConanProxyIT
 {
   @Rule
   public ConanCliContainer container = new ConanCliContainer();
+
+  @Rule
+  public NexusContainer nxrm = new NexusContainer();
 
   @Test
   public void proxyIsSetup() throws Exception {

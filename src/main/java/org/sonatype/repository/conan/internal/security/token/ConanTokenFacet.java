@@ -10,20 +10,33 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.repository.conan.internal.metadata;
+package org.sonatype.repository.conan.internal.security.token;
+
+import org.sonatype.nexus.repository.Facet;
+import org.sonatype.nexus.repository.Facet.Exposed;
+import org.sonatype.nexus.repository.view.Context;
+import org.sonatype.nexus.repository.view.Response;
 
 /**
- * @since 0.0.1
+ * @since conan.next
  */
-public class ConanMetadata
+@Exposed
+public interface ConanTokenFacet
+    extends Facet
 {
-  public static String PROJECT = "project";
+  /**
+   * Performs a login for user authenticated in the request (creates token and returns login specific response).
+   */
+  Response login(Context context);
 
-  public static String VERSION = "version";
+  /**
+   * Determines if the user is currently authenticated
+   */
+  Response user(Context context);
 
-  public static String GROUP = "group";
-
-  public static String STATE = "state";
-
-  public static String DIGEST = "sha";
+  /**
+   * Performs a log-out for currently authenticated user (deletes the token if found and returns logout specific
+   * response).
+   */
+  Response logout(Context context);
 }

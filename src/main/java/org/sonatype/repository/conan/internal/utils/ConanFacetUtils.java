@@ -12,15 +12,22 @@
  */
 package org.sonatype.repository.conan.internal.utils;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
+import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.storage.Query;
 import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
+import com.google.common.collect.ImmutableList;
+
 import static java.util.Collections.singletonList;
+import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1;
+import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA256;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_GROUP;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_VERSION;
 import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME;
@@ -30,6 +37,8 @@ import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_
  */
 public class ConanFacetUtils
 {
+  public static final List<HashAlgorithm> HASH_ALGORITHMS = ImmutableList.of(SHA1, SHA256);
+
   /**
    * Find a component by its name and tag (version)
    *

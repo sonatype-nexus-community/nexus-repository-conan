@@ -10,20 +10,30 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.repository.conan.internal.metadata;
+/*global Ext, NX*/
 
 /**
- * @since 0.0.1
+ * Repository "Settings" form for a Conan Hosted repository.
  */
-public class ConanMetadata
-{
-  public static String PROJECT = "project";
+Ext.define('NX.conan.view.repository.recipe.ConanHosted', {
+  extend: 'NX.coreui.view.repository.RepositorySettingsForm',
+  alias: 'widget.nx-coreui-repository-conan-hosted',
+  requires: [
+    'NX.coreui.view.repository.facet.StorageFacet',
+    'NX.coreui.view.repository.facet.StorageFacetHosted'
+  ],
 
-  public static String VERSION = "version";
+  /**
+   * @override
+   */
+  initComponent: function () {
+    var me = this;
 
-  public static String GROUP = "group";
+    me.items = [
+      {xtype: 'nx-coreui-repository-storage-facet'},
+      {xtype: 'nx-coreui-repository-storage-hosted-facet', writePolicy: 'ALLOW'}
+    ];
 
-  public static String STATE = "state";
-
-  public static String DIGEST = "sha";
-}
+    me.callParent();
+  }
+});

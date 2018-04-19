@@ -26,6 +26,7 @@ import org.sonatype.nexus.repository.view.ConfigurableViewFacet
 import org.sonatype.nexus.repository.view.Context
 import org.sonatype.nexus.repository.view.Route
 import org.sonatype.nexus.repository.view.Router
+import org.sonatype.nexus.repository.view.ViewFacet
 import org.sonatype.nexus.repository.view.handlers.BrowseUnsupportedHandler
 import org.sonatype.repository.conan.internal.AssetKind
 import org.sonatype.repository.conan.internal.ConanFormat
@@ -70,15 +71,12 @@ class ConanProxyRecipe
 
   @Override
   void apply(@Nonnull final Repository repository) throws Exception {
-    def conanProxyFacet = proxyFacet.get()
-    conanProxyFacet.configureDynamicMatcher(viewClosure)
-
     repository.attach(securityFacet.get())
-    repository.attach(viewFacet.get())
+    repository.attach(configure(viewFacet.get(), new ConanMatcher()))
     repository.attach(httpClientFacet.get())
     repository.attach(negativeCacheFacet.get())
     repository.attach(componentMaintenanceFacet.get())
-    repository.attach(conanProxyFacet)
+    repository.attach(proxyFacet.get())
     repository.attach(storageFacet.get())
     repository.attach(attributesFacet.get())
     repository.attach(searchFacet.get())
@@ -86,7 +84,7 @@ class ConanProxyRecipe
 
   }
 
-  Closure viewClosure = {ConfigurableViewFacet facet, ConanMatcher matcher ->
+  ViewFacet configure(ConfigurableViewFacet facet, ConanMatcher matcher) {
     Router.Builder builder = new Router.Builder()
 
     builder.route(matcher.downloadUrls()

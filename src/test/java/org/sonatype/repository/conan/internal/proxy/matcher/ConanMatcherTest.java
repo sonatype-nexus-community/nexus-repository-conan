@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @Ignore
-public class BintrayMatcherTest
+public class ConanMatcherTest
     extends TestSupport
 {
   @Mock
@@ -34,7 +34,7 @@ public class BintrayMatcherTest
 
   private AttributesMap attributesMap;
 
-  private BintrayMatcher underTest;
+  private ConanMatcher underTest;
 
   @Before
   public void setUp() {
@@ -43,7 +43,7 @@ public class BintrayMatcherTest
     when(context.getAttributes()).thenReturn(attributesMap);
     when(request.getAction()).thenReturn(HttpMethods.GET);
 
-    underTest = new BintrayMatcher();
+    underTest = new ConanMatcher();
   }
 
   @Test

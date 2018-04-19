@@ -15,7 +15,6 @@ package org.sonatype.repository.conan.internal.proxy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map.Entry;
-import java.util.function.BiConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,7 +26,6 @@ import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.cache.CacheController;
 import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.config.Configuration;
-import org.sonatype.nexus.repository.config.ConfigurationFacet;
 import org.sonatype.nexus.repository.proxy.ProxyFacetSupport;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.AssetBlob;
@@ -38,12 +36,10 @@ import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.nexus.repository.storage.TempBlob;
 import org.sonatype.nexus.repository.transaction.TransactionalStoreBlob;
 import org.sonatype.nexus.repository.transaction.TransactionalTouchBlob;
-import org.sonatype.nexus.repository.view.ConfigurableViewFacet;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.ContentTypes;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
-import org.sonatype.nexus.repository.view.ViewFacet;
 import org.sonatype.nexus.repository.view.payloads.BlobPayload;
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
 import org.sonatype.nexus.transaction.UnitOfWork;
@@ -53,12 +49,7 @@ import org.sonatype.repository.conan.internal.metadata.ConanHashVerifier;
 import org.sonatype.repository.conan.internal.metadata.ConanManifest;
 import org.sonatype.repository.conan.internal.metadata.ConanUrlIndexer;
 import org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher;
-import org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcherDeserializer;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Supplier;
 import com.google.common.hash.HashCode;
 
@@ -82,16 +73,9 @@ import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findC
 public class ConanProxyFacet
     extends ProxyFacetSupport
 {
-  private static final String CONFIG_KEY = "conan";
-
-  @VisibleForTesting
-  Config config;
-
   private final ConanHashVerifier hashVerifier;
 
   private final ConanUrlIndexer conanUrlIndexer;
-
-  private BiConsumer<ConfigurableViewFacet, ConanMatcher> urlMatcher;
 
   @Inject
   public ConanProxyFacet(final ConanUrlIndexer conanUrlIndexer,
@@ -105,21 +89,6 @@ public class ConanProxyFacet
   protected void doValidate(final Configuration configuration) throws Exception {
     log.error("doValidate with config {}", configuration);
     super.doValidate(configuration);
-  }
-
-  @Override
-  protected void doConfigure(final Configuration configuration) throws Exception {
-    config = facet(ConfigurationFacet.class).readSection(configuration, CONFIG_KEY, Config.class);
-
-    urlMatcher.accept(
-        (ConfigurableViewFacet)getRepository().facet(ViewFacet.class),
-        config.conanMatcher
-    );
-    super.doConfigure(configuration);
-  }
-
-  public void configureDynamicMatcher(BiConsumer<ConfigurableViewFacet, ConanMatcher> function) {
-    this.urlMatcher = function;
   }
 
   @Nullable
@@ -354,20 +323,5 @@ public class ConanProxyFacet
   protected CacheController getCacheController(@Nonnull final Context context) {
     final AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     return checkNotNull(cacheControllerHolder.get(assetKind.getCacheType()));
-  }
-
-  @VisibleForTesting
-  static class Config
-  {
-    @JsonDeserialize(using = ConanMatcherDeserializer.class)
-    @JsonTypeInfo(use = Id.NONE)
-    public ConanMatcher conanMatcher;
-
-    @Override
-    public String toString() {
-      return getClass().getSimpleName() + "{" +
-          "conanMatcher=" + conanMatcher +
-          '}';
-    }
   }
 }

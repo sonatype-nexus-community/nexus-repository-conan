@@ -22,11 +22,7 @@ import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERS
 class BintrayMatcher
     extends ConanMatcher
 {
-  public static final String NAME = "bintray";
-
-  private static final String VERSION_URL = "/v1/conans";
-
-  private static String STANDARD_FORM = "{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}";
+  public static final String NAME = "bintray"
 
   private static String BINTRAY_FORM = "{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}"
 
@@ -43,7 +39,7 @@ class BintrayMatcher
                 downloadUrlsMatcher()
             )
         )
-    );
+    )
   }
 
   private static TokenMatcher downloadUrlsMatcher() {
@@ -99,7 +95,7 @@ class BintrayMatcher
    * Matches on conaninfo.txt
    * @return matcher for conaninfo.txt
    */
-  public Builder conanInfo() {
+  Builder conanInfo() {
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),

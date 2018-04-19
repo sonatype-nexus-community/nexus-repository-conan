@@ -35,7 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class UploadUrlManager
     extends ComponentSupport
 {
-  private static ObjectMapper MAPPER = new ObjectMapper();
+  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   /**
    * The {@link InputStream} should be a 'Map<String, String>'

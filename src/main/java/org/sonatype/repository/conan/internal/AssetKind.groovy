@@ -26,13 +26,13 @@ enum AssetKind {
   CONAN_INFO(METADATA, "conaninfo.txt"),
   CONAN_PACKAGE(METADATA, "conan_package.tgz")
 
-  private final CacheType cacheType;
+  private final CacheType cacheType
 
-  private final String filename;
+  private final String filename
 
   AssetKind(final CacheType cacheType, final String filename) {
     this.cacheType = cacheType
-    this.filename = filename;
+    this.filename = filename
   }
 
   CacheType getCacheType() {
@@ -40,6 +40,6 @@ enum AssetKind {
   }
 
   String getFilename() {
-    return filename;
+    return filename
   }
 }

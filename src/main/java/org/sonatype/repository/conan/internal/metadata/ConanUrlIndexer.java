@@ -14,30 +14,23 @@ package org.sonatype.repository.conan.internal.metadata;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Nullable;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.storage.StorageFacet;
 import org.sonatype.nexus.repository.storage.TempBlob;
 import org.sonatype.nexus.repository.view.Content;
-import org.sonatype.nexus.repository.view.payloads.StringPayload;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static java.nio.charset.Charset.defaultCharset;
 import static java.util.Collections.emptyMap;
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
 
 /**
  * download_url files contain absolute paths to each asset
@@ -53,18 +46,6 @@ public class ConanUrlIndexer
 {
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
-  public AttributesMap collectAbsoluteUrlsRefs(final TempBlob tempBlob,
-                                               final String assetName) {
-    AttributesMap attributesMap = new AttributesMap();
-    Map<String, URL> downloadUrlContents = readIndex(tempBlob.get());
-
-    for (Map.Entry<String, URL> entry : downloadUrlContents.entrySet()) {
-      String originalHost = entry.getValue().toString().split(entry.getValue().getPath())[0];
-      attributesMap.set(entry.getKey(), originalHost);
-    }
-    return attributesMap;
-  }
-
   public String updateAbsoluteUrls(final Content content,
                                    final Repository repository) throws IOException
   {
@@ -76,34 +57,6 @@ public class ConanUrlIndexer
     }
 
     return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(remappedContents);
-  }
-
-
-  @Nullable
-  private TempBlob updateDownloadUrlContents(final Repository repository, final Map<String, URL> downloadUrlContents) {
-    try {
-      return convertFileToTempBlob(MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(downloadUrlContents), repository);
-    }
-    catch (JsonProcessingException e) {
-      log.warn("Unable to write to blob", e);
-      return null;
-    }
-  }
-
-  @Nullable
-  private URL getIndexedUrl(final String repositoryUrl, final String path) {
-    try {
-      return new URL(repositoryUrl + path);
-    }
-    catch (MalformedURLException e) {
-      log.error("Unable to create indexed url", e);
-    }
-    return null;
-  }
-
-  private TempBlob convertFileToTempBlob(final String resolvedMap, final Repository repository) {
-    StorageFacet storageFacet = repository.facet(StorageFacet.class);
-    return storageFacet.createTempBlob(new StringPayload(resolvedMap, defaultCharset(), null), HASH_ALGORITHMS);
   }
 
 

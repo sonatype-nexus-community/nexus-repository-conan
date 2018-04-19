@@ -35,7 +35,7 @@ public class BintrayMatcherTest
   private BintrayMatcher underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     attributesMap = new AttributesMap();
     when(context.getRequest()).thenReturn(request);
     when(context.getAttributes()).thenReturn(attributesMap);

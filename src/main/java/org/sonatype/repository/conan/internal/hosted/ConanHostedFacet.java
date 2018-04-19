@@ -44,7 +44,6 @@ import org.sonatype.nexus.repository.view.payloads.StringPayload;
 import org.sonatype.nexus.transaction.UnitOfWork;
 import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
-import org.sonatype.repository.conan.internal.metadata.ConanMetadata;
 import org.sonatype.repository.conan.internal.utils.ConanFacetUtils;
 
 import com.google.common.base.Supplier;
@@ -234,7 +233,7 @@ public class ConanHostedFacet
         .build();
   }
 
-  public Response get(final Context context) throws IOException {
+  public Response get(final Context context) {
     Content content = doGet(context.getRequest().getPath());
 
     return new Response.Builder()

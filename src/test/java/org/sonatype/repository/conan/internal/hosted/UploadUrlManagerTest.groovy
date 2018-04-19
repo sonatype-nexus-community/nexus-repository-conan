@@ -8,15 +8,15 @@ import org.junit.Test
 class UploadUrlManagerTest
   extends TestSupport
 {
-  private UploadUrlManager underTest;
+  private UploadUrlManager underTest
 
   @Before
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     underTest = new UploadUrlManager()
   }
 
   @Test
-  public void whenInputStreamThenConvertsKeyToValueDesition() throws Exception {
+  void whenInputStreamThenConvertsKeyToValueDesition() throws Exception {
     String testJson = '{' +
         '"manifest.txt":16,' +
         '"conanfile.py":68' +
@@ -34,7 +34,7 @@ class UploadUrlManagerTest
   }
 
   @Test
-  public void whenInputStreamThenConvertsValueToUrlDestination() throws Exception {
+  void whenInputStreamThenConvertsValueToUrlDestination() throws Exception {
     String testJson = '{' +
         '"manifest.txt":"/v1/conans/group/version/project/exports/manifest.txt",' +
         '"conanfile.py":"/v1/conans/group/version/project/exports/conanfile.py"' +

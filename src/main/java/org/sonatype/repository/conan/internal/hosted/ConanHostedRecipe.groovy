@@ -107,7 +107,7 @@ class ConanHostedRecipe
 
 
   @Inject
-  Provider<ConanHostedFacet> hostedFacet;
+  Provider<ConanHostedFacet> hostedFacet
 
   @Inject
   Provider<ConanTokenFacet> tokenFacet

@@ -25,7 +25,7 @@ public class ConanBrowseNodeGeneratorTest
   ConanBrowseNodeGenerator underTest = new ConanBrowseNodeGenerator();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     component = new DefaultComponent().group("vthiery")
         .name("jsonformoderncpp")
         .version("2.1.1");

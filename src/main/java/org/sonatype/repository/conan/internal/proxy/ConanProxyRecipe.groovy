@@ -52,7 +52,7 @@ class ConanProxyRecipe
   public static final String NAME = 'conan-proxy'
 
   @Inject
-  Provider<ConanProxyFacet> proxyFacet;
+  Provider<ConanProxyFacet> proxyFacet
 
   @Inject
   ProxyHandler proxyHandler

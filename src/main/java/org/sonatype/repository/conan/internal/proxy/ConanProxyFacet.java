@@ -318,7 +318,6 @@ public class ConanProxyFacet
 
   @Override
   protected void indicateVerified(final Context context, final Content content, final CacheInfo cacheInfo)
-      throws IOException
   {
   }
 

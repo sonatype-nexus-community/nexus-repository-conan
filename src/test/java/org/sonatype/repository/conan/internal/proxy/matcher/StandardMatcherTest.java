@@ -9,7 +9,6 @@ import org.sonatype.nexus.repository.view.Request;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -36,7 +35,7 @@ public class StandardMatcherTest
   private StandardMatcher underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     attributesMap = new AttributesMap();
     when(context.getRequest()).thenReturn(request);
     when(context.getAttributes()).thenReturn(attributesMap);

@@ -46,20 +46,20 @@ public class ConanUrlIndexerTest
   ConanUrlIndexer underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     setupRepositoryMock();
 
     class ConanUrlIndexerForTest
         extends ConanUrlIndexer
     {
 
-    };
+    }
     underTest = new ConanUrlIndexerForTest();
   }
 
   @Test
   @Ignore
-  public void replacesUrl() throws Exception {
+  public void replacesUrl() {
     when(download_url.get()).thenReturn(getClass().getResourceAsStream(DOWNLOAD_URL));
     when(repository.getUrl()).thenReturn("http://localhost/repository/conan-proxy");
 

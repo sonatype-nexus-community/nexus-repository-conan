@@ -22,7 +22,7 @@ import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERS
 class StandardMatcher
     extends ConanMatcher
 {
-  public static final String NAME = "standard";
+  public static final String NAME = "standard"
 
   /**
    * Matches on urls ending with download_urls
@@ -37,15 +37,15 @@ class StandardMatcher
                 downloadUrlsMatcher()
             )
         )
-    );
+    )
   }
 
   private static TokenMatcher downloadUrlsMatcher() {
-    return new TokenMatcher("/{path:.*}/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/download_urls");
+    return new TokenMatcher("${VERSION_URL}/${STANDARD_FORM}/download_urls")
   }
 
   private static TokenMatcher downloadUrlsPackagesMatcher() {
-    return new TokenMatcher("/{path:.*}/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/packages/{sha:.+}/download_urls");
+    return new TokenMatcher("${VERSION_URL}/${STANDARD_FORM}/packages/{sha:.+}/download_urls")
   }
 
   /**
@@ -65,11 +65,11 @@ class StandardMatcher
   }
 
   private static TokenMatcher conanManifestMatcher() {
-    new TokenMatcher("/{path:.*}/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/export/conanmanifest.txt")
+    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/export/conanmanifest.txt")
   }
 
   private static TokenMatcher conanManifestPackagesMatcher() {
-    new TokenMatcher("/{path:.*}/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/package/{sha:.+}/conanmanifest.txt")
+    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/package/{sha:.+}/conanmanifest.txt")
   }
 
   /**
@@ -86,7 +86,7 @@ class StandardMatcher
   }
 
   private static TokenMatcher conanFileMatcher() {
-    new TokenMatcher("/{path:.*}/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/export/conanfile.py")
+    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/export/conanfile.py")
   }
 
   /**
@@ -103,7 +103,7 @@ class StandardMatcher
   }
 
   private static TokenMatcher conanInfoMatcher() {
-    new TokenMatcher("/{path:.*}/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/package/{sha:.+}/conaninfo.txt")
+    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/package/{sha:.+}/conaninfo.txt")
   }
 
   /**
@@ -123,10 +123,10 @@ class StandardMatcher
   }
 
   private static TokenMatcher conanPackageMatcher() {
-    new TokenMatcher("/{path:.*}/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/package/{sha:.+}/conan_package.tgz")
+    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/package/{sha:.+}/conan_package.tgz")
   }
 
   private static TokenMatcher conanSourcesMatcher() {
-    new TokenMatcher("/{path:.*}/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/export/conan_sources.tgz")
+    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/export/conan_sources.tgz")
   }
 }

@@ -1,7 +1,5 @@
 package org.sonatype.repository.conan.internal.metadata;
 
-import java.io.IOException;
-
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.storage.TempBlob;
@@ -20,7 +18,7 @@ public class ConanManifestTest
   TempBlob blob;
 
   @Test
-  public void canParse() throws IOException {
+  public void canParse() {
     when(blob.get()).thenAnswer( stream -> getClass().getResourceAsStream("conanmanifest.txt"));
 
     AttributesMap attributesMap = ConanManifest.parse(blob);

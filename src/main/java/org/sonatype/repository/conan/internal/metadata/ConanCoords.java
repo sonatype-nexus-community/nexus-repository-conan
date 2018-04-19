@@ -83,10 +83,10 @@ public class ConanCoords
   }
 
   public static String getPath(ConanCoords coord) {
-    return String.format("v1/conans/%s/%s/%s/%s%s",
+    return String.format("%s/%s/%s/%s%s",
+        coord.getGroup(),
         coord.getProject(),
         coord.getVersion(),
-        coord.getGroup(),
         coord.getChannel(),
         coord.getSha() == null ? "" : "/packages/" + coord.getSha());
   }

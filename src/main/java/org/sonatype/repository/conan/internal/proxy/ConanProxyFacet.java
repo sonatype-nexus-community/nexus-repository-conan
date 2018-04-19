@@ -131,7 +131,7 @@ public class ConanProxyFacet
     if(content != null && assetKind.equals(DOWNLOAD_URL)) {
       return new Content(
           new StringPayload(
-              conanUrlIndexer.updateAbsoluteUrls(content, getRepository()),
+              conanUrlIndexer.updateAbsoluteUrls(context, content, getRepository()),
               ContentTypes.APPLICATION_JSON)
       );
     }
@@ -161,7 +161,7 @@ public class ConanProxyFacet
     if (assetKind.equals(CONAN_PACKAGE)) {
       return putPackage(content, conanCoords, assetKind);
     }
-    return putMetadata(content, assetKind, conanCoords);
+    return putMetadata(context, content, assetKind, conanCoords);
   }
 
   private Content putPackage(final Content content,
@@ -173,7 +173,8 @@ public class ConanProxyFacet
     }
   }
 
-  private Content putMetadata(final Content content,
+  private Content putMetadata(final Context context,
+                              final Content content,
                               final AssetKind assetKind,
                               final ConanCoords coords)
       throws IOException
@@ -187,7 +188,7 @@ public class ConanProxyFacet
 
           return new Content(
               new StringPayload(
-                  conanUrlIndexer.updateAbsoluteUrls(saveMetadata, getRepository()),
+                  conanUrlIndexer.updateAbsoluteUrls(context, saveMetadata, getRepository()),
                   ContentTypes.APPLICATION_JSON)
           );
         case CONAN_MANIFEST:

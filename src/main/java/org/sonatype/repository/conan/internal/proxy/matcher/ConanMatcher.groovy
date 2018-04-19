@@ -17,7 +17,9 @@ abstract class ConanMatcher
 {
   protected static final String VERSION_URL = "/v1/conans"
 
-  protected static String STANDARD_FORM = "{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}"
+  protected static String DOWNLOAD_FORM = "{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}"
+
+  protected static String STANDARD_FORM = "{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}"
 
   abstract Builder downloadUrls()
 

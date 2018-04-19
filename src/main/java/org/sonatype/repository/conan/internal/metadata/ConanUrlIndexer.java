@@ -26,6 +26,8 @@ import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.storage.TempBlob;
 import org.sonatype.nexus.repository.view.Content;
+import org.sonatype.nexus.repository.view.Context;
+import org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,14 +48,19 @@ public class ConanUrlIndexer
 {
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
-  public String updateAbsoluteUrls(final Content content,
+  public String updateAbsoluteUrls(final Context context,
+                                   final Content content,
                                    final Repository repository) throws IOException
   {
     Map<String, URL> downloadUrlContents = readIndex(content.openInputStream());
     Map<String, String> remappedContents = new HashMap<>();
 
+    ConanCoords coords = ConanMatcher.getCoords(context);
+
+    String path = ConanCoords.getPath(coords);
+
     for (Map.Entry<String, URL> entry : downloadUrlContents.entrySet()) {
-      remappedContents.put(entry.getKey(), repository.getUrl() + entry.getValue().getPath());
+      remappedContents.put(entry.getKey(), repository.getUrl() + "/" + path + "/" + entry.getKey());
     }
 
     return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(remappedContents);

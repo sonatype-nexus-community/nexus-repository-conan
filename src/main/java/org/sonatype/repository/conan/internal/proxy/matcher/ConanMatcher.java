@@ -9,6 +9,7 @@ import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.sonatype.repository.conan.internal.metadata.ConanMetadata;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE;
@@ -33,14 +34,12 @@ public abstract class ConanMatcher
 
   static String match(final TokenMatcher.State state, final String name) {
     checkNotNull(state);
-    String result = state.getTokens().get(name);
-    checkNotNull(result);
-    return result;
+    return state.getTokens().get(name);
   }
 
   public static ConanCoords getCoords(final Context context) {
     State state = matcherState(context);
-    return new ConanCoords(group(state), project(state), version(state), channel(state));
+    return new ConanCoords(group(state), project(state), version(state), channel(state), sha(state));
   }
 
   public static TokenMatcher.State matcherState(final Context context) {
@@ -62,4 +61,9 @@ public abstract class ConanMatcher
   public static String channel(final State matcherState) {
     return match(matcherState, STATE);
   }
+
+  public static String sha(final State matcherState) {
+    return match(matcherState, DIGEST);
+  }
+
 }

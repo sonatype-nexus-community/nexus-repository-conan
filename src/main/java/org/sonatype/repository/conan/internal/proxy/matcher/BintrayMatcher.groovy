@@ -1,5 +1,6 @@
 package org.sonatype.repository.conan.internal.proxy.matcher
 
+import org.sonatype.nexus.repository.view.Matcher
 import org.sonatype.nexus.repository.view.Route.Builder
 import org.sonatype.nexus.repository.view.matchers.ActionMatcher
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher
@@ -23,6 +24,12 @@ class BintrayMatcher
 {
   public static final String NAME = "bintray";
 
+  private static final String VERSION_URL = "/v1/conans";
+
+  private static String STANDARD_FORM = "{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}";
+
+  private static String BINTRAY_FORM = "{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}"
+
   /**
    * Matches on urls ending with download_urls
    * @return matcher for initial and package download_urls endpoints
@@ -40,11 +47,11 @@ class BintrayMatcher
   }
 
   private static TokenMatcher downloadUrlsMatcher() {
-    return new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/download_urls");
+    return new TokenMatcher("${VERSION_URL}/${STANDARD_FORM}/download_urls")
   }
 
   private static TokenMatcher downloadUrlsPackagesMatcher() {
-    return new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/packages/{sha:.+}/download_urls");
+    return new TokenMatcher("${VERSION_URL}/${STANDARD_FORM}/packages/{sha:.+}/download_urls")
   }
 
   /**
@@ -64,11 +71,11 @@ class BintrayMatcher
   }
 
   private static TokenMatcher conanManifestMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanmanifest.txt")
+    new TokenMatcher("/{path:.*}/${BINTRAY_FORM}/export/conanmanifest.txt")
   }
 
   private static TokenMatcher conanManifestPackagesMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conanmanifest.txt")
+    new TokenMatcher("/{path:.*}/${BINTRAY_FORM}/package/{sha:.+}/conanmanifest.txt")
   }
 
   /**
@@ -85,7 +92,7 @@ class BintrayMatcher
   }
 
   private static TokenMatcher conanFileMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanfile.py")
+    new TokenMatcher("/{path:.*}/${BINTRAY_FORM}/export/conanfile.py")
   }
 
   /**
@@ -102,7 +109,7 @@ class BintrayMatcher
   }
 
   private static TokenMatcher conanInfoMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conaninfo.txt")
+    new TokenMatcher("/{path:.*}/${BINTRAY_FORM}/package/{sha:.+}/conaninfo.txt")
   }
 
   /**
@@ -122,10 +129,10 @@ class BintrayMatcher
   }
 
   private static TokenMatcher conanPackageMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conan_package.tgz")
+    new TokenMatcher("/{path:.*}/${BINTRAY_FORM}/package/{sha:.+}/conan_package.tgz")
   }
 
   private static TokenMatcher conanSourcesMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conan_sources.tgz")
+    new TokenMatcher("/{path:.*}/${BINTRAY_FORM}/export/conan_sources.tgz")
   }
 }

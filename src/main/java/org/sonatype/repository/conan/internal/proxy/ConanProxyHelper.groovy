@@ -20,6 +20,8 @@ import org.sonatype.nexus.repository.storage.StorageTx
 import org.sonatype.nexus.repository.view.Content
 import org.sonatype.nexus.repository.view.Context
 import org.sonatype.nexus.repository.view.payloads.BlobPayload
+import org.sonatype.repository.conan.internal.AssetKind
+import org.sonatype.repository.conan.internal.metadata.ConanCoords
 
 import com.google.common.collect.ImmutableList
 
@@ -28,6 +30,7 @@ import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA256
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA512
 import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME
+import static org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher.getCoords
 
 /**
  * @since 0.0.1
@@ -37,7 +40,13 @@ class ConanProxyHelper
   public static final List<HashAlgorithm> HASH_ALGORITHMS = ImmutableList.of(SHA256, SHA1, SHA512, MD5)
 
   static String buildAssetPath(final Context context) {
-    return context.getRequest().getPath().substring(1);
+    AssetKind assetKind = context.getAttributes().require(AssetKind.class)
+    ConanCoords conanCoords = getCoords(context)
+    return buildAssetPathFromCoords(conanCoords, assetKind)
+  }
+
+  static String buildAssetPathFromCoords(ConanCoords conanCoords, AssetKind assetKind) {
+    ConanCoords.getPath(conanCoords) + "/" + assetKind.getFilename()
   }
 
   static Asset findAsset(final StorageTx tx, final Bucket bucket, final String assetName) {

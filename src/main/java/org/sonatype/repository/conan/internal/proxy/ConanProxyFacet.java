@@ -14,8 +14,6 @@ package org.sonatype.repository.conan.internal.proxy;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 
@@ -42,11 +40,12 @@ import org.sonatype.nexus.repository.transaction.TransactionalStoreBlob;
 import org.sonatype.nexus.repository.transaction.TransactionalTouchBlob;
 import org.sonatype.nexus.repository.view.ConfigurableViewFacet;
 import org.sonatype.nexus.repository.view.Content;
+import org.sonatype.nexus.repository.view.ContentTypes;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.ViewFacet;
-import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.payloads.BlobPayload;
+import org.sonatype.nexus.repository.view.payloads.StringPayload;
 import org.sonatype.nexus.transaction.UnitOfWork;
 import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
@@ -67,16 +66,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.MD5;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
-import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC;
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPath;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPathFromCoords;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
 import static org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher.getCoords;
-import static org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher.group;
-import static org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher.matcherState;
-import static org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher.project;
-import static org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher.version;
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findComponent;
 
 /**
@@ -129,7 +125,17 @@ public class ConanProxyFacet
   @Nullable
   @Override
   protected Content getCachedContent(final Context context) throws IOException {
-    return getAsset(buildAssetPath(context));
+    AssetKind assetKind = context.getAttributes().require(AssetKind.class);
+    Content content = getAsset(buildAssetPath(context));
+
+    if(content != null && assetKind.equals(DOWNLOAD_URL)) {
+      return new Content(
+          new StringPayload(
+              conanUrlIndexer.updateAbsoluteUrls(content, getRepository()),
+              ContentTypes.APPLICATION_JSON)
+      );
+    }
+    return content;
   }
 
   @TransactionalTouchBlob
@@ -150,27 +156,24 @@ public class ConanProxyFacet
   @Override
   protected Content store(final Context context, final Content content) throws IOException {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
-    TokenMatcher.State matcherState = matcherState(context);
-    String assetPath = buildAssetPath(context);
 
     ConanCoords conanCoords = getCoords(context);
-    if (assetKind.equals(CONAN_SRC)) {
-      return putPackage(assetPath, content, conanCoords);
+    if (assetKind.equals(CONAN_PACKAGE)) {
+      return putPackage(content, conanCoords, assetKind);
     }
-    return putMetadata(assetPath, content, assetKind, conanCoords);
+    return putMetadata(content, assetKind, conanCoords);
   }
 
-  private Content putPackage(final String assetPath,
-                             final Content content,
-                             final ConanCoords coords) throws IOException {
+  private Content putPackage(final Content content,
+                             final ConanCoords coords,
+                             final AssetKind assetKind) throws IOException {
     StorageFacet storageFacet = facet(StorageFacet.class);
     try (TempBlob tempBlob = storageFacet.createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
-      return doPutPackage(assetPath, tempBlob, content, coords);
+      return doPutPackage(tempBlob, content, coords, assetKind);
     }
   }
 
-  private Content putMetadata(final String assetPath,
-                              final Content content,
+  private Content putMetadata(final Content content,
                               final AssetKind assetKind,
                               final ConanCoords coords)
       throws IOException
@@ -180,11 +183,13 @@ public class ConanProxyFacet
       AttributesMap attributesMap;
       switch (assetKind) {
         case DOWNLOAD_URL:
-          String indexAssetName = getProjectIndexName(coords);
-          try (TempBlob updatedBlob = conanUrlIndexer.updateAbsoluteUrls(tempBlob, getRepository(), indexAssetName)) {
-            attributesMap = ConanManifest.parse(updatedBlob);
-            return doSaveMetadata(assetPath, updatedBlob, content, assetKind, attributesMap, coords);
-          }
+          Content saveMetadata = doSaveMetadata(tempBlob, content, assetKind, new AttributesMap(), coords);
+
+          return new Content(
+              new StringPayload(
+                  conanUrlIndexer.updateAbsoluteUrls(saveMetadata, getRepository()),
+                  ContentTypes.APPLICATION_JSON)
+          );
         case CONAN_MANIFEST:
           attributesMap = ConanManifest.parse(tempBlob);
           break;
@@ -196,12 +201,8 @@ public class ConanProxyFacet
           attributesMap = new AttributesMap();
           break;
       }
-      return doSaveMetadata(assetPath, tempBlob, content, assetKind, attributesMap, coords);
+      return doSaveMetadata(tempBlob, content, assetKind, attributesMap, coords);
     }
-  }
-
-  private String getProjectIndexName(final ConanCoords coords) {
-    return coords.getGroup() + "/" + coords.getProject() + "/" + coords.getVersion() + "/index.json";
   }
 
   static Content toContent(final Asset asset, final Blob blob) {
@@ -225,27 +226,27 @@ public class ConanProxyFacet
   }
 
   @TransactionalStoreBlob
-  protected Content doPutPackage(final String assetPath,
-                                 final TempBlob tempBlob,
+  protected Content doPutPackage(final TempBlob tempBlob,
                                  final Payload content,
-                                 final ConanCoords coords) throws IOException
+                                 final ConanCoords coords,
+                                 final AssetKind assetKind) throws IOException
   {
     StorageTx tx = UnitOfWork.currentTx();
     Bucket bucket = tx.findBucket(getRepository());
     Component component = getOrCreateComponent(tx, bucket, coords);
 
+    String assetPath = buildAssetPathFromCoords(coords, assetKind);
     Asset asset = findAsset(tx, bucket, assetPath);
     if (asset == null) {
       asset = tx.createAsset(bucket, component);
       asset.name(assetPath);
-      asset.formatAttributes().set(P_ASSET_KIND, CONAN_SRC.name());
+      asset.formatAttributes().set(P_ASSET_KIND, CONAN_PACKAGE.name());
     }
     return saveAsset(tx, asset, tempBlob, content, null);
   }
 
   @TransactionalStoreBlob
-  protected Content doSaveMetadata(final String assetPath,
-                                   final TempBlob metadataContent,
+  protected Content doSaveMetadata(final TempBlob metadataContent,
                                    final Payload payload,
                                    final AssetKind assetKind,
                                    final AttributesMap attributesMap,
@@ -256,6 +257,7 @@ public class ConanProxyFacet
     Bucket bucket = tx.findBucket(getRepository());
     Component component = getOrCreateComponent(tx, bucket, coords);
 
+    String assetPath = buildAssetPathFromCoords(coords, assetKind);
     Asset asset = findAsset(tx, bucket, assetPath);
     if (asset == null) {
       asset = tx.createAsset(bucket, component);
@@ -329,15 +331,22 @@ public class ConanProxyFacet
     }
 
     log.info("AssetKind {} to be fetched is {}", assetKind, context.getRequest().getPath());
-    TokenMatcher.State matcherState = context.getAttributes().require(TokenMatcher.State.class);
 
+    // Find the original download_url
     ConanCoords coords = ConanMatcher.getCoords(context);
-    Map<String, URL> indexes = conanUrlIndexer
-        .handleReadingIndexes(getProjectIndexName(coords), getRepository());
-    if(indexes.containsKey(context.getRequest().getPath())) {
-      return indexes.get(context.getRequest().getPath()).toString();
-    };
-    return context.getRequest().getPath();
+    String download_urls = String.format("%s/%s", ConanCoords.getPath(coords), "download_urls");
+    return getUrlFromDownloadAsset(download_urls, assetKind.getFilename());
+  }
+
+  @TransactionalTouchBlob
+  protected String getUrlFromDownloadAsset(final String download_urls, final String find) {
+    StorageTx tx = UnitOfWork.currentTx();
+
+    Asset asset = findAsset(tx, tx.findBucket(getRepository()), download_urls);
+    if (asset == null) {
+      return null;
+    }
+    return conanUrlIndexer.findUrl(tx.requireBlob(asset.blobRef()).getInputStream(), find);
   }
 
   @Nonnull

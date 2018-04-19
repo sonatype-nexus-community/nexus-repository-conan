@@ -38,10 +38,10 @@ public class ConanBrowseNodeGenerator
 
   public List<String> assetSegment(final String path) {
     String[] split = path.split("/");
-    if(path.contains("package") || path.contains("packages")) {
-      return ImmutableList.of(split[split.length-2], split[split.length-1]);
+    if(path.contains("packages")) {
+      return ImmutableList.of(split[split.length-4], split[split.length-2], split[split.length-1]);
     }
-    return ImmutableList.of(split[split.length-1]);
+    return ImmutableList.of(split[split.length-2], split[split.length-1]);
   }
 
   @Override

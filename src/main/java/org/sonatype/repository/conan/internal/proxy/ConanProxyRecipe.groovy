@@ -38,7 +38,7 @@ import static org.sonatype.nexus.repository.http.HttpHandlers.notFound
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST
-import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL
 
 /**
@@ -143,7 +143,7 @@ class ConanProxyRecipe
 
     builder.route(matcher.conanPackage()
         .handler(timingHandler)
-        .handler(assetKindHandler.rcurry(CONAN_SRC))
+        .handler(assetKindHandler.rcurry(CONAN_PACKAGE))
         .handler(securityHandler)
         .handler(exceptionHandler)
         .handler(handlerContributor)

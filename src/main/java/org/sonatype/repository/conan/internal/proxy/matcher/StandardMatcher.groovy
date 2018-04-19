@@ -41,11 +41,11 @@ class StandardMatcher
   }
 
   private static TokenMatcher downloadUrlsMatcher() {
-    return new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/download_urls");
+    return new TokenMatcher("/{path:.*}/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/download_urls");
   }
 
   private static TokenMatcher downloadUrlsPackagesMatcher() {
-    return new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/packages/{sha:.+}/download_urls");
+    return new TokenMatcher("/{path:.*}/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/packages/{sha:.+}/download_urls");
   }
 
   /**

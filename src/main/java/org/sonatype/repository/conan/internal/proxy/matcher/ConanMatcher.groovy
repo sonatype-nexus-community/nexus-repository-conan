@@ -41,11 +41,11 @@ class ConanMatcher
   }
 
   private static TokenMatcher downloadUrlsMatcher() {
-    return new TokenMatcher("/{path:.*}/${DOWNLOAD_FORM}/download_urls")
+    return new TokenMatcher("{path:.*}/${DOWNLOAD_FORM}/download_urls")
   }
 
   private static TokenMatcher downloadUrlsPackagesMatcher() {
-    return new TokenMatcher("/{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/download_urls")
+    return new TokenMatcher("{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/download_urls")
   }
 
   /**
@@ -57,8 +57,8 @@ class ConanMatcher
         and(
             new ActionMatcher(GET, HEAD),
             or(
-                conanManifestMatcher(),
-                conanManifestPackagesMatcher()
+                conanManifestPackagesMatcher(),
+                conanManifestMatcher()
             )
         )
     )

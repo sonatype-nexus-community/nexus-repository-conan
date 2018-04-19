@@ -67,18 +67,8 @@ public class ConanMatcherTest
   }
 
   @Test
-  public void canMatchOnAlternatePackagesDownloadUrl() {
-    when(request.getPath()).thenReturn("/v1/conans/zlib/1.2.11/conan/stable/packages/8018a4df6e7d2b4630a814fa40c81b85b9182d2b/download_urls");
-    assertTrue(underTest.downloadUrls().handler(handler).create().getMatcher().matches(context));
-    TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
-    assertThat(matcherState.getTokens().get("group"), is(equalTo("conan")));
-    assertThat(matcherState.getTokens().get("project"), is(equalTo("zlib")));
-    assertThat(matcherState.getTokens().get("version"), is(equalTo("1.2.11")));
-  }
-
-  @Test
   public void canMatchOnConanfile() {
-    when(request.getPath()).thenReturn("/conan/conan/conan-center/v1/files/vthiery/jsonformoderncpp/2.1.1/stable/export/conanfile.py");
+    when(request.getPath()).thenReturn("/vthiery/jsonformoderncpp/2.1.1/stable/conanfile.py");
     assertTrue(underTest.conanFile().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("group"), is(equalTo("vthiery")));
@@ -88,7 +78,17 @@ public class ConanMatcherTest
 
   @Test
   public void canMatchOnConanManifest() {
-    when(request.getPath()).thenReturn("/conan/conan/conan-center/v1/files/vthiery/jsonformoderncpp/2.1.1/stable/export/conanmanifest.txt");
+    when(request.getPath()).thenReturn("/vthiery/jsonformoderncpp/2.1.1/stable/conanmanifest.txt");
+    assertTrue(underTest.conanManifest().handler(handler).create().getMatcher().matches(context));
+    TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
+    assertThat(matcherState.getTokens().get("group"), is(equalTo("vthiery")));
+    assertThat(matcherState.getTokens().get("project"), is(equalTo("jsonformoderncpp")));
+    assertThat(matcherState.getTokens().get("version"), is(equalTo("2.1.1")));
+  }
+
+  @Test
+  public void canMatchOnPackagesConanManifest() {
+    when(request.getPath()).thenReturn("/vthiery/jsonformoderncpp/2.1.1/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conanmanifest.txt");
     assertTrue(underTest.conanManifest().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("group"), is(equalTo("vthiery")));
@@ -98,7 +98,7 @@ public class ConanMatcherTest
 
   @Test
   public void canMatchOnConanInfo() {
-    when(request.getPath()).thenReturn("/conan/conan/conan-center/v1/files/vthiery/jsonformoderncpp/2.1.1/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt");
+    when(request.getPath()).thenReturn("/vthiery/jsonformoderncpp/2.1.1/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt");
     assertTrue(underTest.conanInfo().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("group"), is(equalTo("vthiery")));
@@ -108,7 +108,7 @@ public class ConanMatcherTest
 
   @Test
   public void canMatchOnConanPackage() {
-    when(request.getPath()).thenReturn("/conan/conan/conan-center/v1/files/vthiery/jsonformoderncpp/2.1.1/stable/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz");
+    when(request.getPath()).thenReturn("/vthiery/jsonformoderncpp/2.1.1/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz");
     assertTrue(underTest.conanPackage().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("group"), is(equalTo("vthiery")));

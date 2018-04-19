@@ -17,6 +17,7 @@ import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Bucket;
 import org.sonatype.nexus.repository.storage.StorageTx;
+import org.sonatype.repository.conan.internal.AssetKind;
 
 import com.google.common.hash.HashCode;
 
@@ -31,9 +32,6 @@ import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.find
 public class ConanHashVerifier
     extends ComponentSupport
 {
-
-  private static final String CONANMANIFEST_TXT = "conanmanifest.txt";
-
   /**
    * Retrieves the hash maps which are stored as key, value pairs within the conanmanifest file
    * @param tx
@@ -59,7 +57,7 @@ public class ConanHashVerifier
 
   private AttributesMap getAttributes(final StorageTx tx, final Bucket bucket, final String assetPath) {
     String originalFilename = getFilenameFromPath(assetPath);
-    String manifestFile = assetPath.replace(originalFilename, CONANMANIFEST_TXT);
+    String manifestFile = assetPath.replace(originalFilename, AssetKind.CONAN_MANIFEST.getFilename());
     Asset asset = findAsset(tx, bucket, manifestFile);
     if(asset == null) {
       return null;

@@ -48,7 +48,7 @@ import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.or
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST
-import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
@@ -143,17 +143,17 @@ class ConanHostedRecipe
   ViewFacet configure(final ConfigurableViewFacet facet) {
     Router.Builder builder = new Router.Builder()
 
-    createRoute(builder, uploadUrls(), DOWNLOAD_URL, hostedHandler.uploadUrl)
+    createRoute(builder, uploadUrls(), AssetKind.DOWNLOAD_URL, hostedHandler.uploadUrl)
     createRoute(builder, uploadManifest(), CONAN_MANIFEST, hostedHandler.uploadManifest)
     createRoute(builder, uploadConanfile(), CONAN_FILE, hostedHandler.uploadConanFile)
     createRoute(builder, uploadConaninfo(), CONAN_INFO, hostedHandler.uploadConanInfo)
-    createRoute(builder, uploadConanPackageZip(), CONAN_SRC, hostedHandler.uploadConanSource)
+    createRoute(builder, uploadConanPackageZip(), CONAN_PACKAGE, hostedHandler.uploadConanSource)
 
-    createRoute(builder, downloadUrls(), DOWNLOAD_URL, hostedHandler.downloadUrl)
+    createRoute(builder, downloadUrls(), AssetKind.DOWNLOAD_URL, hostedHandler.downloadUrl)
     createRoute(builder, downloadManifest(), CONAN_MANIFEST, hostedHandler.download)
     createRoute(builder, downloadConanfile(), CONAN_FILE, hostedHandler.download)
     createRoute(builder, downloadConaninfo(), CONAN_INFO, hostedHandler.download)
-    createRoute(builder, downloadConanPackageZip(), CONAN_SRC, hostedHandler.download)
+    createRoute(builder, downloadConanPackageZip(), CONAN_PACKAGE, hostedHandler.download)
 
     builder.route(checkCredentials()
         .handler(timingHandler)
@@ -190,7 +190,7 @@ class ConanHostedRecipe
   }
 
   private Router.Builder createRoute(Router.Builder builder,
-                                     Route.Builder matcher,
+                                     Builder matcher,
                                      AssetKind assetKind,
                                      Handler handler) {
     builder.route(matcher

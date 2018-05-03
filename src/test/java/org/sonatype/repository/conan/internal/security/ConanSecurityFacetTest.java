@@ -67,14 +67,14 @@ public class ConanSecurityFacetTest
   }
 
   @Test
-  public void testEnsurePermitted_permitted() throws Exception {
+  public void testEnsurePermitted_permitted() {
     when(contentPermissionChecker.isPermitted(eq("ConanSecurityFacetTest"), eq("conan"), eq(READ), any()))
         .thenReturn(true);
     conanSecurityFacet.ensurePermitted(request);
   }
 
   @Test
-  public void testEnsurePermitted_notPermitted() throws Exception {
+  public void testEnsurePermitted_notPermitted() {
     when(contentPermissionChecker.isPermitted(eq("ConanSecurityFacetTest"), eq("conan"), eq(READ), any()))
         .thenReturn(false);
     try {

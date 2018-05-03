@@ -1,27 +1,28 @@
 package org.sonatype.repository.conan.internal.proxy.matcher
 
+import org.sonatype.nexus.repository.view.Context
 import org.sonatype.nexus.repository.view.Route.Builder
 import org.sonatype.nexus.repository.view.matchers.ActionMatcher
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher
-import org.sonatype.repository.conan.internal.AssetKind
+import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State
+import org.sonatype.repository.conan.internal.metadata.ConanCoords
 
+import static com.google.common.base.Preconditions.checkNotNull
 import static org.sonatype.nexus.repository.http.HttpMethods.GET
 import static org.sonatype.nexus.repository.http.HttpMethods.HEAD
 import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.and
 import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.or
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION
 
-/**
- * For all {@link AssetKind} the server sends files in Group/Project/Version order
- * @since 0.0.2
- */
-class BintrayMatcher
-    extends ConanMatcher
+class ConanMatcher
 {
-  public static final String NAME = "bintray";
+  protected static String DOWNLOAD_FORM = "{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}"
+
+  protected static String STANDARD_FORM = "{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}"
 
   /**
    * Matches on urls ending with download_urls
@@ -36,15 +37,15 @@ class BintrayMatcher
                 downloadUrlsMatcher()
             )
         )
-    );
+    )
   }
 
   private static TokenMatcher downloadUrlsMatcher() {
-    return new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/download_urls");
+    return new TokenMatcher("{path:.*}/${DOWNLOAD_FORM}/download_urls")
   }
 
   private static TokenMatcher downloadUrlsPackagesMatcher() {
-    return new TokenMatcher("/v1/conans/{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}/packages/{sha:.+}/download_urls");
+    return new TokenMatcher("{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/download_urls")
   }
 
   /**
@@ -56,19 +57,19 @@ class BintrayMatcher
         and(
             new ActionMatcher(GET, HEAD),
             or(
-                conanManifestMatcher(),
-                conanManifestPackagesMatcher()
+                conanManifestPackagesMatcher(),
+                conanManifestMatcher()
             )
         )
     )
   }
 
   private static TokenMatcher conanManifestMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanmanifest.txt")
+    new TokenMatcher("/${STANDARD_FORM}/conanmanifest.txt")
   }
 
   private static TokenMatcher conanManifestPackagesMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conanmanifest.txt")
+    new TokenMatcher("/${STANDARD_FORM}/packages/{sha:.+}/conanmanifest.txt")
   }
 
   /**
@@ -85,14 +86,14 @@ class BintrayMatcher
   }
 
   private static TokenMatcher conanFileMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conanfile.py")
+    new TokenMatcher("/${STANDARD_FORM}/conanfile.py")
   }
 
   /**
    * Matches on conaninfo.txt
    * @return matcher for conaninfo.txt
    */
-  public Builder conanInfo() {
+  Builder conanInfo() {
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
@@ -102,7 +103,7 @@ class BintrayMatcher
   }
 
   private static TokenMatcher conanInfoMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conaninfo.txt")
+    new TokenMatcher("/${STANDARD_FORM}/packages/{sha:.+}/conaninfo.txt")
   }
 
   /**
@@ -113,19 +114,46 @@ class BintrayMatcher
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
-            or(
-                conanPackageMatcher(),
-                conanSourcesMatcher()
-            )
+            conanPackageMatcher()
         )
     )
   }
 
   private static TokenMatcher conanPackageMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/package/{sha:.+}/conan_package.tgz")
+    new TokenMatcher("/${STANDARD_FORM}/packages/{sha:.+}/conan_package.tgz")
   }
 
-  private static TokenMatcher conanSourcesMatcher() {
-    new TokenMatcher("/{path:.*}/{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}/export/conan_sources.tgz")
+  static String match(final TokenMatcher.State state, final String name) {
+    checkNotNull(state)
+    return state.getTokens().get(name)
+  }
+
+  static ConanCoords getCoords(final Context context) {
+    State state = matcherState(context)
+    return new ConanCoords(group(state), project(state), version(state), channel(state), sha(state))
+  }
+
+  static TokenMatcher.State matcherState(final Context context) {
+    return context.getAttributes().require(TokenMatcher.State.class)
+  }
+
+  static String group(final State matcherState) {
+    return match(matcherState, GROUP)
+  }
+
+  static String project(final State matcherState) {
+    return match(matcherState, PROJECT)
+  }
+
+  static String version(final State matcherState) {
+    return match(matcherState, VERSION)
+  }
+
+  static String channel(final State matcherState) {
+    return match(matcherState, STATE)
+  }
+
+  static String sha(final State matcherState) {
+    return match(matcherState, DIGEST)
   }
 }

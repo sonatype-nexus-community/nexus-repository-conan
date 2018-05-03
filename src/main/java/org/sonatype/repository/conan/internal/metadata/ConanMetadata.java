@@ -17,13 +17,13 @@ package org.sonatype.repository.conan.internal.metadata;
  */
 public class ConanMetadata
 {
-  public static String PROJECT = "project";
+  public final static String PROJECT = "project";
 
-  public static String VERSION = "version";
+  public final static String VERSION = "version";
 
-  public static String GROUP = "group";
+  public final static String GROUP = "group";
 
-  public static String STATE = "state";
+  public final static String STATE = "state";
 
-  public static String DIGEST = "sha";
+  public final static String DIGEST = "sha";
 }

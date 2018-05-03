@@ -23,7 +23,7 @@ public class ConanBrowseNodeGeneratorTest
   ConanBrowseNodeGenerator underTest = new ConanBrowseNodeGenerator();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     component = new DefaultComponent().group("vthiery")
         .name("jsonformoderncpp")
         .version("2.1.1");
@@ -36,7 +36,7 @@ public class ConanBrowseNodeGeneratorTest
 
     List<String> assetPath = underTest.computeAssetPath(asset, component);
 
-    assertThat(assetPath, contains("vthiery", "jsonformoderncpp", "2.1.1", "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9", "download_urls"));
+    assertThat(assetPath, contains("vthiery", "jsonformoderncpp", "2.1.1", "stable", "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9", "download_urls"));
   }
 
 
@@ -47,8 +47,7 @@ public class ConanBrowseNodeGeneratorTest
 
     List<String> assetPath = underTest.computeAssetPath(asset, component);
 
-    assertThat(assetPath, contains("vthiery", "jsonformoderncpp", "2.1.1", "download_urls"));
-
+    assertThat(assetPath, contains("vthiery", "jsonformoderncpp", "2.1.1", "stable", "download_urls"));
   }
 
   private Asset createAsset(String assetName) {

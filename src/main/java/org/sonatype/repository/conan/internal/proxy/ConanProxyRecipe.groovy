@@ -26,6 +26,7 @@ import org.sonatype.nexus.repository.view.ConfigurableViewFacet
 import org.sonatype.nexus.repository.view.Context
 import org.sonatype.nexus.repository.view.Route
 import org.sonatype.nexus.repository.view.Router
+import org.sonatype.nexus.repository.view.ViewFacet
 import org.sonatype.nexus.repository.view.handlers.BrowseUnsupportedHandler
 import org.sonatype.repository.conan.internal.AssetKind
 import org.sonatype.repository.conan.internal.ConanFormat
@@ -38,7 +39,7 @@ import static org.sonatype.nexus.repository.http.HttpHandlers.notFound
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST
-import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SRC
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL
 
 /**
@@ -52,7 +53,7 @@ class ConanProxyRecipe
   public static final String NAME = 'conan-proxy'
 
   @Inject
-  Provider<ConanProxyFacet> proxyFacet;
+  Provider<ConanProxyFacet> proxyFacet
 
   @Inject
   ProxyHandler proxyHandler
@@ -70,15 +71,12 @@ class ConanProxyRecipe
 
   @Override
   void apply(@Nonnull final Repository repository) throws Exception {
-    def conanProxyFacet = proxyFacet.get()
-    conanProxyFacet.configureDynamicMatcher(viewClosure)
-
     repository.attach(securityFacet.get())
-    repository.attach(viewFacet.get())
+    repository.attach(configure(viewFacet.get(), new ConanMatcher()))
     repository.attach(httpClientFacet.get())
     repository.attach(negativeCacheFacet.get())
     repository.attach(componentMaintenanceFacet.get())
-    repository.attach(conanProxyFacet)
+    repository.attach(proxyFacet.get())
     repository.attach(storageFacet.get())
     repository.attach(attributesFacet.get())
     repository.attach(searchFacet.get())
@@ -86,7 +84,7 @@ class ConanProxyRecipe
 
   }
 
-  Closure viewClosure = {ConfigurableViewFacet facet, ConanMatcher matcher ->
+  ViewFacet configure(ConfigurableViewFacet facet, ConanMatcher matcher) {
     Router.Builder builder = new Router.Builder()
 
     builder.route(matcher.downloadUrls()
@@ -143,7 +141,7 @@ class ConanProxyRecipe
 
     builder.route(matcher.conanPackage()
         .handler(timingHandler)
-        .handler(assetKindHandler.rcurry(CONAN_SRC))
+        .handler(assetKindHandler.rcurry(CONAN_PACKAGE))
         .handler(securityHandler)
         .handler(exceptionHandler)
         .handler(handlerContributor)

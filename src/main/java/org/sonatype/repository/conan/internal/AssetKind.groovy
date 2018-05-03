@@ -20,20 +20,26 @@ import static org.sonatype.nexus.repository.cache.CacheControllerHolder.METADATA
  * @since 0.0.1
  */
 enum AssetKind {
-  DOWNLOAD_URL(METADATA),
-  CONAN_MANIFEST(METADATA),
-  CONAN_FILE(METADATA),
-  CONAN_INFO(METADATA),
-  CONAN_INDEX(METADATA),
-  CONAN_SRC(METADATA)
+  DOWNLOAD_URL(METADATA, "download_urls"),
+  CONAN_MANIFEST(METADATA, "conanmanifest.txt"),
+  CONAN_FILE(METADATA, "conanfile.py"),
+  CONAN_INFO(METADATA, "conaninfo.txt"),
+  CONAN_PACKAGE(METADATA, "conan_package.tgz")
 
-  private final CacheType cacheType;
+  private final CacheType cacheType
 
-  AssetKind(final CacheType cacheType) {
+  private final String filename
+
+  AssetKind(final CacheType cacheType, final String filename) {
     this.cacheType = cacheType
+    this.filename = filename
   }
 
   CacheType getCacheType() {
     return cacheType
+  }
+
+  String getFilename() {
+    return filename
   }
 }

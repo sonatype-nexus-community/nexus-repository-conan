@@ -91,20 +91,30 @@ public class HostedHandlers
   }
 
   private String getAssetPath(final State state, final ConanCoords coord) {
-    String sha = state.getTokens().getOrDefault(DIGEST, "");
-    String path = V1_CONANS + getPath(coord);
-    return sha.isEmpty() ? path : path + "/packages/" + sha;
+    return V1_CONANS + getPath(coord);
   }
 
-  final Handler downloadUrl = context ->
-      context.getRepository()
-          .facet(ConanHostedFacet.class)
-          .getDownloadUrl(context);
+  final Handler downloadUrl = context -> {
+    State state = context.getAttributes().require(TokenMatcher.State.class);
+    AssetKind assetKind = context.getAttributes().require(AssetKind.class);
+    ConanCoords coord = convertFromState(state);
+    String assetPath = getAssetPath(state, coord) + "/" + assetKind.getFilename();
 
-  final Handler download = context ->
-      context.getRepository()
-          .facet(ConanHostedFacet.class)
-          .get(context);
+    return context.getRepository()
+        .facet(ConanHostedFacet.class)
+        .getDownloadUrl(assetPath);
+  };
+
+  final Handler download = context -> {
+    State state = context.getAttributes().require(State.class);
+    AssetKind assetKind = context.getAttributes().require(AssetKind.class);
+    ConanCoords coord = convertFromState(state);
+    String assetPath = getAssetPath(state, coord) + "/" + assetKind.getFilename();
+
+    return context.getRepository()
+        .facet(ConanHostedFacet.class)
+        .get(assetPath);
+  };
 
   /**
    * Checks if there is a Bearer Authentication: token

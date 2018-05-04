@@ -25,7 +25,7 @@ import org.eclipse.sisu.Description;
 /**
  * @since conan.next
  */
-@Named
+@Named(ConanToken.NAME)
 @Singleton
 @Description("Conan Bearer Token Realm")
 public class ConanTokenRealm

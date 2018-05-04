@@ -38,6 +38,8 @@ import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.Response;
+import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
+import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State;
 import org.sonatype.nexus.repository.view.payloads.StreamPayload;
 import org.sonatype.nexus.repository.view.payloads.StreamPayload.InputStreamSupplier;
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
@@ -54,6 +56,7 @@ import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_K
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 import static org.sonatype.nexus.repository.view.ContentTypes.APPLICATION_JSON;
 import static org.sonatype.nexus.repository.view.Status.success;
+import static org.sonatype.repository.conan.internal.metadata.ConanCoords.convertFromState;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE;
@@ -98,7 +101,7 @@ public class ConanHostedFacet
     checkNotNull(assetKind);
 
     String savedJson = getSavedJson(assetPath, payload);
-    doPutArchive(assetPath + "/download_urls", coord, new StringPayload(savedJson, APPLICATION_JSON), assetKind);
+    doPutArchive(assetPath + "/" + assetKind.getFilename(), coord, new StringPayload(savedJson, APPLICATION_JSON), assetKind);
     String response = getResponseJson(savedJson);
 
     return new Response.Builder()
@@ -212,12 +215,12 @@ public class ConanHostedFacet
 
   /**
    * Services the download_urls endpoint for root and package data
-   * @param context
+   * @param path
    * @return json response of conan files to lookup
    * @throws IOException
    */
-  public Response getDownloadUrl(final Context context) throws IOException {
-    Content content = doGet(context.getRequest().getPath());
+  public Response getDownloadUrl(final String path) throws IOException {
+    Content content = doGet(path);
     if(content == null) {
       return null;
     }
@@ -233,8 +236,8 @@ public class ConanHostedFacet
         .build();
   }
 
-  public Response get(final Context context) {
-    Content content = doGet(context.getRequest().getPath());
+  public Response get(final String path) {
+    Content content = doGet(path);
 
     return new Response.Builder()
         .status(success(OK))

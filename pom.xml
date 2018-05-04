@@ -66,9 +66,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>testcontainers</artifactId>
-      <version>1.6.0</version>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-it-script-client</artifactId>
+      <version>1.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>

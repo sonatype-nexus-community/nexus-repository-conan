@@ -8,6 +8,7 @@ import org.sonatype.nexus.repository.view.Request;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -24,6 +25,7 @@ import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.up
 import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.uploadManifest;
 import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.uploadUrls;
 
+@Ignore
 public class ConanHostedRecipeTest
     extends TestSupport
 {

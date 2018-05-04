@@ -6,5 +6,5 @@ public interface NexusCliContainer
 {
   String execute(String... commands) throws IOException, InterruptedException;
 
-  String install(String resourceFilename) throws IOException, InterruptedException;
+  String install(final String resourceFilename) throws IOException, InterruptedException;
 }

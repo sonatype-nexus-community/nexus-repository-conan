@@ -65,15 +65,19 @@ class ConanHostedRecipe
 {
   public static final String NAME = 'conan-hosted'
 
-  private static final GString BASE_URL = "/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}"
+  private static final GString BASE_URL = "/v1/conans/{${GROUP}}/{${PROJECT}}/{${VERSION}}/{${STATE}}"
 
-  private static final GString PACKAGES_URL = BASE_URL + "/packages/{${DIGEST}}"
+  private static final String PACKAGES = "/packages/{${DIGEST}}"
+
+  private static final GString PACKAGES_URL = BASE_URL + PACKAGES
+
+  private static final GString BASE_UPLOAD_URL = "/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}"
 
   private static final String UPLOAD = "/upload_urls"
 
-  private static final GString UPLOAD_URL = BASE_URL + UPLOAD
+  private static final GString UPLOAD_URL = BASE_UPLOAD_URL + UPLOAD
 
-  private static final GString UPLOAD_PACKAGE_URL = PACKAGES_URL + UPLOAD
+  private static final GString UPLOAD_PACKAGE_URL = BASE_UPLOAD_URL + PACKAGES + UPLOAD
 
   private static final String CONANMANIFEST = "/conanmanifest.txt"
 
@@ -97,9 +101,9 @@ class ConanHostedRecipe
 
   private static final String DOWNLOAD = "/download_urls"
 
-  private static final GString DOWNLOAD_URL = BASE_URL + DOWNLOAD
+  private static final GString DOWNLOAD_URL = BASE_UPLOAD_URL + DOWNLOAD
 
-  private static final GString DOWNLOAD_PACKAGE_URL = PACKAGES_URL + DOWNLOAD
+  private static final GString DOWNLOAD_PACKAGE_URL = BASE_UPLOAD_URL + PACKAGES + DOWNLOAD
 
   private static final String CHECK_CREDENTIALS_URL = "/v1/users/check_credentials"
 

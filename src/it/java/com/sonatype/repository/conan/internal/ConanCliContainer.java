@@ -2,9 +2,6 @@ package com.sonatype.repository.conan.internal;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import com.sonatype.repository.conan.internal.NexusCliContainer;
 
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.images.builder.ImageFromDockerfile;
@@ -20,27 +17,24 @@ public class ConanCliContainer
 
   private static final String FOREVER = "while :; do sleep 1; done";
 
-  private static final String hostAddress;
+  public static final String BUILD_FOLDER = "/root/test/build";
 
-  static {
-    try {
-      hostAddress = InetAddress.getLocalHost().getHostAddress();
-    }
-    catch (UnknownHostException e) {
-      throw new RuntimeException("Unable to find host name");
-    }
-  }
+  public static final String WORK_DIR = "/root/test";
 
   public ConanCliContainer() {
     super(
         new ImageFromDockerfile()
             .withDockerfileFromBuilder(builder -> {
                 builder
-                    .from("python:2.7")
+                    .from("python:latest")
+                    .run("apt-get update -y")
+                    .run("apt-get update")
+                    .run("apt-get install -y cmake g++")
                     .run("pip install --no-cache-dir conan")
                     .run("conan remote remove conan-center")
-                    .run("conan remote add conan-proxy http://" + hostAddress + ":8081/repository/conan-proxy false")
+                    .run("mkdir -p " + BUILD_FOLDER)
                     .cmd(FOREVER)
+                    .workDir(WORK_DIR)
                     .build();
             })
     );
@@ -52,8 +46,19 @@ public class ConanCliContainer
   }
 
   @Override
-  public String install(String resourceFilename) throws IOException, InterruptedException {
-    copyFileToContainer(MountableFile.forClasspathResource(resourceFilename), "/");
-    return execInContainer(CONAN, "install", ".").getStdout();
+  public String install(final String resourceFilename) throws IOException, InterruptedException {
+    copyFileToContainer(MountableFile.forHostPath(resourceFilename), BUILD_FOLDER);
+    return execInContainer(CONAN, "install", BUILD_FOLDER).getStdout();
+  }
+
+  public String addRemote(final String repositoryName, final int port) throws IOException, InterruptedException {
+    String hostAddress = InetAddress.getLocalHost().getHostAddress();
+    return execute("remote", "add", repositoryName, "http://" + hostAddress + ":" + port + "/repository/" + repositoryName, "false");
+  }
+
+  public String login(final String repositoryName, final String username, final String password)
+      throws IOException, InterruptedException
+  {
+    return execute("user", "-r", repositoryName, "-p", password, username);
   }
 }

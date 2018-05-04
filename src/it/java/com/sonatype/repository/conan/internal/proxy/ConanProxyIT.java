@@ -10,8 +10,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.sonatype.repository.conan.internal.ConanCliContainer.BUILD_FOLDER;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConanProxyIT
 {
@@ -37,13 +37,13 @@ public class ConanProxyIT
   public void proxyIsSetup() throws Exception {
     String response = container.execute("remote", "list");
 
-    assertThat(response.contains(CONAN_PROXY));
+    assertThat(response, containsString(CONAN_PROXY));
   }
 
   @Test
   public void conanInstall() throws Exception {
     String response = container.install("com/sonatype/repository/conan/internal/conanfile.txt");
 
-    assertThat(response.contains("PROJECT: Generated conaninfo.txt"));
+    assertThat(response, containsString("PROJECT: Generated conaninfo.txt"));
   }
 }

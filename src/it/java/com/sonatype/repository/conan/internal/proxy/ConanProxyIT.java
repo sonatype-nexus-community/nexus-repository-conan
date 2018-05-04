@@ -17,6 +17,8 @@ public class ConanProxyIT
 {
   private static final String CONAN_PROXY = "conan-proxy";
 
+  private static final String INSTALL_FILE = "conanfile.txt";
+
   @Rule
   public ConanCliContainer container = new ConanCliContainer();
 
@@ -42,7 +44,7 @@ public class ConanProxyIT
 
   @Test
   public void conanInstall() throws Exception {
-    String response = container.install("com/sonatype/repository/conan/internal/conanfile.txt");
+    String response = container.install(INSTALL_FILE);
 
     assertThat(response, containsString("PROJECT: Generated conaninfo.txt"));
   }

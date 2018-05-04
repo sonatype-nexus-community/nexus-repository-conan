@@ -44,7 +44,7 @@ public class ConanProxyIT
 
   @Test
   public void conanInstall() throws Exception {
-    String response = container.install(INSTALL_FILE);
+    String response = container.install(getClass().getResource(INSTALL_FILE).getPath());
 
     assertThat(response, containsString("PROJECT: Generated conaninfo.txt"));
   }

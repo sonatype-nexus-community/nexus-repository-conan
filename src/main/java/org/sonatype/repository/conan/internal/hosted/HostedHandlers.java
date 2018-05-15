@@ -36,7 +36,7 @@ import static org.sonatype.repository.conan.internal.metadata.ConanCoords.getPat
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST;
 
 /**
- * @since conan.next
+ * @since 0.0.2
  */
 @Named
 @Singleton

@@ -18,7 +18,7 @@ import javax.inject.Singleton;
 import org.sonatype.nexus.security.token.BearerToken;
 
 /**
- * @since conan.next
+ * @since 0.0.2
  */
 @Named(ConanToken.NAME)
 @Singleton

@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * value is the asset to be added. This class generates url links to where the
  * asset locations will be once stored.
  * Note: the data is stored wihout the host utl prefixed.
- * @since conan.next
+ * @since 0.0.2
  */
 public class UploadUrlManager
     extends ComponentSupport

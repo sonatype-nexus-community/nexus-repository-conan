@@ -1,6 +1,7 @@
-package com.sonatype.repository.conan.internal.proxy;
+package org.sonatype.repository.conan.internal.proxy;
 
-import com.sonatype.repository.conan.internal.ConanCliContainer;
+import org.sonatype.repository.conan.internal.ConanCliContainer;
+import org.sonatype.repository.conan.internal.NetworkFinder;
 
 import org.sonatype.nexus.it.support.NexusContainer;
 import org.sonatype.nexus.itscriptclient.repository.Repository;
@@ -20,7 +21,7 @@ public class ConanProxyIT
   private static final String INSTALL_FILE = "conanfile.txt";
 
   @Rule
-  public ConanCliContainer container = new ConanCliContainer();
+  public ConanCliContainer container = new ConanCliContainer(new NetworkFinder());
 
   @Rule
   public NexusContainer nxrm = new NexusContainer();

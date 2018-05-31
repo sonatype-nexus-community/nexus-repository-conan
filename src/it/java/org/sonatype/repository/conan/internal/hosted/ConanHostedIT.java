@@ -1,8 +1,9 @@
-package com.sonatype.repository.conan.internal.hosted;
+package org.sonatype.repository.conan.internal.hosted;
 
 import java.io.IOException;
 
-import com.sonatype.repository.conan.internal.ConanCliContainer;
+import org.sonatype.repository.conan.internal.ConanCliContainer;
+import org.sonatype.repository.conan.internal.NetworkFinder;
 
 import org.sonatype.nexus.it.support.NexusContainer;
 import org.sonatype.nexus.itscriptclient.realms.Realm;
@@ -31,7 +32,7 @@ public class ConanHostedIT
   private Realm realm;
 
   @Rule
-  public ConanCliContainer conanClient = new ConanCliContainer();
+  public ConanCliContainer conanClient = new ConanCliContainer(new NetworkFinder());
 
   @Rule
   public NexusContainer nxrm = new NexusContainer();

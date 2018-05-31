@@ -1,7 +1,6 @@
-package com.sonatype.repository.conan.internal;
+package org.sonatype.repository.conan.internal;
 
 import java.io.IOException;
-import java.net.InetAddress;
 
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.images.builder.ImageFromDockerfile;
@@ -17,11 +16,13 @@ public class ConanCliContainer
 
   private static final String FOREVER = "while :; do sleep 1; done";
 
-  public static final String BUILD_FOLDER = "/root/test/build";
+  private static final String BUILD_FOLDER = "/root/test/build";
 
-  public static final String WORK_DIR = "/root/test";
+  private static final String WORK_DIR = "/root/test";
 
-  public ConanCliContainer() {
+  private final NetworkFinder networkFinder;
+
+  public ConanCliContainer(final NetworkFinder networkFinder) {
     super(
         new ImageFromDockerfile()
             .withDockerfileFromBuilder(builder -> {
@@ -38,6 +39,7 @@ public class ConanCliContainer
                     .build();
             })
     );
+    this.networkFinder = networkFinder;
   }
 
   @Override
@@ -52,8 +54,7 @@ public class ConanCliContainer
   }
 
   public String addRemote(final String repositoryName, final int port) throws IOException, InterruptedException {
-    String hostAddress = InetAddress.getLocalHost().getHostAddress();
-    return execute("remote", "add", repositoryName, "http://" + hostAddress + ":" + port + "/repository/" + repositoryName, "false");
+    return execute("remote", "add", repositoryName, "http://" + networkFinder.getAddressToUse() + ":" + port + "/repository/" + repositoryName, "false");
   }
 
   public String login(final String repositoryName, final String username, final String password)

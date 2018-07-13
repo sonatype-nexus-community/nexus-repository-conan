@@ -56,7 +56,7 @@ import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STAT
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION
 
 /**
- * @since conan.next
+ * @since 0.0.2
  */
 @Named(ConanHostedRecipe.NAME)
 @Singleton

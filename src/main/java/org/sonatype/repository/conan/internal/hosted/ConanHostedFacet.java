@@ -64,7 +64,7 @@ import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.toCo
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findComponent;
 
 /**
- * @since conan.next
+ * @since 0.0.2
  */
 @Exposed
 @Named

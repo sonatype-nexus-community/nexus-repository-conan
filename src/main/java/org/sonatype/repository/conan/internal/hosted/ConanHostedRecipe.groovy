@@ -67,39 +67,43 @@ class ConanHostedRecipe
 
   private static final GString BASE_URL = "/v1/conans/{${PROJECT}}/{${VERSION}}/{${GROUP}}/{${STATE}}"
 
-  private static final GString PACKAGES_URL = BASE_URL + "/packages/{${DIGEST}}"
+  private static final GString BASE_URL_GAV = "/v1/conans/{${GROUP}}/{${PROJECT}}/{${VERSION}}/{${STATE}}"
+
+  private static final GString PACKAGES =  "/packages/{${DIGEST}}"
 
   private static final String UPLOAD = "/upload_urls"
 
   private static final GString UPLOAD_URL = BASE_URL + UPLOAD
 
-  private static final GString UPLOAD_PACKAGE_URL = PACKAGES_URL + UPLOAD
+  private static final GString UPLOAD_PACKAGE_URL = BASE_URL + PACKAGES + UPLOAD
 
   private static final String CONANMANIFEST = "/conanmanifest.txt"
 
-  private static final GString CONAN_MANIFEST_URL = BASE_URL + CONANMANIFEST
+  private static final GString CONAN_MANIFEST_URL = BASE_URL_GAV + CONANMANIFEST
 
-  private static final GString CONAN_MANIFEST_PACKAGE_URL = PACKAGES_URL + CONANMANIFEST
+  private static final GString CONAN_MANIFEST_PACKAGE_URL = BASE_URL_GAV + PACKAGES + CONANMANIFEST
 
   private static final String CONANFILE = "/conanfile.py"
 
-  private static final GString CONAN_FILE_URL = BASE_URL + CONANFILE
+  private static final GString CONAN_FILE_URL = BASE_URL_GAV + CONANFILE
 
-  private static final GString CONAN_FILE_PACKAGE_URL = PACKAGES_URL + CONANFILE
+  private static final GString CONAN_FILE_PACKAGE_URL = BASE_URL_GAV +PACKAGES + CONANFILE
 
   private static final String CONANINFO = "/conaninfo.txt"
 
-  private static final GString CONAN_INFO_URL = BASE_URL + CONANINFO
+  private static final GString CONAN_INFO_URL = BASE_URL_GAV + CONANINFO
 
-  private static final GString CONAN_INFO_PACKAGE_URL = PACKAGES_URL + CONANINFO
+  private static final GString CONAN_INFO_PACKAGE_URL = BASE_URL_GAV + PACKAGES + CONANINFO
 
-  private static final GString CONAN_PACKAGE_ZIP_URL = PACKAGES_URL + "/conan_package.tgz"
+  private static final GString CONAN_PACKAGE_ZIP_URL = BASE_URL_GAV + PACKAGES + "/conan_package.tgz"
+
+  private static final GString CONAN_EXPORT_ZIP_URL = BASE_URL_GAV + "/conan_export.tgz"
 
   private static final String DOWNLOAD = "/download_urls"
 
-  private static final GString DOWNLOAD_URL = BASE_URL + DOWNLOAD
+  private static final GString DOWNLOAD_URL = BASE_URL_GAV + DOWNLOAD
 
-  private static final GString DOWNLOAD_PACKAGE_URL = PACKAGES_URL + DOWNLOAD
+  private static final GString DOWNLOAD_PACKAGE_URL = BASE_URL_GAV + PACKAGES + DOWNLOAD
 
   private static final String CHECK_CREDENTIALS_URL = "/v1/users/check_credentials"
 
@@ -148,6 +152,7 @@ class ConanHostedRecipe
     createRoute(builder, uploadConanfile(), CONAN_FILE, hostedHandler.uploadConanFile)
     createRoute(builder, uploadConaninfo(), CONAN_INFO, hostedHandler.uploadConanInfo)
     createRoute(builder, uploadConanPackageZip(), CONAN_PACKAGE, hostedHandler.uploadConanSource)
+    createRoute(builder, uploadConanExportZip(), CONAN_PACKAGE, hostedHandler.uploadConanExport)
 
     createRoute(builder, downloadUrls(), AssetKind.DOWNLOAD_URL, hostedHandler.downloadUrl)
     createRoute(builder, downloadManifest(), CONAN_MANIFEST, hostedHandler.download)
@@ -215,8 +220,8 @@ class ConanHostedRecipe
         and(
             new ActionMatcher(POST),
             or(
-                new TokenMatcher(UPLOAD_URL),
-                new TokenMatcher(UPLOAD_PACKAGE_URL)
+                new TokenMatcher(UPLOAD_PACKAGE_URL),
+                new TokenMatcher(UPLOAD_URL)
             )
         )
     )
@@ -230,8 +235,8 @@ class ConanHostedRecipe
         and(
             new ActionMatcher(PUT),
             or(
-                new TokenMatcher(CONAN_MANIFEST_URL),
-                new TokenMatcher(CONAN_MANIFEST_PACKAGE_URL)
+                new TokenMatcher(CONAN_MANIFEST_PACKAGE_URL),
+                new TokenMatcher(CONAN_MANIFEST_URL)
             )
         )
     )
@@ -245,23 +250,23 @@ class ConanHostedRecipe
         and(
             new ActionMatcher(PUT),
             or(
-                new TokenMatcher(CONAN_FILE_URL),
-                new TokenMatcher(CONAN_FILE_PACKAGE_URL)
+                new TokenMatcher(CONAN_FILE_PACKAGE_URL),
+                new TokenMatcher(CONAN_FILE_URL)
             )
         )
     )
   }
 
   /**
-   * Matches on urls ending with conanfile.py
+   * Matches on urls ending with conaninfo.txt
    */
   static Builder uploadConaninfo() {
     new Builder().matcher(
         and(
             new ActionMatcher(PUT),
             or(
-                new TokenMatcher(CONAN_INFO_URL),
-                new TokenMatcher(CONAN_INFO_PACKAGE_URL)
+                new TokenMatcher(CONAN_INFO_PACKAGE_URL),
+                new TokenMatcher(CONAN_INFO_URL)
             )
         )
     )
@@ -279,6 +284,15 @@ class ConanHostedRecipe
     )
   }
 
+  static Builder uploadConanExportZip() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(PUT),
+            new TokenMatcher(CONAN_EXPORT_ZIP_URL)
+        )
+    )
+  }
+
   /**
    * Matches on urls ending with upload_urls
    */
@@ -287,8 +301,8 @@ class ConanHostedRecipe
         and(
             new ActionMatcher(HEAD, GET),
             or(
-                new TokenMatcher(DOWNLOAD_URL),
-                new TokenMatcher(DOWNLOAD_PACKAGE_URL)
+                new TokenMatcher(DOWNLOAD_PACKAGE_URL),
+                new TokenMatcher(DOWNLOAD_URL)
             )
         )
     )
@@ -302,8 +316,8 @@ class ConanHostedRecipe
         and(
             new ActionMatcher(HEAD, GET),
             or(
-                new TokenMatcher(CONAN_MANIFEST_URL),
-                new TokenMatcher(CONAN_MANIFEST_PACKAGE_URL)
+                new TokenMatcher(CONAN_MANIFEST_PACKAGE_URL),
+                new TokenMatcher(CONAN_MANIFEST_URL)
             )
         )
     )
@@ -317,8 +331,8 @@ class ConanHostedRecipe
         and(
             new ActionMatcher(HEAD, GET),
             or(
-                new TokenMatcher(CONAN_FILE_URL),
-                new TokenMatcher(CONAN_FILE_PACKAGE_URL)
+                new TokenMatcher(CONAN_FILE_PACKAGE_URL),
+                new TokenMatcher(CONAN_FILE_URL)
             )
         )
     )
@@ -329,8 +343,8 @@ class ConanHostedRecipe
         and(
             new ActionMatcher(HEAD, GET),
             or(
-                new TokenMatcher(CONAN_INFO_URL),
-                new TokenMatcher(CONAN_INFO_PACKAGE_URL)
+                new TokenMatcher(CONAN_INFO_PACKAGE_URL),
+                new TokenMatcher(CONAN_INFO_URL)
             )
         )
     )

@@ -26,6 +26,7 @@ import javax.inject.Named;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Facet.Exposed;
 import org.sonatype.nexus.repository.FacetSupport;
+import org.sonatype.nexus.repository.http.HttpResponses;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.AssetBlob;
 import org.sonatype.nexus.repository.storage.Bucket;
@@ -219,7 +220,7 @@ public class ConanHostedFacet
   public Response getDownloadUrl(final Context context) throws IOException {
     Content content = doGet(context.getRequest().getPath());
     if(content == null) {
-      return null;
+      return HttpResponses.notFound();
     }
 
     String response;
@@ -235,6 +236,9 @@ public class ConanHostedFacet
 
   public Response get(final Context context) {
     Content content = doGet(context.getRequest().getPath());
+    if (content == null) {
+      return HttpResponses.notFound();
+    }
 
     return new Response.Builder()
         .status(success(OK))

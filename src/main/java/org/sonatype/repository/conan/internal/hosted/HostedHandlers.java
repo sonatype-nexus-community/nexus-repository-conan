@@ -66,6 +66,8 @@ public class HostedHandlers
 
   final Handler uploadConanSource = context -> upload(context, "conan_package.tgz");
 
+  final Handler uploadConanExport = context -> upload(context, "conan_export.tgz");
+
   private Response upload(final Context context, final String filename) throws IOException {
 
     /* If the header contains {@link HostedHandlers#CLIENT_CHECKSUM} then this is supposed
@@ -91,9 +93,7 @@ public class HostedHandlers
   }
 
   private String getAssetPath(final State state, final ConanCoords coord) {
-    String sha = state.getTokens().getOrDefault(DIGEST, "");
-    String path = V1_CONANS + getPath(coord);
-    return sha.isEmpty() ? path : path + "/packages/" + sha;
+    return V1_CONANS + getPath(coord);
   }
 
   final Handler downloadUrl = context ->

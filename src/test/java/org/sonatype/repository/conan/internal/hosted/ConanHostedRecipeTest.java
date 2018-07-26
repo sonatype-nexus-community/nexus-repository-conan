@@ -73,7 +73,7 @@ public class ConanHostedRecipeTest
   @Test
   public void canMatchOnConanUploadManifest() {
     when(request.getAction()).thenReturn(PUT);
-    when(request.getPath()).thenReturn("/v1/conans/project/2.1.1/group/stable/conanmanifest.txt");
+    when(request.getPath()).thenReturn("/v1/conans/group/project/2.1.1/stable/conanmanifest.txt");
 
     assertTrue(uploadManifest().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
@@ -85,7 +85,7 @@ public class ConanHostedRecipeTest
   @Test
   public void canMatchOnConanUploadManifestPackage() {
     when(request.getAction()).thenReturn(PUT);
-    when(request.getPath()).thenReturn("/v1/conans/project/2.1.1/group/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conanmanifest.txt");
+    when(request.getPath()).thenReturn("/v1/conans/group/project/2.1.1/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conanmanifest.txt");
 
     assertTrue(uploadManifest().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
@@ -98,7 +98,7 @@ public class ConanHostedRecipeTest
   @Test
   public void canMatchOnConanfileUpload() {
     when(request.getAction()).thenReturn(PUT);
-    when(request.getPath()).thenReturn("/v1/conans/project/2.1.1/group/stable/conanfile.py");
+    when(request.getPath()).thenReturn("/v1/conans/group/project/2.1.1/stable/conanfile.py");
 
     assertTrue(uploadConanfile().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
@@ -111,7 +111,7 @@ public class ConanHostedRecipeTest
   @Test
   public void canMatchOnConanfileUploadPackage() {
     when(request.getAction()).thenReturn(PUT);
-    when(request.getPath()).thenReturn("/v1/conans/project/2.1.1/group/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conanfile.py");
+    when(request.getPath()).thenReturn("/v1/conans/group/project/2.1.1/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conanfile.py");
 
     assertTrue(uploadConanfile().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
@@ -124,7 +124,7 @@ public class ConanHostedRecipeTest
   @Test
   public void canMatchOnConaninfoUpload() {
     when(request.getAction()).thenReturn(PUT);
-    when(request.getPath()).thenReturn("/v1/conans/project/2.1.1/group/stable/conaninfo.txt");
+    when(request.getPath()).thenReturn("/v1/conans/group/project/2.1.1/stable/conaninfo.txt");
 
     assertTrue(uploadConaninfo().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
@@ -137,7 +137,7 @@ public class ConanHostedRecipeTest
   @Test
   public void canMatchOnConanPackageZipUploadPackage() {
     when(request.getAction()).thenReturn(PUT);
-    when(request.getPath()).thenReturn("/v1/conans/project/2.1.1/group/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz");
+    when(request.getPath()).thenReturn("/v1/conans/group/project/2.1.1/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz");
 
     assertTrue(uploadConanPackageZip().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);

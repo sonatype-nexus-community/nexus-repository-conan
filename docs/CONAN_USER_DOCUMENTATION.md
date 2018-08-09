@@ -10,7 +10,7 @@ in the main Readme.md file at the root of the GitHub project.
 4. (Optional) Conan will already have a remote configured so if you want it to exclusively use NXRM you will need to remove that 
    remote first via ```conan remote remove conan-center```
 5. Add your newly created repository/repositories to conan 
-   ```conan remote add nxrm-conan-hosted http://localhost:8081/repository/conan-hosted/ false```. Note: the false at the
+   ```conan remote add nxrm-conan-hosted http://localhost:8081/repository/conan-hosted/ false```. Note: the *false* at the
    end relates to whether you want to use SSL or not. If you have configured NXRM to have SSL enabled you can switch
    this to true.
 6. Login to NXRM via conan ```conan user admin -p admin123 -r nxrm-conan-hosted```

@@ -99,6 +99,10 @@ class ConanHostedRecipe
 
   private static final GString CONAN_EXPORT_ZIP_URL = BASE_URL_GAV + "/conan_export.tgz"
 
+  private static final String CONAN_SOURCES = "/conan_sources.tgz"
+
+  private static final GString CONAN_SOURCES_URL = BASE_URL_GAV + CONAN_SOURCES
+  
   private static final String DOWNLOAD = "/download_urls"
 
   private static final GString DOWNLOAD_URL = BASE_URL_GAV + DOWNLOAD
@@ -151,7 +155,8 @@ class ConanHostedRecipe
     createRoute(builder, uploadManifest(), CONAN_MANIFEST, hostedHandler.uploadManifest)
     createRoute(builder, uploadConanfile(), CONAN_FILE, hostedHandler.uploadConanFile)
     createRoute(builder, uploadConaninfo(), CONAN_INFO, hostedHandler.uploadConanInfo)
-    createRoute(builder, uploadConanPackageZip(), CONAN_PACKAGE, hostedHandler.uploadConanSource)
+    createRoute(builder, uploadConanPackageZip(), CONAN_PACKAGE, hostedHandler.uploadConanPackage)
+    createRoute(builder, uploadConanSources(), CONAN_PACKAGE, hostedHandler.uploadConanSources)
     createRoute(builder, uploadConanExportZip(), CONAN_PACKAGE, hostedHandler.uploadConanExport)
 
     createRoute(builder, downloadUrls(), AssetKind.DOWNLOAD_URL, hostedHandler.downloadUrl)
@@ -159,6 +164,7 @@ class ConanHostedRecipe
     createRoute(builder, downloadConanfile(), CONAN_FILE, hostedHandler.download)
     createRoute(builder, downloadConaninfo(), CONAN_INFO, hostedHandler.download)
     createRoute(builder, downloadConanPackageZip(), CONAN_PACKAGE, hostedHandler.download)
+    createRoute(builder, downloadConanSources(), CONAN_SOURCES, hostedHandler.download)
 
     builder.route(checkCredentials()
         .handler(timingHandler)
@@ -284,6 +290,15 @@ class ConanHostedRecipe
     )
   }
 
+  static Builder uploadConanSources() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(PUT),
+            new TokenMatcher(CONAN_SOURCES_URL)
+        )
+    )
+  }
+
   static Builder uploadConanExportZip() {
     new Builder().matcher(
         and(
@@ -355,6 +370,15 @@ class ConanHostedRecipe
         and(
             new ActionMatcher(HEAD, GET),
             new TokenMatcher(CONAN_PACKAGE_ZIP_URL)
+        )
+    )
+  }
+
+  static Builder downloadConanSources() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(HEAD, GET),
+            new TokenMatcher(CONAN_SOURCES_URL)
         )
     )
   }

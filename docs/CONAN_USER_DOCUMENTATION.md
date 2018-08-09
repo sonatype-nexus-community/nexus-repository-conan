@@ -1,5 +1,8 @@
 # How to use Conan with NXRM
 
+This guide assumes that you have already installed the Conan plugin into NXRM - instructions for doing so can be found
+in the main Readme.md file at the root of the GitHub project.
+
 1. Install Conan (if on OSX you can do this via ```brew install conan```)
 2. Create the conan repositories in NXRM (e.g. conan-hosted)
 3. Add the conan security realm to NXRM: Login as an admin, go to settings > security > realms and add 

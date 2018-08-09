@@ -43,7 +43,7 @@ we would like things to flow.
 
 Also, there is a good amount of information available at [Bundle Development](https://help.sonatype.com/display/NXRM3/Bundle+Development#BundleDevelopment-BundleDevelopmentOverview)
 
-NOTE: Version 0.0.2 of Conan is only compatible with Nexus Repo 3.11.0 or greater due to adding Tree View Filtering. If 
+NOTE: Version 0.0.2+ of Conan is only compatible with Nexus Repo 3.11.0 or greater due to adding Tree View Filtering. If 
 you need to use this plugin with an older version, please use 0.0.1
 
 ### Building

@@ -49,6 +49,7 @@ import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE
+
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
@@ -164,7 +165,7 @@ class ConanHostedRecipe
     createRoute(builder, downloadConanfile(), CONAN_FILE, hostedHandler.download)
     createRoute(builder, downloadConaninfo(), CONAN_INFO, hostedHandler.download)
     createRoute(builder, downloadConanPackageZip(), CONAN_PACKAGE, hostedHandler.download)
-    createRoute(builder, downloadConanSources(), CONAN_SOURCES, hostedHandler.download)
+    createRoute(builder, downloadConanSources(), AssetKind.CONAN_SOURCES, hostedHandler.download)
 
     builder.route(checkCredentials()
         .handler(timingHandler)

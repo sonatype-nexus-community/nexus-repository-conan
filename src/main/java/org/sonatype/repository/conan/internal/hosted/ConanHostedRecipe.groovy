@@ -157,7 +157,7 @@ class ConanHostedRecipe
     createRoute(builder, uploadConanfile(), CONAN_FILE, hostedHandler.uploadConanFile)
     createRoute(builder, uploadConaninfo(), CONAN_INFO, hostedHandler.uploadConanInfo)
     createRoute(builder, uploadConanPackageZip(), CONAN_PACKAGE, hostedHandler.uploadConanPackage)
-    createRoute(builder, uploadConanSources(), CONAN_PACKAGE, hostedHandler.uploadConanSources)
+    createRoute(builder, uploadConanSources(), AssetKind.CONAN_SOURCES, hostedHandler.uploadConanSources)
     createRoute(builder, uploadConanExportZip(), CONAN_PACKAGE, hostedHandler.uploadConanExport)
 
     createRoute(builder, downloadUrls(), AssetKind.DOWNLOAD_URL, hostedHandler.downloadUrl)

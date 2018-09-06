@@ -64,7 +64,9 @@ public class HostedHandlers
 
   final Handler uploadConanInfo = context -> upload(context, "conaninfo.txt");
 
-  final Handler uploadConanSource = context -> upload(context, "conan_package.tgz");
+  final Handler uploadConanPackage = context -> upload(context, "conan_package.tgz");
+  
+  final Handler uploadConanSources = context -> upload(context, "conan_sources.tgz");
 
   final Handler uploadConanExport = context -> upload(context, "conan_export.tgz");
 

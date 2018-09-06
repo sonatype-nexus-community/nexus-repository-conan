@@ -24,7 +24,8 @@ enum AssetKind {
   CONAN_MANIFEST(METADATA, "conanmanifest.txt"),
   CONAN_FILE(METADATA, "conanfile.py"),
   CONAN_INFO(METADATA, "conaninfo.txt"),
-  CONAN_PACKAGE(METADATA, "conan_package.tgz")
+  CONAN_PACKAGE(METADATA, "conan_package.tgz"),
+  CONAN_SOURCES(METADATA, "conan_sources.tgz")
 
   private final CacheType cacheType
 

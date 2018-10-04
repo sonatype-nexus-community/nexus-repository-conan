@@ -114,6 +114,7 @@ class ConanHostedRecipe
 
   private static final String AUTHENTICATE_URL = "/v1/users/authenticate"
 
+  private static final String PING = "/v1/ping"
 
   @Inject
   Provider<ConanHostedFacet> hostedFacet
@@ -166,6 +167,14 @@ class ConanHostedRecipe
     createRoute(builder, downloadConaninfo(), CONAN_INFO, hostedHandler.download)
     createRoute(builder, downloadConanPackageZip(), CONAN_PACKAGE, hostedHandler.download)
     createRoute(builder, downloadConanSources(), AssetKind.CONAN_SOURCES, hostedHandler.download)
+
+    builder.route(ping()
+        .handler(timingHandler)
+        .handler(securityHandler)
+        .handler(exceptionHandler)
+        .handler(handlerContributor)
+        .handler(hostedHandler.ping)
+        .create())
 
     builder.route(checkCredentials()
         .handler(timingHandler)
@@ -380,6 +389,18 @@ class ConanHostedRecipe
         and(
             new ActionMatcher(HEAD, GET),
             new TokenMatcher(CONAN_SOURCES_URL)
+        )
+    )
+  }
+
+  /**
+   * Matches on ping endpoint
+   */
+  static Builder ping() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET),
+            new TokenMatcher(PING)
         )
     )
   }

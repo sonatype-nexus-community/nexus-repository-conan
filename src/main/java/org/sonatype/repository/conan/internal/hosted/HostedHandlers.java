@@ -99,10 +99,15 @@ public class HostedHandlers
     return V1_CONANS + getPath(coord);
   }
 
-  final Handler downloadUrl = context ->
-      context.getRepository()
-          .facet(ConanHostedFacet.class)
-          .getDownloadUrl(context);
+  final Handler downloadUrl = context -> {
+    State state = context.getAttributes().require(State.class);
+    ConanCoords coord = convertFromState(state);
+    String path = getAssetPath(state, coord) + "/download_urls";
+
+    return context.getRepository()
+        .facet(ConanHostedFacet.class)
+        .getDownloadUrl(path, context);
+  };
 
   final Handler download = context ->
       context.getRepository()

@@ -55,8 +55,8 @@ import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_K
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 import static org.sonatype.nexus.repository.view.ContentTypes.APPLICATION_JSON;
 import static org.sonatype.nexus.repository.view.Status.success;
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP;
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
@@ -213,12 +213,15 @@ public class ConanHostedFacet
 
   /**
    * Services the download_urls endpoint for root and package data
+   * @param path path as GAV
    * @param context
    * @return json response of conan files to lookup
    * @throws IOException
    */
-  public Response getDownloadUrl(final Context context) throws IOException {
-    Content content = doGet(context.getRequest().getPath());
+  public Response getDownloadUrl(final String path, final Context context) throws IOException {
+    log.debug("Original request {} is fetching locally from {}", context.getRequest().getPath(), path);
+
+    Content content = doGet(path);
     if(content == null) {
       return HttpResponses.notFound();
     }
@@ -235,6 +238,8 @@ public class ConanHostedFacet
   }
 
   public Response get(final Context context) {
+    log.debug("Request {}", context.getRequest().getPath());
+
     Content content = doGet(context.getRequest().getPath());
     if (content == null) {
       return HttpResponses.notFound();

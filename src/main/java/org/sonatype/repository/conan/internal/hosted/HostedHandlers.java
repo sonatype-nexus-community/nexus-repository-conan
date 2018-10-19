@@ -114,6 +114,8 @@ public class HostedHandlers
    */
   final Handler ping = context -> {
     log.debug("pong");
+
+    log.error("Polyglot Python result is {}", new Polyglot().getElement(2));
     return HttpResponses.ok();
   };
 

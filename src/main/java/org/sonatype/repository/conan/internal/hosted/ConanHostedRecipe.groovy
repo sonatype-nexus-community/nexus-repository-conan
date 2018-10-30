@@ -167,7 +167,7 @@ class ConanHostedRecipe
     createRoute(builder, downloadConaninfo(), CONAN_INFO, hostedHandler.download)
     createRoute(builder, downloadConanPackageZip(), CONAN_PACKAGE, hostedHandler.download)
     createRoute(builder, downloadConanSources(), AssetKind.CONAN_SOURCES, hostedHandler.download)
-    createRoute(builder, downloadConanExportZip(), AssetKind.CONAN_EXPORT, hostedHandler.download)
+    createRoute(builder, downloadConanExportZip(), CONAN_EXPORT, hostedHandler.download)
 
     builder.route(ping()
         .handler(timingHandler)

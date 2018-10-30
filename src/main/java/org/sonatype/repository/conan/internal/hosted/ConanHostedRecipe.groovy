@@ -49,6 +49,7 @@ import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_EXPORT
 
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP
@@ -165,9 +166,9 @@ class ConanHostedRecipe
     createRoute(builder, downloadManifest(), CONAN_MANIFEST, hostedHandler.download)
     createRoute(builder, downloadConanfile(), CONAN_FILE, hostedHandler.download)
     createRoute(builder, downloadConaninfo(), CONAN_INFO, hostedHandler.download)
-    createRoute(builder, downloadConanPackageZip(), CONAN_PACKAGE, hostedHandler.download)
-    createRoute(builder, downloadConanSources(), AssetKind.CONAN_SOURCES, hostedHandler.download)
-    createRoute(builder, downloadConanExportZip(), CONAN_EXPORT, hostedHandler.download)
+    createRoute(builder, downloadConanTgz(CONAN_PACKAGE_ZIP_URL), CONAN_PACKAGE, hostedHandler.download)
+    createRoute(builder, downloadConanTgz(CONAN_SOURCES_URL), AssetKind.CONAN_SOURCES, hostedHandler.download)
+    createRoute(builder, downloadConanTgz(CONAN_EXPORT_ZIP_URL), CONAN_EXPORT, hostedHandler.download)
 
     builder.route(ping()
         .handler(timingHandler)
@@ -376,30 +377,13 @@ class ConanHostedRecipe
     )
   }
 
-  static Builder downloadConanPackageZip() {
-    new Builder().matcher(
-        and(
-            new ActionMatcher(HEAD, GET),
-            new TokenMatcher(CONAN_PACKAGE_ZIP_URL)
-        )
-    )
-  }
 
-  static Builder downloadConanExportZip() {
+  static Builder downloadConanTgz(final String url) {
     new Builder().matcher(
             and(
                     new ActionMatcher(HEAD, GET),
-                    new TokenMatcher(CONAN_EXPORT_ZIP_URL)
+                    new TokenMatcher(url)
             )
-    )
-  }
-
-  static Builder downloadConanSources() {
-    new Builder().matcher(
-        and(
-            new ActionMatcher(HEAD, GET),
-            new TokenMatcher(CONAN_SOURCES_URL)
-        )
     )
   }
 

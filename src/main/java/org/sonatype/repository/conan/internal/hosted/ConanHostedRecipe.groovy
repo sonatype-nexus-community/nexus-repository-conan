@@ -33,6 +33,7 @@ import org.sonatype.nexus.repository.view.matchers.ActionMatcher
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher
 import org.sonatype.repository.conan.internal.AssetKind
 import org.sonatype.repository.conan.internal.ConanFormat
+import org.sonatype.repository.conan.internal.ConanPythonContext
 import org.sonatype.repository.conan.internal.ConanRecipeSupport
 import org.sonatype.repository.conan.internal.security.token.ConanTokenFacet
 
@@ -126,10 +127,14 @@ class ConanHostedRecipe
   @Inject
   HostedHandlers hostedHandler
 
+  private ConanPythonContext pythonContext
+
   @Inject
   protected ConanHostedRecipe(@Named(HostedType.NAME) final Type type,
-                              @Named(ConanFormat.NAME) final Format format) {
+                              @Named(ConanFormat.NAME) final Format format,
+                              final ConanPythonContext pythonContext) {
     super(type, format)
+    this.pythonContext = pythonContext
   }
 
   Closure assetKindHandler = { Context context, AssetKind value ->
@@ -173,7 +178,7 @@ class ConanHostedRecipe
         .handler(securityHandler)
         .handler(exceptionHandler)
         .handler(handlerContributor)
-        .handler(hostedHandler.ping)
+        .handler(pythonContext.pingHandler)
         .create())
 
     builder.route(checkCredentials()

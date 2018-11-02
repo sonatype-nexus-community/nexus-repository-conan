@@ -19,7 +19,6 @@ import javax.inject.Singleton;
 
 import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.http.HttpResponses;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.Headers;
@@ -34,7 +33,6 @@ import org.sonatype.repository.conan.internal.security.token.ConanTokenFacet;
 import static org.sonatype.nexus.repository.http.HttpStatus.NOT_FOUND;
 import static org.sonatype.repository.conan.internal.metadata.ConanCoords.convertFromState;
 import static org.sonatype.repository.conan.internal.metadata.ConanCoords.getPath;
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST;
 
 /**
  * @since 0.0.2
@@ -108,16 +106,6 @@ public class HostedHandlers
       context.getRepository()
           .facet(ConanHostedFacet.class)
           .get(context);
-
-  /**
-   * Acknowledges a ping request
-   */
-  final Handler ping = context -> {
-    log.debug("pong");
-
-    log.error("Polyglot Python result is {}", new Polyglot().getElement(2));
-    return HttpResponses.ok();
-  };
 
   /**
    * Checks if there is a Bearer Authentication: token

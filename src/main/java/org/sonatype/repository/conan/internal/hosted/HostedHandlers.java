@@ -52,7 +52,7 @@ public class HostedHandlers
     State state = context.getAttributes().require(TokenMatcher.State.class);
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     ConanCoords coord = convertFromState(state);
-    String assetPath = getAssetPath(state, coord);
+    String assetPath = getAssetPath(coord);
 
     return context.getRepository()
         .facet(ConanHostedFacet.class)
@@ -88,21 +88,21 @@ public class HostedHandlers
     State state = context.getAttributes().require(State.class);
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     ConanCoords coord = convertFromState(state);
-    String assetPath = getAssetPath(state, coord) + "/" + filename;
+    String assetPath = getAssetPath(coord) + "/" + filename;
 
     return context.getRepository()
         .facet(ConanHostedFacet.class)
         .upload(assetPath, coord, context.getRequest().getPayload(), assetKind);
   }
 
-  private String getAssetPath(final State state, final ConanCoords coord) {
+  private String getAssetPath(final ConanCoords coord) {
     return V1_CONANS + getPath(coord);
   }
 
   final Handler downloadUrl = context -> {
     State state = context.getAttributes().require(State.class);
     ConanCoords coord = convertFromState(state);
-    String path = getAssetPath(state, coord) + "/download_urls";
+    String path = getAssetPath(coord) + "/download_urls";
 
     return context.getRepository()
         .facet(ConanHostedFacet.class)

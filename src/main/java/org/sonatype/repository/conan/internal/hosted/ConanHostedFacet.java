@@ -213,15 +213,15 @@ public class ConanHostedFacet
 
   /**
    * Services the download_urls endpoint for root and package data
-   * @param path path as GAV
+   * @param gavPath path as GAV
    * @param context
    * @return json response of conan files to lookup
    * @throws IOException
    */
-  public Response getDownloadUrl(final String path, final Context context) throws IOException {
-    log.debug("Original request {} is fetching locally from {}", context.getRequest().getPath(), path);
+  public Response getDownloadUrl(final String gavPath, final Context context) throws IOException {
+    log.debug("Original request {} is fetching locally from {}", context.getRequest().getPath(), gavPath);
 
-    Content content = doGet(path);
+    Content content = doGet(gavPath);
     if(content == null) {
       return HttpResponses.notFound();
     }

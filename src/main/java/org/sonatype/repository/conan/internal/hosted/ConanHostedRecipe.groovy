@@ -106,9 +106,9 @@ class ConanHostedRecipe
   
   private static final String DOWNLOAD = "/download_urls"
 
-  private static final GString DOWNLOAD_URL = BASE_URL_GAV + DOWNLOAD
+  private static final GString DOWNLOAD_URL = BASE_URL + DOWNLOAD
 
-  private static final GString DOWNLOAD_PACKAGE_URL = BASE_URL_GAV + PACKAGES + DOWNLOAD
+  private static final GString DOWNLOAD_PACKAGE_URL = BASE_URL + PACKAGES + DOWNLOAD
 
   private static final String CHECK_CREDENTIALS_URL = "/v1/users/check_credentials"
 

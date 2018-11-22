@@ -49,6 +49,7 @@ import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_EXPORT
 
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP
@@ -159,14 +160,15 @@ class ConanHostedRecipe
     createRoute(builder, uploadConaninfo(), CONAN_INFO, hostedHandler.uploadConanInfo)
     createRoute(builder, uploadConanPackageZip(), CONAN_PACKAGE, hostedHandler.uploadConanPackage)
     createRoute(builder, uploadConanSources(), AssetKind.CONAN_SOURCES, hostedHandler.uploadConanSources)
-    createRoute(builder, uploadConanExportZip(), CONAN_PACKAGE, hostedHandler.uploadConanExport)
+    createRoute(builder, uploadConanExportZip(), CONAN_EXPORT, hostedHandler.uploadConanExport)
 
     createRoute(builder, downloadUrls(), AssetKind.DOWNLOAD_URL, hostedHandler.downloadUrl)
     createRoute(builder, downloadManifest(), CONAN_MANIFEST, hostedHandler.download)
     createRoute(builder, downloadConanfile(), CONAN_FILE, hostedHandler.download)
     createRoute(builder, downloadConaninfo(), CONAN_INFO, hostedHandler.download)
-    createRoute(builder, downloadConanPackageZip(), CONAN_PACKAGE, hostedHandler.download)
-    createRoute(builder, downloadConanSources(), AssetKind.CONAN_SOURCES, hostedHandler.download)
+    createRoute(builder, downloadConanTgz(CONAN_PACKAGE_ZIP_URL), CONAN_PACKAGE, hostedHandler.download)
+    createRoute(builder, downloadConanTgz(CONAN_SOURCES_URL), AssetKind.CONAN_SOURCES, hostedHandler.download)
+    createRoute(builder, downloadConanTgz(CONAN_EXPORT_ZIP_URL), CONAN_EXPORT, hostedHandler.download)
 
     builder.route(ping()
         .handler(timingHandler)
@@ -375,21 +377,13 @@ class ConanHostedRecipe
     )
   }
 
-  static Builder downloadConanPackageZip() {
-    new Builder().matcher(
-        and(
-            new ActionMatcher(HEAD, GET),
-            new TokenMatcher(CONAN_PACKAGE_ZIP_URL)
-        )
-    )
-  }
 
-  static Builder downloadConanSources() {
+  static Builder downloadConanTgz(final String url) {
     new Builder().matcher(
-        and(
-            new ActionMatcher(HEAD, GET),
-            new TokenMatcher(CONAN_SOURCES_URL)
-        )
+            and(
+                    new ActionMatcher(HEAD, GET),
+                    new TokenMatcher(url)
+            )
     )
   }
 

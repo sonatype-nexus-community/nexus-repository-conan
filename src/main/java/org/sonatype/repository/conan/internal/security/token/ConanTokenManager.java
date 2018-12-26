@@ -57,7 +57,7 @@ public class ConanTokenManager
   public String user() {
     Subject subject = securityHelper.subject();
     boolean authenticated = subject.getPrincipal() != null && subject.isAuthenticated();
-    if (authenticated) {
+    if (authenticated || isAnonymous(subject)) {
       return subject.getPrincipals().getPrimaryPrincipal().toString();
     }
     return null;

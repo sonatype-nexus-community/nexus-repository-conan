@@ -27,6 +27,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ConanContentValidator
     implements ContentValidator
 {
+  private static final String X_PYTHON = "text/x-python";
+
   private final DefaultContentValidator defaultContentValidator;
 
   @Inject
@@ -42,8 +44,13 @@ public class ConanContentValidator
                                      @Nullable final String contentName,
                                      @Nullable final String declaredContentType) throws IOException
   {
-    if (contentName != null && contentName.endsWith(".tgz")) {
-      return ContentTypes.APPLICATION_GZIP;
+    if (contentName != null) {
+      if (contentName.endsWith(".tgz")) {
+        return ContentTypes.APPLICATION_GZIP;
+      }
+      else if (contentName.endsWith("/conanfile.py")) {
+        return X_PYTHON;
+      }
     }
     return defaultContentValidator.determineContentType(
         strictContentTypeValidation, contentSupplier, mimeRulesSource, contentName, declaredContentType

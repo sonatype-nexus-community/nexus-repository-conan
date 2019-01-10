@@ -33,4 +33,15 @@ public class ConanContentValidatorTest
 
     assertThat(contentType, is("text/x-python"));
   }
+
+  @Test
+  public void shouldBePythonFileWhenNotUsingSheBang() throws IOException {
+    String contentType = underTest.determineContentType(true,
+        () -> getClass().getResourceAsStream("../metadata/conanfile.py"),
+        MimeRulesSource.NOOP,
+        "something/conanfile.py",
+        "text/x-python");
+
+    assertThat(contentType, is("text/x-python"));
+  }
 }

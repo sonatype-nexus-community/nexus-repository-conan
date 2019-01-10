@@ -20,6 +20,8 @@ import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERS
 
 class ConanMatcher
 {
+  public static final String PING = "/v1/ping"
+
   protected static String DOWNLOAD_FORM = "{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}"
 
   protected static String STANDARD_FORM = "{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}"
@@ -115,6 +117,18 @@ class ConanMatcher
         and(
             new ActionMatcher(GET, HEAD),
             conanPackageMatcher()
+        )
+    )
+  }
+
+  /**
+   * Matches on ping endpoint
+   */
+  static Builder ping() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET),
+            new TokenMatcher(PING)
         )
     )
   }

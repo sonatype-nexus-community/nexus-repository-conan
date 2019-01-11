@@ -3,6 +3,7 @@ package org.sonatype.repository.conan.internal.proxy.matcher
 import org.sonatype.nexus.repository.view.Context
 import org.sonatype.nexus.repository.view.Route.Builder
 import org.sonatype.nexus.repository.view.matchers.ActionMatcher
+import org.sonatype.nexus.repository.view.matchers.LiteralMatcher
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State
 import org.sonatype.repository.conan.internal.metadata.ConanCoords
@@ -20,6 +21,8 @@ import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERS
 
 class ConanMatcher
 {
+  public static final String PING = "/v1/ping"
+
   protected static String DOWNLOAD_FORM = "{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}"
 
   protected static String STANDARD_FORM = "{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}"
@@ -115,6 +118,18 @@ class ConanMatcher
         and(
             new ActionMatcher(GET, HEAD),
             conanPackageMatcher()
+        )
+    )
+  }
+
+  /**
+   * Matches on ping endpoint
+   */
+  static Builder ping() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET),
+            new LiteralMatcher(PING)
         )
     )
   }

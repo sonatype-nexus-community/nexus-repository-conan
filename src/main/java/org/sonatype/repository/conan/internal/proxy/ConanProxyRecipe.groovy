@@ -152,6 +152,14 @@ class ConanProxyRecipe
         .handler(proxyHandler)
         .create())
 
+    builder.route(matcher.ping()
+        .handler(timingHandler)
+        .handler(securityHandler)
+        .handler(exceptionHandler)
+        .handler(handlerContributor)
+        .handler(proxyHandler)
+        .create())
+
     builder.route(new Route.Builder()
         .matcher(BrowseUnsupportedHandler.MATCHER)
         .handler(browseUnsupportedHandler)

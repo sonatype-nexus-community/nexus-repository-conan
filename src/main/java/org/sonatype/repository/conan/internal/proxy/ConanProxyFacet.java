@@ -124,6 +124,10 @@ public class ConanProxyFacet
 
   @Override
   protected Content store(final Context context, final Content content) throws IOException {
+    if (context.getRequest().getPath().equals(ConanMatcher.PING)) {
+      return content;
+    }
+
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
 
     ConanCoords conanCoords = getCoords(context);

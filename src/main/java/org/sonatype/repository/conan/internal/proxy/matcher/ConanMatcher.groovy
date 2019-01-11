@@ -3,6 +3,7 @@ package org.sonatype.repository.conan.internal.proxy.matcher
 import org.sonatype.nexus.repository.view.Context
 import org.sonatype.nexus.repository.view.Route.Builder
 import org.sonatype.nexus.repository.view.matchers.ActionMatcher
+import org.sonatype.nexus.repository.view.matchers.LiteralMatcher
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State
 import org.sonatype.repository.conan.internal.metadata.ConanCoords
@@ -128,7 +129,7 @@ class ConanMatcher
     new Builder().matcher(
         and(
             new ActionMatcher(GET),
-            new TokenMatcher(PING)
+            new LiteralMatcher(PING)
         )
     )
   }

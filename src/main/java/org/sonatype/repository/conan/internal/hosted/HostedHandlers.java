@@ -17,6 +17,10 @@ import java.io.IOException;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import static org.sonatype.nexus.repository.http.HttpMethods.GET;
+import static org.sonatype.nexus.repository.http.HttpMethods.HEAD;
+import static org.sonatype.nexus.repository.http.HttpMethods.POST;
+
 import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpResponses;
@@ -79,7 +83,8 @@ public class HostedHandlers
     TODO Check the SHA1 against existing asset to determine if an upload is required
      */
     Headers headers = context.getRequest().getHeaders();
-    if(headers.contains(CLIENT_CHECKSUM)) {
+    String method = context.getRequest().getAction();
+    if( headers.contains(CLIENT_CHECKSUM) and ( (method == HEAD) || (method == GET) ) ) {
       return new Response.Builder()
           .status(Status.failure(NOT_FOUND))
           .build();

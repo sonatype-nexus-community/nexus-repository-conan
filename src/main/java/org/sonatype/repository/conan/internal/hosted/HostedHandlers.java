@@ -84,7 +84,7 @@ public class HostedHandlers
      */
     Headers headers = context.getRequest().getHeaders();
     String method = context.getRequest().getAction();
-    if( headers.contains(CLIENT_CHECKSUM) and ( (method == HEAD) || (method == GET) ) ) {
+    if( headers.contains(CLIENT_CHECKSUM) && ( (method == HEAD) || (method == GET) ) ) {
       return new Response.Builder()
           .status(Status.failure(NOT_FOUND))
           .build();

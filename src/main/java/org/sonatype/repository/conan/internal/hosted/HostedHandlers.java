@@ -79,7 +79,9 @@ public class HostedHandlers
     TODO Check the SHA1 against existing asset to determine if an upload is required
      */
     Headers headers = context.getRequest().getHeaders();
-    if(headers.contains(CLIENT_CHECKSUM)) {
+    String method = context.getRequest().getAction();
+    
+    if(headers.contains(CLIENT_CHECKSUM) && method != "PUT") {
       return new Response.Builder()
           .status(Status.failure(NOT_FOUND))
           .build();

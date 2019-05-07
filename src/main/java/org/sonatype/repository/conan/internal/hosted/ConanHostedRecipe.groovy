@@ -117,6 +117,12 @@ class ConanHostedRecipe
 
   private static final String PING = "/v1/ping"
 
+  private static final String EMPTY_SEARCH_URL = "/v1/conans/search"
+
+  private static final String PARTIAL_SEARCH_URL = "/v1/conans/search?q="
+
+  private static final GString FULL_SEARCH_URL = BASE_URL + "/search"
+
   @Inject
   Provider<ConanHostedFacet> hostedFacet
 
@@ -169,6 +175,16 @@ class ConanHostedRecipe
     createRoute(builder, downloadConanTgz(CONAN_PACKAGE_ZIP_URL), CONAN_PACKAGE, hostedHandler.download)
     createRoute(builder, downloadConanTgz(CONAN_SOURCES_URL), AssetKind.CONAN_SOURCES, hostedHandler.download)
     createRoute(builder, downloadConanTgz(CONAN_EXPORT_ZIP_URL), CONAN_EXPORT, hostedHandler.download)
+
+    builder.route(searchPackages()
+        .handler(hostedHandler.searchPackages)
+        .create()
+    )
+
+    builder.route(searchRecipes()
+        .handler(hostedHandler.searchRecipes)
+        .create()
+    )
 
     builder.route(ping()
         .handler(timingHandler)
@@ -228,6 +244,33 @@ class ConanHostedRecipe
         .handler(unitOfWorkHandler)
         .handler(handler)
         .create())
+  }
+
+  /**
+   * Matches on full search package urls
+   */
+  static Builder searchPackages() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET),
+            new TokenMatcher(FULL_SEARCH_URL)
+        )
+    )
+  }
+
+  /**
+   * Matches on Empty and Partial Search urls
+   */
+  static Builder searchRecipes() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET),
+            or(
+                new TokenMatcher(EMPTY_SEARCH_URL),
+                new TokenMatcher(PARTIAL_SEARCH_URL)
+            )
+        )
+    )
   }
 
   /**

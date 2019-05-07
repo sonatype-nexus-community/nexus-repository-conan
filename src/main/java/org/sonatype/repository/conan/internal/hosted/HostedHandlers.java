@@ -20,11 +20,7 @@ import javax.inject.Singleton;
 import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpResponses;
-import org.sonatype.nexus.repository.view.Context;
-import org.sonatype.nexus.repository.view.Handler;
-import org.sonatype.nexus.repository.view.Headers;
-import org.sonatype.nexus.repository.view.Response;
-import org.sonatype.nexus.repository.view.Status;
+import org.sonatype.nexus.repository.view.*;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State;
 import org.sonatype.repository.conan.internal.AssetKind;
@@ -121,6 +117,20 @@ public class HostedHandlers
    */
   final Handler ping = context -> {
     log.debug("pong");
+    return HttpResponses.ok();
+  };
+
+  /**
+   * Search matching recipes based on partial or empty search
+   */
+  final Handler searchRecipes = context -> {
+    return HttpResponses.ok();
+  };
+
+  /**
+   * Search full package
+   */
+  final Handler searchPackages = context -> {
     return HttpResponses.ok();
   };
 

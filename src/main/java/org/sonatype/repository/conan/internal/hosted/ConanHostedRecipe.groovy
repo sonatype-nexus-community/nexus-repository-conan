@@ -12,6 +12,8 @@
  */
 package org.sonatype.repository.conan.internal.hosted
 
+import org.sonatype.repository.conan.internal.hosted.search.ConanHostedSearchFacet
+
 import javax.annotation.Nonnull
 import javax.inject.Inject
 import javax.inject.Named
@@ -129,6 +131,9 @@ class ConanHostedRecipe
   @Inject
   Provider<ConanTokenFacet> tokenFacet
 
+  @Inject
+  Provider<ConanHostedSearchFacet> hostedSearchFacet;
+
 
   @Inject
   HostedHandlers hostedHandler
@@ -155,6 +160,7 @@ class ConanHostedRecipe
     repository.attach(storageFacet.get())
     repository.attach(attributesFacet.get())
     repository.attach(searchFacet.get())
+    repository.attach(hostedSearchFacet.get())
   }
 
   ViewFacet configure(final ConfigurableViewFacet facet) {

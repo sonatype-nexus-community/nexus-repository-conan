@@ -26,11 +26,11 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State;
 import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.sonatype.repository.conan.internal.security.token.ConanTokenFacet;
+import org.sonatype.repository.conan.internal.hosted.search.ConanHostedSearchFacet;
 
 import static org.sonatype.nexus.repository.http.HttpStatus.NOT_FOUND;
 import static org.sonatype.repository.conan.internal.metadata.ConanCoords.convertFromState;
 import static org.sonatype.repository.conan.internal.metadata.ConanCoords.getPath;
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST;
 
 /**
  * @since 0.0.2
@@ -124,14 +124,20 @@ public class HostedHandlers
    * Search matching recipes based on partial or empty search
    */
   final Handler searchRecipes = context -> {
-    return HttpResponses.ok();
+    Content searchResult = context.getRepository()
+            .facet(ConanHostedSearchFacet.class)
+            .searchRecipes(context);
+    return HttpResponses.ok(searchResult);
   };
 
   /**
    * Search full package
    */
   final Handler searchPackages = context -> {
-    return HttpResponses.ok();
+    Content searchResult = context.getRepository()
+            .facet(ConanHostedSearchFacet.class)
+            .searchPackages(context);
+    return HttpResponses.ok(searchResult);
   };
 
   /**

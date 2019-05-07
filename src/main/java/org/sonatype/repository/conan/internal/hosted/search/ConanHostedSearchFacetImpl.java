@@ -15,13 +15,11 @@ public class ConanHostedSearchFacetImpl
 {
     @Override
     public Content searchRecipes(Context context) throws IOException {
-        System.out.println("SEARCHING RECIPES");
         return null;
     }
 
     @Override
     public Content searchPackages(Context context) throws IOException {
-        System.out.println("Searching Packages");
         return null;
     }
 }

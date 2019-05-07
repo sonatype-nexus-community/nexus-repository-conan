@@ -12,8 +12,6 @@
  */
 package org.sonatype.repository.conan.internal.hosted
 
-import org.sonatype.repository.conan.internal.hosted.search.ConanHostedSearchFacet
-
 import javax.annotation.Nonnull
 import javax.inject.Inject
 import javax.inject.Named
@@ -37,6 +35,7 @@ import org.sonatype.repository.conan.internal.AssetKind
 import org.sonatype.repository.conan.internal.ConanFormat
 import org.sonatype.repository.conan.internal.ConanRecipeSupport
 import org.sonatype.repository.conan.internal.security.token.ConanTokenFacet
+import org.sonatype.repository.conan.internal.hosted.search.ConanHostedSearchFacet
 
 import com.google.inject.Provider
 

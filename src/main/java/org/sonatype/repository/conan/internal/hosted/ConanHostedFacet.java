@@ -92,7 +92,8 @@ public class ConanHostedFacet
   public Response uploadDownloadUrl(final String assetPath,
                                     final ConanCoords coord,
                                     final Payload payload,
-                                    final AssetKind assetKind) throws IOException {
+                                    final AssetKind assetKind) throws IOException
+  {
     checkNotNull(assetPath);
     checkNotNull(coord);
     checkNotNull(payload);
@@ -127,7 +128,8 @@ public class ConanHostedFacet
   public Response upload(final String assetPath,
                          final ConanCoords coord,
                          final Payload payload,
-                         final AssetKind assetKind) throws IOException {
+                         final AssetKind assetKind) throws IOException
+  {
     checkNotNull(assetPath);
     checkNotNull(coord);
     checkNotNull(payload);
@@ -213,6 +215,7 @@ public class ConanHostedFacet
 
   /**
    * Services the download_urls endpoint for root and package data
+   *
    * @param gavPath path as GAV
    * @param context
    * @return json response of conan files to lookup
@@ -222,7 +225,7 @@ public class ConanHostedFacet
     log.debug("Original request {} is fetching locally from {}", context.getRequest().getPath(), gavPath);
 
     Content content = doGet(gavPath);
-    if(content == null) {
+    if (content == null) {
       return HttpResponses.notFound();
     }
 
@@ -248,7 +251,8 @@ public class ConanHostedFacet
     return new Response.Builder()
         .status(success(OK))
         .payload(new StreamPayload(
-            new InputStreamSupplier() {
+            new InputStreamSupplier()
+            {
               @Nonnull
               @Override
               public InputStream get() throws IOException {

@@ -62,7 +62,7 @@ public class HostedHandlers
   final Handler uploadConanInfo = context -> upload(context, "conaninfo.txt");
 
   final Handler uploadConanPackage = context -> upload(context, "conan_package.tgz");
-  
+
   final Handler uploadConanSources = context -> upload(context, "conan_sources.tgz");
 
   final Handler uploadConanExport = context -> upload(context, "conan_export.tgz");
@@ -76,8 +76,8 @@ public class HostedHandlers
      */
     Headers headers = context.getRequest().getHeaders();
     String method = context.getRequest().getAction();
-    
-    if(headers.contains(CLIENT_CHECKSUM) && method != "PUT") {
+
+    if (headers.contains(CLIENT_CHECKSUM) && method != "PUT") {
       return new Response.Builder()
           .status(Status.failure(NOT_FOUND))
           .build();
@@ -125,8 +125,8 @@ public class HostedHandlers
    */
   final Handler searchRecipes = context -> {
     Content searchResult = context.getRepository()
-            .facet(ConanHostedSearchFacet.class)
-            .searchRecipes(context);
+        .facet(ConanHostedSearchFacet.class)
+        .searchRecipes(context);
     return HttpResponses.ok(searchResult);
   };
 
@@ -135,8 +135,8 @@ public class HostedHandlers
    */
   final Handler searchPackages = context -> {
     Content searchResult = context.getRepository()
-            .facet(ConanHostedSearchFacet.class)
-            .searchPackages(context);
+        .facet(ConanHostedSearchFacet.class)
+        .searchPackages(context);
     return HttpResponses.ok(searchResult);
   };
 

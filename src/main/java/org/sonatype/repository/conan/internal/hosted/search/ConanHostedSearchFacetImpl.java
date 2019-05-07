@@ -13,14 +13,13 @@ public class ConanHostedSearchFacetImpl
     extends FacetSupport
     implements ConanHostedSearchFacet
 {
-    @Override
-    public Content searchRecipes(Context context) throws IOException {
-        return null;
-    }
+  @Override
+  public Content searchRecipes(Context context) throws IOException {
+    return null;
+  }
 
-    @Override
-    public Content searchPackages(Context context) throws IOException {
-        return null;
-    }
+  @Override
+  public Content searchPackages(Context context) throws IOException {
+    return null;
+  }
 }
-

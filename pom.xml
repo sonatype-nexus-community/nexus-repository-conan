@@ -64,7 +64,6 @@
       <artifactId>nexus-rapture</artifactId>
       <scope>provided</scope>
     </dependency>
-
   </dependencies>
 
   <build>

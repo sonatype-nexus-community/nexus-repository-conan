@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpResponses;
+import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.Headers;
@@ -30,11 +31,11 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State;
 import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.sonatype.repository.conan.internal.security.token.ConanTokenFacet;
+import org.sonatype.repository.conan.internal.hosted.search.ConanHostedSearchFacet;
 
 import static org.sonatype.nexus.repository.http.HttpStatus.NOT_FOUND;
 import static org.sonatype.repository.conan.internal.metadata.ConanCoords.convertFromState;
 import static org.sonatype.repository.conan.internal.metadata.ConanCoords.getPath;
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST;
 
 /**
  * @since 0.0.2
@@ -66,7 +67,7 @@ public class HostedHandlers
   final Handler uploadConanInfo = context -> upload(context, "conaninfo.txt");
 
   final Handler uploadConanPackage = context -> upload(context, "conan_package.tgz");
-  
+
   final Handler uploadConanSources = context -> upload(context, "conan_sources.tgz");
 
   final Handler uploadConanExport = context -> upload(context, "conan_export.tgz");
@@ -80,8 +81,8 @@ public class HostedHandlers
      */
     Headers headers = context.getRequest().getHeaders();
     String method = context.getRequest().getAction();
-    
-    if(headers.contains(CLIENT_CHECKSUM) && method != "PUT") {
+
+    if (headers.contains(CLIENT_CHECKSUM) && method != "PUT") {
       return new Response.Builder()
           .status(Status.failure(NOT_FOUND))
           .build();
@@ -122,6 +123,26 @@ public class HostedHandlers
   final Handler ping = context -> {
     log.debug("pong");
     return HttpResponses.ok();
+  };
+
+  /**
+   * Search matching recipes based on partial or empty search
+   */
+  final Handler searchRecipes = context -> {
+    Content searchResult = context.getRepository()
+        .facet(ConanHostedSearchFacet.class)
+        .searchRecipes(context);
+    return HttpResponses.ok(searchResult);
+  };
+
+  /**
+   * Search full package
+   */
+  final Handler searchPackages = context -> {
+    Content searchResult = context.getRepository()
+        .facet(ConanHostedSearchFacet.class)
+        .searchPackages(context);
+    return HttpResponses.ok(searchResult);
   };
 
   /**

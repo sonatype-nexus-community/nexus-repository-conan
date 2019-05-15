@@ -35,6 +35,7 @@ import org.sonatype.repository.conan.internal.AssetKind
 import org.sonatype.repository.conan.internal.ConanFormat
 import org.sonatype.repository.conan.internal.ConanRecipeSupport
 import org.sonatype.repository.conan.internal.security.token.ConanTokenFacet
+import org.sonatype.repository.conan.internal.hosted.search.ConanHostedSearchFacet
 
 import com.google.inject.Provider
 
@@ -63,7 +64,7 @@ import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERS
 @Named(ConanHostedRecipe.NAME)
 @Singleton
 class ConanHostedRecipe
-  extends ConanRecipeSupport
+    extends ConanRecipeSupport
 {
   public static final String NAME = 'conan-hosted'
 
@@ -71,7 +72,7 @@ class ConanHostedRecipe
 
   private static final GString BASE_URL_GAV = "/v1/conans/{${GROUP}}/{${PROJECT}}/{${VERSION}}/{${STATE}}"
 
-  private static final GString PACKAGES =  "/packages/{${DIGEST}}"
+  private static final GString PACKAGES = "/packages/{${DIGEST}}"
 
   private static final String UPLOAD = "/upload_urls"
 
@@ -89,7 +90,7 @@ class ConanHostedRecipe
 
   private static final GString CONAN_FILE_URL = BASE_URL_GAV + CONANFILE
 
-  private static final GString CONAN_FILE_PACKAGE_URL = BASE_URL_GAV +PACKAGES + CONANFILE
+  private static final GString CONAN_FILE_PACKAGE_URL = BASE_URL_GAV + PACKAGES + CONANFILE
 
   private static final String CONANINFO = "/conaninfo.txt"
 
@@ -104,7 +105,7 @@ class ConanHostedRecipe
   private static final String CONAN_SOURCES = "/conan_sources.tgz"
 
   private static final GString CONAN_SOURCES_URL = BASE_URL_GAV + CONAN_SOURCES
-  
+
   private static final String DOWNLOAD = "/download_urls"
 
   private static final GString DOWNLOAD_URL = BASE_URL + DOWNLOAD
@@ -117,11 +118,20 @@ class ConanHostedRecipe
 
   private static final String PING = "/v1/ping"
 
+  private static final String EMPTY_SEARCH_URL = "/v1/conans/search"
+
+  private static final String PARTIAL_SEARCH_URL = "/v1/conans/search?q="
+
+  private static final GString FULL_SEARCH_URL = BASE_URL + "/search"
+
   @Inject
   Provider<ConanHostedFacet> hostedFacet
 
   @Inject
   Provider<ConanTokenFacet> tokenFacet
+
+  @Inject
+  Provider<ConanHostedSearchFacet> hostedSearchFacet;
 
 
   @Inject
@@ -129,7 +139,8 @@ class ConanHostedRecipe
 
   @Inject
   protected ConanHostedRecipe(@Named(HostedType.NAME) final Type type,
-                              @Named(ConanFormat.NAME) final Format format) {
+                              @Named(ConanFormat.NAME) final Format format)
+  {
     super(type, format)
   }
 
@@ -149,6 +160,7 @@ class ConanHostedRecipe
     repository.attach(storageFacet.get())
     repository.attach(attributesFacet.get())
     repository.attach(searchFacet.get())
+    repository.attach(hostedSearchFacet.get())
   }
 
   ViewFacet configure(final ConfigurableViewFacet facet) {
@@ -169,6 +181,16 @@ class ConanHostedRecipe
     createRoute(builder, downloadConanTgz(CONAN_PACKAGE_ZIP_URL), CONAN_PACKAGE, hostedHandler.download)
     createRoute(builder, downloadConanTgz(CONAN_SOURCES_URL), AssetKind.CONAN_SOURCES, hostedHandler.download)
     createRoute(builder, downloadConanTgz(CONAN_EXPORT_ZIP_URL), CONAN_EXPORT, hostedHandler.download)
+
+    builder.route(searchPackages()
+        .handler(hostedHandler.searchPackages)
+        .create()
+    )
+
+    builder.route(searchRecipes()
+        .handler(hostedHandler.searchRecipes)
+        .create()
+    )
 
     builder.route(ping()
         .handler(timingHandler)
@@ -215,7 +237,8 @@ class ConanHostedRecipe
   private Router.Builder createRoute(Router.Builder builder,
                                      Builder matcher,
                                      AssetKind assetKind,
-                                     Handler handler) {
+                                     Handler handler)
+  {
     builder.route(matcher
         .handler(timingHandler)
         .handler(assetKindHandler.rcurry(assetKind))
@@ -228,6 +251,33 @@ class ConanHostedRecipe
         .handler(unitOfWorkHandler)
         .handler(handler)
         .create())
+  }
+
+  /**
+   * Matches on full search package urls
+   */
+  static Builder searchPackages() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET),
+            new TokenMatcher(FULL_SEARCH_URL)
+        )
+    )
+  }
+
+  /**
+   * Matches on Empty and Partial Search urls
+   */
+  static Builder searchRecipes() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET),
+            or(
+                new TokenMatcher(EMPTY_SEARCH_URL),
+                new TokenMatcher(PARTIAL_SEARCH_URL)
+            )
+        )
+    )
   }
 
   /**
@@ -380,10 +430,10 @@ class ConanHostedRecipe
 
   static Builder downloadConanTgz(final String url) {
     new Builder().matcher(
-            and(
-                    new ActionMatcher(HEAD, GET),
-                    new TokenMatcher(url)
-            )
+        and(
+            new ActionMatcher(HEAD, GET),
+            new TokenMatcher(url)
+        )
     )
   }
 

@@ -22,3 +22,7 @@ Sonatype internal people:
 External contributors:
 
 ![Possibly You!](http://i.imgur.com/A3eScYul.jpg)
+
+Ankit Koirala
+
+Jasper van de Ven

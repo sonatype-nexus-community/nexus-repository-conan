@@ -73,6 +73,8 @@ class ConanHostedRecipe
 
   private static final GString PACKAGES =  "/packages/{${DIGEST}}"
 
+  private static final GString PACKAGE_SNAPSHOT = BASE_URL + PACKAGES
+
   private static final String UPLOAD = "/upload_urls"
 
   private static final GString UPLOAD_URL = BASE_URL + UPLOAD
@@ -169,6 +171,18 @@ class ConanHostedRecipe
     createRoute(builder, downloadConanTgz(CONAN_PACKAGE_ZIP_URL), CONAN_PACKAGE, hostedHandler.download)
     createRoute(builder, downloadConanTgz(CONAN_SOURCES_URL), AssetKind.CONAN_SOURCES, hostedHandler.download)
     createRoute(builder, downloadConanTgz(CONAN_EXPORT_ZIP_URL), CONAN_EXPORT, hostedHandler.download)
+
+    builder.route(packageSnapshot()
+            .handler(timingHandler)
+            .handler(securityHandler)
+            .handler(exceptionHandler)
+            .handler(handlerContributor)
+            .handler(conditionalRequestHandler)
+            .handler(partialFetchHandler)
+            .handler(contentHeadersHandler)
+            .handler(unitOfWorkHandler)
+            .handler(hostedHandler.packageSnapshot)
+            .create())
 
     builder.route(ping()
         .handler(timingHandler)
@@ -374,6 +388,15 @@ class ConanHostedRecipe
                 new TokenMatcher(CONAN_INFO_URL)
             )
         )
+    )
+  }
+
+  static Builder packageSnapshot() {
+    new Builder().matcher(
+      and(
+            new ActionMatcher(HEAD,GET),
+            new TokenMatcher(PACKAGE_SNAPSHOT)
+      )
     )
   }
 

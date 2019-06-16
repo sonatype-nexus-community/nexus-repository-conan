@@ -75,6 +75,11 @@ public class UploadUrlManager
     return writejson(jsonResponse);
   }
 
+  public Map<String, String> valuesMap(final InputStream inputStream) {
+    Map<String, String> jsonParse = readJson(inputStream);
+    return jsonParse;
+  }
+
   private Map<String, String> prefixToValues(final String path, final Map<String, String> jsonParse) {
     return jsonParse.entrySet().stream()
           .collect(Collectors.toMap(Entry::getKey, e -> path + e.getValue()));

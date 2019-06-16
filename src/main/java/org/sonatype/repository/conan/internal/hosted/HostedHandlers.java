@@ -124,6 +124,16 @@ public class HostedHandlers
     return HttpResponses.ok();
   };
 
+  final Handler packageSnapshot = context -> {
+    State state = context.getAttributes().require(State.class);
+    ConanCoords coord = convertFromState(state);
+    String path = getAssetPath(coord);
+
+    return context.getRepository()
+            .facet(ConanHostedFacet.class)
+            .getPackageSnapshot(path, context);
+  };
+
   /**
    * Checks if there is a Bearer Authentication: token
    * otherwise returns 401

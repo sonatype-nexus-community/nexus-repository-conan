@@ -34,7 +34,6 @@ import org.sonatype.repository.conan.internal.security.token.ConanTokenFacet;
 import static org.sonatype.nexus.repository.http.HttpStatus.NOT_FOUND;
 import static org.sonatype.repository.conan.internal.metadata.ConanCoords.convertFromState;
 import static org.sonatype.repository.conan.internal.metadata.ConanCoords.getPath;
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST;
 
 /**
  * @since 0.0.2

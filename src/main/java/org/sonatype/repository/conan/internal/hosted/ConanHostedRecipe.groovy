@@ -75,6 +75,10 @@ class ConanHostedRecipe
 
   private static final GString PACKAGE_SNAPSHOT = BASE_URL + PACKAGES
 
+  private static final GString PACKAGE_MANIFEST = PACKAGE_SNAPSHOT + "/digest"
+
+  private static final GString RECIPE_MANIFEST = BASE_URL + "/digest"
+
   private static final String UPLOAD = "/upload_urls"
 
   private static final GString UPLOAD_URL = BASE_URL + UPLOAD
@@ -343,7 +347,9 @@ class ConanHostedRecipe
             new ActionMatcher(HEAD, GET),
             or(
                 new TokenMatcher(DOWNLOAD_PACKAGE_URL),
-                new TokenMatcher(DOWNLOAD_URL)
+                new TokenMatcher(DOWNLOAD_URL),
+                new TokenMatcher(PACKAGE_MANIFEST),
+                new TokenMatcher(RECIPE_MANIFEST)
             )
         )
     )

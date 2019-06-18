@@ -24,7 +24,7 @@
    * [Building](#building)
 * [Using Conan with Nexus Repository Manager 3](#using-conan-with-nexus-repository-manager-3)
 * [Installing the plugin](#installing-the-plugin)
-   * [Easiest Install (beta)](#easiest-install-beta)
+   * [Easiest Install](#easiest-install)
    * [Temporary Install](#temporary-install)
    * [(more) Permanent Install](#more-permanent-install)
    * [(most) Permament Install](#most-permanent-install)
@@ -53,7 +53,7 @@ you need to use this plugin with an older version, please use 0.0.1
 
 To build the project and generate the bundle use Maven
 
-    mvn clean install
+    mvn clean package -PbuildKar
 
 If everything checks out, the bundle for Conan should be available in the `target` folder
 
@@ -78,7 +78,7 @@ The application will now be available from your browser at http://localhost:8081
 There are a range of options for installing the Conan plugin. You'll need to build it first, and
 then install the plugin with the options shown below:
 
-### Easiest Install (beta)
+### Easiest Install
 	
 Thanks to some upstream work in Nexus Repository (versions newer than 3.15), it's become a LOT easier to install a plugin. To install the `conan` plugin, follow these steps:
 

@@ -23,7 +23,10 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.hash.HashCode;
 import org.sonatype.nexus.common.collect.AttributesMap;
+import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.Facet.Exposed;
 import org.sonatype.nexus.repository.FacetSupport;
 import org.sonatype.nexus.repository.http.HttpResponses;
@@ -237,6 +240,34 @@ public class ConanHostedFacet
         .build();
   }
 
+  public Response getPackageSnapshot(final String gavPath, final Context context) throws IOException{
+    String downloadUrls = gavPath + "/download_urls";
+    Content content = doGet(downloadUrls);
+    if(content == null) {
+      return HttpResponses.notFound();
+    }
+    Map<String, String> filePathMap;
+    try (InputStream inputStream = content.openInputStream()) {
+      filePathMap = uploadUrlManager.valuesMap(inputStream);
+    }
+
+    Map<String, String> fileHashMap = new HashMap<>();
+    for(Map.Entry<String, String> entry : filePathMap.entrySet())
+    {
+      String hash = getHash(entry.getValue(), HashAlgorithm.MD5);
+      if (hash != null)
+      {
+        fileHashMap.put(entry.getKey(), hash);
+      }
+    }
+    ObjectMapper mapper = new ObjectMapper();
+    String response = mapper.writeValueAsString(fileHashMap);
+    return new Response.Builder()
+            .status(success(OK))
+            .payload(new StringPayload(response, APPLICATION_JSON))
+            .build();
+  }
+
   public Response get(final Context context) {
     log.debug("Request {}", context.getRequest().getPath());
 
@@ -276,5 +307,24 @@ public class ConanHostedFacet
       tx.saveAsset(asset);
     }
     return toContent(asset, tx.requireBlob(asset.requireBlobRef()));
+  }
+
+  @Nullable
+  @TransactionalStoreBlob
+  protected String getHash(final String path, HashAlgorithm hashAlgorithm)
+  {
+    checkNotNull(path);
+
+    StorageTx tx = UnitOfWork.currentTx();
+
+    Asset asset = findAsset(tx, tx.findBucket(getRepository()), path);
+    if (asset == null) {
+      return null;
+    }
+    HashCode checksum = asset.getChecksum(hashAlgorithm);
+    if (checksum == null) {
+      return null;
+    }
+    return checksum.toString();
   }
 }

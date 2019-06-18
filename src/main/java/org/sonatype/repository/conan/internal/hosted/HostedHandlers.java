@@ -34,7 +34,6 @@ import org.sonatype.repository.conan.internal.security.token.ConanTokenFacet;
 import static org.sonatype.nexus.repository.http.HttpStatus.NOT_FOUND;
 import static org.sonatype.repository.conan.internal.metadata.ConanCoords.convertFromState;
 import static org.sonatype.repository.conan.internal.metadata.ConanCoords.getPath;
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST;
 
 /**
  * @since 0.0.2
@@ -122,6 +121,16 @@ public class HostedHandlers
   final Handler ping = context -> {
     log.debug("pong");
     return HttpResponses.ok();
+  };
+
+  final Handler packageSnapshot = context -> {
+    State state = context.getAttributes().require(State.class);
+    ConanCoords coord = convertFromState(state);
+    String path = getAssetPath(coord);
+
+    return context.getRepository()
+            .facet(ConanHostedFacet.class)
+            .getPackageSnapshot(path, context);
   };
 
   /**

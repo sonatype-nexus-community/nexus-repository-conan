@@ -10,7 +10,7 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.repository.conan.internal.hosted;
+package org.sonatype.repository.conan.internal.hosted.v1;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -47,6 +47,7 @@ import org.sonatype.nexus.repository.view.payloads.StreamPayload.InputStreamSupp
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
 import org.sonatype.nexus.transaction.UnitOfWork;
 import org.sonatype.repository.conan.internal.AssetKind;
+import org.sonatype.repository.conan.internal.hosted.UploadUrlManager;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.sonatype.repository.conan.internal.utils.ConanFacetUtils;
 

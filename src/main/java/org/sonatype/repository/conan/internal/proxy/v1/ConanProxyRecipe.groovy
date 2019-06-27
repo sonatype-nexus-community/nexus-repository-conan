@@ -10,7 +10,7 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.repository.conan.internal.hosted
+package org.sonatype.repository.conan.internal.proxy.v1
 
 import javax.annotation.Nonnull
 import javax.inject.Inject
@@ -20,46 +20,47 @@ import javax.inject.Singleton
 import org.sonatype.nexus.repository.Format
 import org.sonatype.nexus.repository.Repository
 import org.sonatype.nexus.repository.Type
-import org.sonatype.nexus.repository.types.HostedType
+import org.sonatype.nexus.repository.proxy.ProxyHandler
+import org.sonatype.nexus.repository.types.ProxyType
 import org.sonatype.nexus.repository.view.ConfigurableViewFacet
+import org.sonatype.nexus.repository.view.Context
 import org.sonatype.nexus.repository.view.Route
 import org.sonatype.nexus.repository.view.Router
 import org.sonatype.nexus.repository.view.ViewFacet
 import org.sonatype.nexus.repository.view.handlers.BrowseUnsupportedHandler
+import org.sonatype.repository.conan.internal.AssetKind
 import org.sonatype.repository.conan.internal.ConanFormat
 import org.sonatype.repository.conan.internal.ConanRecipeSupport
-import org.sonatype.repository.conan.internal.hosted.v1.ConanHostedApiV1
-import org.sonatype.repository.conan.internal.hosted.v1.ConanHostedFacet
-import org.sonatype.repository.conan.internal.security.token.ConanTokenFacet
+import org.sonatype.repository.conan.internal.proxy.ConanProxyFacet
 
 import com.google.inject.Provider
 
 import static org.sonatype.nexus.repository.http.HttpHandlers.notFound
 
 /**
- * @since 0.0.2
+ * @since 0.0.1
  */
-@Named(ConanHostedRecipe.NAME)
+@Named(ConanProxyRecipe.NAME)
 @Singleton
-class ConanHostedRecipe
+class ConanProxyRecipe
   extends ConanRecipeSupport
 {
-  public static final String NAME = 'conan-hosted'
+  public static final String NAME = 'conan-proxy'
 
   @Inject
-  Provider<ConanHostedFacet> hostedFacet
+  Provider<ConanProxyFacet> proxyFacet
 
   @Inject
-  Provider<ConanTokenFacet> tokenFacet
+  ProxyHandler proxyHandler
 
-  private ConanHostedApiV1 apiV1
+  private ConanProxyApiV1 conanApiV1
 
   @Inject
-  protected ConanHostedRecipe(@Named(HostedType.NAME) final Type type,
-                              @Named(ConanFormat.NAME) final Format format,
-                              final ConanHostedApiV1 apiV1) {
+  protected ConanProxyRecipe(@Named(ProxyType.NAME) final Type type,
+                             @Named(ConanFormat.NAME) final Format format,
+                             final ConanProxyApiV1 conanApiV1) {
     super(type, format)
-    this.apiV1 = apiV1
+    this.conanApiV1 = conanApiV1
   }
 
   @Override
@@ -67,18 +68,20 @@ class ConanHostedRecipe
     repository.attach(securityFacet.get())
     repository.attach(configure(viewFacet.get()))
     repository.attach(httpClientFacet.get())
+    repository.attach(negativeCacheFacet.get())
     repository.attach(componentMaintenanceFacet.get())
-    repository.attach(tokenFacet.get())
-    repository.attach(hostedFacet.get())
+    repository.attach(proxyFacet.get())
     repository.attach(storageFacet.get())
     repository.attach(attributesFacet.get())
     repository.attach(searchFacet.get())
+    repository.attach(purgeUnusedFacet.get())
+
   }
 
-  ViewFacet configure(final ConfigurableViewFacet facet) {
+  ViewFacet configure(ConfigurableViewFacet facet) {
     Router.Builder builder = new Router.Builder()
 
-    apiV1.create(builder)
+    conanApiV1.create(builder);
 
     builder.route(new Route.Builder()
         .matcher(BrowseUnsupportedHandler.MATCHER)

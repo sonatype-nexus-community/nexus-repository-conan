@@ -30,7 +30,7 @@ import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA256
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA512
 import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME
-import static org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher.getCoords
+import static org.sonatype.repository.conan.internal.common.v1.ConanRoutes.getCoords
 
 /**
  * @since 0.0.1

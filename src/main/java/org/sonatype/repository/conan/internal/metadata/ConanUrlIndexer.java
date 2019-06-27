@@ -22,12 +22,10 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.goodies.common.ComponentSupport;
-import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.repository.storage.TempBlob;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
-import org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher;
+import org.sonatype.repository.conan.internal.common.v1.ConanRoutes;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,7 +53,7 @@ public class ConanUrlIndexer
     Map<String, URL> downloadUrlContents = readIndex(content.openInputStream());
     Map<String, String> remappedContents = new HashMap<>();
 
-    ConanCoords coords = ConanMatcher.getCoords(context);
+    ConanCoords coords = ConanRoutes.getCoords(context);
 
     String path = ConanCoords.getPath(coords);
 

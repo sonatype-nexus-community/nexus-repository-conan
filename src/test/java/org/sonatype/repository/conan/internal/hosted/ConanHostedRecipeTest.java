@@ -6,6 +6,7 @@ import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.Request;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
+import org.sonatype.repository.conan.internal.common.v1.ConanRoutes;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,11 +19,6 @@ import static org.mockito.Mockito.when;
 import static org.sonatype.goodies.testsupport.hamcrest.DiffMatchers.equalTo;
 import static org.sonatype.nexus.repository.http.HttpMethods.POST;
 import static org.sonatype.nexus.repository.http.HttpMethods.PUT;
-import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.uploadConanPackageZip;
-import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.uploadConanfile;
-import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.uploadConaninfo;
-import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.uploadManifest;
-import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.uploadUrls;
 
 public class ConanHostedRecipeTest
     extends TestSupport
@@ -50,7 +46,7 @@ public class ConanHostedRecipeTest
     when(request.getAction()).thenReturn(POST);
     when(request.getPath()).thenReturn("/v1/conans/project/2.1.1/group/stable/upload_urls");
 
-    assertTrue(uploadUrls().handler(handler).create().getMatcher().matches(context));
+    assertTrue(ConanRoutes.uploadUrls().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("group"), is(equalTo("group")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("project")));
@@ -62,7 +58,7 @@ public class ConanHostedRecipeTest
     when(request.getAction()).thenReturn(POST);
     when(request.getPath()).thenReturn("/v1/conans/project/2.1.1/group/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/upload_urls");
 
-    assertTrue(uploadUrls().handler(handler).create().getMatcher().matches(context));
+    assertTrue(ConanRoutes.uploadUrls().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("group"), is(equalTo("group")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("project")));
@@ -75,7 +71,7 @@ public class ConanHostedRecipeTest
     when(request.getAction()).thenReturn(PUT);
     when(request.getPath()).thenReturn("/v1/conans/group/project/2.1.1/stable/conanmanifest.txt");
 
-    assertTrue(uploadManifest().handler(handler).create().getMatcher().matches(context));
+    assertTrue(ConanRoutes.uploadManifest().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("group"), is(equalTo("group")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("project")));
@@ -87,7 +83,7 @@ public class ConanHostedRecipeTest
     when(request.getAction()).thenReturn(PUT);
     when(request.getPath()).thenReturn("/v1/conans/group/project/2.1.1/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conanmanifest.txt");
 
-    assertTrue(uploadManifest().handler(handler).create().getMatcher().matches(context));
+    assertTrue(ConanRoutes.uploadManifest().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("group"), is(equalTo("group")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("project")));
@@ -100,7 +96,7 @@ public class ConanHostedRecipeTest
     when(request.getAction()).thenReturn(PUT);
     when(request.getPath()).thenReturn("/v1/conans/group/project/2.1.1/stable/conanfile.py");
 
-    assertTrue(uploadConanfile().handler(handler).create().getMatcher().matches(context));
+    assertTrue(ConanRoutes.uploadConanfile().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("group"), is(equalTo("group")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("project")));
@@ -113,7 +109,7 @@ public class ConanHostedRecipeTest
     when(request.getAction()).thenReturn(PUT);
     when(request.getPath()).thenReturn("/v1/conans/group/project/2.1.1/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conanfile.py");
 
-    assertTrue(uploadConanfile().handler(handler).create().getMatcher().matches(context));
+    assertTrue(ConanRoutes.uploadConanfile().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("group"), is(equalTo("group")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("project")));
@@ -126,7 +122,7 @@ public class ConanHostedRecipeTest
     when(request.getAction()).thenReturn(PUT);
     when(request.getPath()).thenReturn("/v1/conans/group/project/2.1.1/stable/conaninfo.txt");
 
-    assertTrue(uploadConaninfo().handler(handler).create().getMatcher().matches(context));
+    assertTrue(ConanRoutes.uploadConanInfo().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("group"), is(equalTo("group")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("project")));
@@ -139,7 +135,7 @@ public class ConanHostedRecipeTest
     when(request.getAction()).thenReturn(PUT);
     when(request.getPath()).thenReturn("/v1/conans/group/project/2.1.1/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz");
 
-    assertTrue(uploadConanPackageZip().handler(handler).create().getMatcher().matches(context));
+    assertTrue(ConanRoutes.uploadConanPackageZip().handler(handler).create().getMatcher().matches(context));
     TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
     assertThat(matcherState.getTokens().get("group"), is(equalTo("group")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("project")));

@@ -1,4 +1,4 @@
-package org.sonatype.repository.conan.internal.proxy.matcher
+package org.sonatype.repository.conan.internal.common.v1
 
 import org.sonatype.nexus.repository.view.Context
 import org.sonatype.nexus.repository.view.Route.Builder
@@ -11,6 +11,8 @@ import org.sonatype.repository.conan.internal.metadata.ConanCoords
 import static com.google.common.base.Preconditions.checkNotNull
 import static org.sonatype.nexus.repository.http.HttpMethods.GET
 import static org.sonatype.nexus.repository.http.HttpMethods.HEAD
+import static org.sonatype.nexus.repository.http.HttpMethods.POST
+import static org.sonatype.nexus.repository.http.HttpMethods.PUT
 import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.and
 import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.or
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST
@@ -19,19 +21,95 @@ import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJ
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION
 
-class ConanMatcher
+class ConanRoutes
 {
-  public static final String PING = "/v1/ping"
-
   protected static String DOWNLOAD_FORM = "{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}"
 
   protected static String STANDARD_FORM = "{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}"
 
   /**
+   * Matches on urls ending with upload_urls
+   */
+  static Builder uploadUrls() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(POST),
+            or(
+                new TokenMatcher("{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/upload_urls"),
+                new TokenMatcher("{path:.*}/${DOWNLOAD_FORM}/upload_urls")
+            )
+        )
+    )
+  }
+
+  static Builder uploadManifest() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(PUT),
+            or(
+                conanManifestPackagesMatcher(),
+                conanManifestMatcher()
+            )
+        )
+    )
+  }
+
+  static Builder uploadConanfile() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(PUT),
+            or(
+                conanFilePackagesMatcher(),
+                conanFileMatcher()
+            )
+        )
+    )
+  }
+
+  static Builder uploadConanInfo() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(PUT),
+            or(
+                conanInfoPackagesMatcher(),
+                conanInfoMatcher()
+            )
+        )
+    )
+  }
+
+  static Builder uploadConanPackageZip() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(PUT),
+            conanPackageMatcher()
+        )
+    )
+  }
+
+  static Builder uploadConanSource() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(PUT),
+            conanSourceMatcher()
+        )
+    )
+  }
+
+  static Builder uploadConanExportZip() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(PUT),
+            conanExportMatcher()
+        )
+    )
+  }
+
+  /**
    * Matches on urls ending with download_urls
    * @return matcher for initial and package download_urls endpoints
    */
-  Builder downloadUrls() {
+  static Builder downloadUrls() {
     return new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
@@ -55,7 +133,7 @@ class ConanMatcher
    * Matches on the manifest files
    * @return matcher for initial and package conanmanifest.txt
    */
-  Builder conanManifest() {
+  static Builder conanManifest() {
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
@@ -68,18 +146,18 @@ class ConanMatcher
   }
 
   private static TokenMatcher conanManifestMatcher() {
-    new TokenMatcher("/${STANDARD_FORM}/conanmanifest.txt")
+    new TokenMatcher("{path:.*}/${STANDARD_FORM}/conanmanifest.txt")
   }
 
   private static TokenMatcher conanManifestPackagesMatcher() {
-    new TokenMatcher("/${STANDARD_FORM}/packages/{sha:.+}/conanmanifest.txt")
+    new TokenMatcher("{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conanmanifest.txt")
   }
 
   /**
    * Matches on conanfile.py
    * @return matcher for conanfile.py
    */
-  Builder conanFile() {
+  static Builder conanFile() {
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
@@ -89,31 +167,39 @@ class ConanMatcher
   }
 
   private static TokenMatcher conanFileMatcher() {
-    new TokenMatcher("/${STANDARD_FORM}/conanfile.py")
+    new TokenMatcher("{path:.*}/${STANDARD_FORM}/conanfile.py")
+  }
+
+  private static TokenMatcher conanFilePackagesMatcher() {
+    new TokenMatcher("{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conanfile.py")
   }
 
   /**
    * Matches on conaninfo.txt
    * @return matcher for conaninfo.txt
    */
-  Builder conanInfo() {
+  static Builder conanInfo() {
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
-            conanInfoMatcher()
+            conanInfoPackagesMatcher()
         )
     )
   }
 
   private static TokenMatcher conanInfoMatcher() {
-    new TokenMatcher("/${STANDARD_FORM}/packages/{sha:.+}/conaninfo.txt")
+    new TokenMatcher("{path:.*}/${STANDARD_FORM}/conaninfo.txt")
+  }
+
+  private static TokenMatcher conanInfoPackagesMatcher() {
+    new TokenMatcher("{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conaninfo.txt")
   }
 
   /**
    * Matches on conan_package.tgz
    * @return matcher for conan_package.tgz
    */
-  Builder conanPackage() {
+  static Builder conanPackage() {
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
@@ -122,20 +208,43 @@ class ConanMatcher
     )
   }
 
-  /**
-   * Matches on ping endpoint
-   */
-  static Builder ping() {
+  static Builder conanSource() {
     new Builder().matcher(
         and(
-            new ActionMatcher(GET),
-            new LiteralMatcher(PING)
+            new ActionMatcher(GET, HEAD),
+            conanSourceMatcher()
+        )
+    )
+  }
+
+  static Builder conanExport() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET, HEAD),
+            conanExportMatcher()
+        )
+    )
+  }
+
+  static Builder packageSnapshot() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(HEAD, GET),
+            new TokenMatcher("/${STANDARD_FORM}/packages/{sha:.+}")
         )
     )
   }
 
   private static TokenMatcher conanPackageMatcher() {
-    new TokenMatcher("/${STANDARD_FORM}/packages/{sha:.+}/conan_package.tgz")
+    new TokenMatcher("{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conan_package.tgz")
+  }
+
+  private static TokenMatcher conanSourceMatcher() {
+    new TokenMatcher("{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conan_source.tgz")
+  }
+
+  private static TokenMatcher conanExportMatcher() {
+    new TokenMatcher("{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conan_export.tgz")
   }
 
   static String match(final TokenMatcher.State state, final String name) {

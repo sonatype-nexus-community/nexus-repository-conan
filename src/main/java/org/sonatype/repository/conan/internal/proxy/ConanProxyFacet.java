@@ -48,7 +48,7 @@ import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.sonatype.repository.conan.internal.metadata.ConanHashVerifier;
 import org.sonatype.repository.conan.internal.metadata.ConanManifest;
 import org.sonatype.repository.conan.internal.metadata.ConanUrlIndexer;
-import org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher;
+import org.sonatype.repository.conan.internal.common.v1.ConanRoutes;
 
 import com.google.common.base.Supplier;
 import com.google.common.hash.HashCode;
@@ -63,7 +63,7 @@ import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPath;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPathFromCoords;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
-import static org.sonatype.repository.conan.internal.proxy.matcher.ConanMatcher.getCoords;
+import static org.sonatype.repository.conan.internal.common.v1.ConanRoutes.getCoords;
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findComponent;
 
 /**
@@ -124,7 +124,7 @@ public class ConanProxyFacet
 
   @Override
   protected Content store(final Context context, final Content content) throws IOException {
-    if (context.getRequest().getPath().equals(ConanMatcher.PING)) {
+    if (context.getRequest().getPath().equals("/v1/ping")) {
       return content;
     }
 
@@ -306,7 +306,7 @@ public class ConanProxyFacet
     log.info("AssetKind {} to be fetched is {}", assetKind, context.getRequest().getPath());
 
     // Find the original download_url
-    ConanCoords coords = ConanMatcher.getCoords(context);
+    ConanCoords coords = ConanRoutes.getCoords(context);
     String download_urls = String.format("%s/%s", ConanCoords.getPath(coords), "download_urls");
     return getUrlFromDownloadAsset(download_urls, assetKind.getFilename());
   }

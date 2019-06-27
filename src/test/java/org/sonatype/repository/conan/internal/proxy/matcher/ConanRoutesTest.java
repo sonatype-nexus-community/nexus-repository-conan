@@ -7,6 +7,7 @@ import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.Request;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
+import org.sonatype.repository.conan.internal.common.v1.ConanRoutes;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -20,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @Ignore
-public class ConanMatcherTest
+public class ConanRoutesTest
     extends TestSupport
 {
   @Mock
@@ -34,7 +35,7 @@ public class ConanMatcherTest
 
   private AttributesMap attributesMap;
 
-  private ConanMatcher underTest;
+  private ConanRoutes underTest;
 
   @Before
   public void setUp() {
@@ -43,7 +44,7 @@ public class ConanMatcherTest
     when(context.getAttributes()).thenReturn(attributesMap);
     when(request.getAction()).thenReturn(HttpMethods.GET);
 
-    underTest = new ConanMatcher();
+    underTest = new ConanRoutes();
   }
 
   @Test

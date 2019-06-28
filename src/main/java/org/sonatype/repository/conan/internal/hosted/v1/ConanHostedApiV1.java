@@ -7,6 +7,7 @@ import javax.inject.Singleton;
 import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.repository.view.Router;
 import org.sonatype.repository.conan.internal.common.PingController;
+import org.sonatype.repository.conan.internal.common.UserController;
 
 @Named
 @Singleton

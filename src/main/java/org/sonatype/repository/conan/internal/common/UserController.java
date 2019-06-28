@@ -1,4 +1,4 @@
-package org.sonatype.repository.conan.internal.hosted.v1;
+package org.sonatype.repository.conan.internal.common;
 
 import javax.inject.Inject;
 import javax.inject.Named;

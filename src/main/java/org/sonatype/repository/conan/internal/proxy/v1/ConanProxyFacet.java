@@ -10,7 +10,7 @@
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
-package org.sonatype.repository.conan.internal.proxy;
+package org.sonatype.repository.conan.internal.proxy.v1;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -94,6 +94,10 @@ public class ConanProxyFacet
   @Nullable
   @Override
   protected Content getCachedContent(final Context context) throws IOException {
+    if (context.getRequest().getPath().equals("/v1/ping")) {
+      return null;
+    }
+
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     Content content = getAsset(buildAssetPath(context));
 

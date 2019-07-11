@@ -12,8 +12,12 @@
  */
 package org.sonatype.repository.conan.internal
 
+import java.util.jar.Attributes
+import java.util.jar.Manifest
+
 import javax.inject.Inject
 import javax.inject.Provider
+import javax.lang.model.element.Name
 
 import org.sonatype.nexus.repository.Format
 import org.sonatype.nexus.repository.RecipeSupport
@@ -37,6 +41,9 @@ import org.sonatype.nexus.repository.view.handlers.ExceptionHandler
 import org.sonatype.nexus.repository.view.handlers.HandlerContributor
 import org.sonatype.nexus.repository.view.handlers.TimingHandler
 import org.sonatype.repository.conan.internal.security.ConanSecurityFacet
+
+import org.apache.maven.model.Model
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader
 
 /**
  * Support for Conan recipes.
@@ -103,7 +110,15 @@ abstract class ConanRecipeSupport
   @Inject
   NegativeCacheHandler negativeCacheHandler
 
+  private static String version = determineVersion()
+
+  private static String determineVersion() {
+    final Properties properties = new Properties();
+    properties.load(ConanRecipeSupport.getClassLoader().getResourceAsStream("project.properties"));
+    version = properties.getProperty("plugin.version");
+  }
+
   protected ConanRecipeSupport(final Type type, final Format format) {
-    super(type, format)
+    super(type, format, version);
   }
 }

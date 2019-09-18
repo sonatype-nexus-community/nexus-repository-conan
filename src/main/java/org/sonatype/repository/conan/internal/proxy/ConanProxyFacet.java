@@ -24,6 +24,7 @@ import javax.inject.Named;
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.cache.CacheController;
+import org.sonatype.nexus.repository.cache.CacheControllerHolder;
 import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.config.Configuration;
 import org.sonatype.nexus.repository.proxy.ProxyFacetSupport;
@@ -94,6 +95,9 @@ public class ConanProxyFacet
   @Nullable
   @Override
   protected Content getCachedContent(final Context context) throws IOException {
+    if (context.getRequest().getPath().equals("/v1/ping")) {
+      return null;
+    }
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     Content content = getAsset(buildAssetPath(context));
 
@@ -297,6 +301,9 @@ public class ConanProxyFacet
 
   @Override
   protected String getUrl(@Nonnull final Context context) {
+    if (context.getRequest().getPath().equals("/v1/ping")) {
+      return context.getRequest().getPath();
+    }
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
 
     if(DOWNLOAD_URL.equals(assetKind)) {
@@ -325,6 +332,9 @@ public class ConanProxyFacet
   @Nonnull
   @Override
   protected CacheController getCacheController(@Nonnull final Context context) {
+    if (context.getRequest().getPath().equals("/v1/ping")) {
+      return cacheControllerHolder.get(CacheControllerHolder.METADATA);
+    }
     final AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     return checkNotNull(cacheControllerHolder.get(assetKind.getCacheType()));
   }

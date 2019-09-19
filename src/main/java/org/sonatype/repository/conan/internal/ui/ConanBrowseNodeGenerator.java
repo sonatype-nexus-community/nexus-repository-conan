@@ -6,6 +6,7 @@ import java.util.List;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.sonatype.nexus.repository.browse.BrowsePaths;
 import org.sonatype.nexus.repository.browse.ComponentPathBrowseNodeGenerator;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
@@ -28,33 +29,32 @@ public class ConanBrowseNodeGenerator
   }
 
   @Override
-  public List<String> computeComponentPath(final Asset asset, final Component component) {
+  public List<BrowsePaths> computeComponentPaths(final Asset asset, final Component component) {
     List<String> componentList = new ArrayList<>();
     componentList.add(component.group());
     componentList.add(component.name());
     componentList.add(component.version());
-    return componentList;
-  }
-
-  public List<String> assetSegment(final String path) {
-    String[] split = path.split("/");
-    if(path.contains("packages")) {
-      return ImmutableList.of(split[split.length-4], split[split.length-2], split[split.length-1]);
-    }
-    return ImmutableList.of(split[split.length-2], split[split.length-1]);
+    return BrowsePaths.fromPaths(componentList, true);
   }
 
   @Override
-  public List<String> computeAssetPath(final Asset asset, final Component component) {
+  public List<BrowsePaths> computeAssetPaths(final Asset asset, final Component component) {
     checkNotNull(asset);
 
     if(component != null) {
-      List<String> strings = computeComponentPath(asset, component);
+      List<BrowsePaths> strings = computeComponentPaths(asset, component);
       strings.addAll(assetSegment(asset.name()));
       return strings;
     } else {
-      return super.computeAssetPath(asset, component);
+      return super.computeAssetPaths(asset, component);
     }
   }
 
+  private List<BrowsePaths> assetSegment(final String path) {
+    String[] split = path.split("/");
+    if(path.contains("packages")) {
+      return BrowsePaths.fromPaths(ImmutableList.of(split[split.length-4], split[split.length-2], split[split.length-1]), false);
+    }
+    return BrowsePaths.fromPaths(ImmutableList.of(split[split.length-2], split[split.length-1]), false);
+  }
 }

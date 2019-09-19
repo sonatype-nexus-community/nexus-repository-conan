@@ -9,6 +9,8 @@ import org.sonatype.nexus.repository.view.Router;
 import org.sonatype.repository.conan.internal.common.PingController;
 import org.sonatype.repository.conan.internal.common.UserController;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @Named
 @Singleton
 public class ConanHostedApiV1
@@ -30,10 +32,10 @@ public class ConanHostedApiV1
                           final ConanHostedControllerV1 conanHostedControllerV1,
                           final HostedHandlers hostedHandlers)
   {
-    this.pingController = pingController;
-    this.userController = userController;
-    this.conanHostedControllerV1 = conanHostedControllerV1;
-    this.hostedHandlers = hostedHandlers;
+    this.pingController = checkNotNull(pingController);
+    this.userController = checkNotNull(userController);
+    this.conanHostedControllerV1 = checkNotNull(conanHostedControllerV1);
+    this.hostedHandlers = checkNotNull(hostedHandlers);
   }
 
   public void create(final Router.Builder builder) {

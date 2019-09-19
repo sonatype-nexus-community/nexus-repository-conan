@@ -230,7 +230,7 @@ class ConanRoutes
     new Builder().matcher(
         and(
             new ActionMatcher(HEAD, GET),
-            new TokenMatcher("/${STANDARD_FORM}/packages/{sha:.+}")
+            new TokenMatcher("{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}")
         )
     )
   }
@@ -240,7 +240,7 @@ class ConanRoutes
   }
 
   private static TokenMatcher conanSourceMatcher() {
-    new TokenMatcher("{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conan_source.tgz")
+    new TokenMatcher("{path:.*}/${STANDARD_FORM}/conan_sources.tgz")
   }
 
   private static TokenMatcher conanExportMatcher() {

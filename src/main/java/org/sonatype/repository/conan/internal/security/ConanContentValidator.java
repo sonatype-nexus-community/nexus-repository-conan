@@ -51,9 +51,16 @@ public class ConanContentValidator
       else if (contentName.endsWith("/conanfile.py")) {
         return X_PYTHON;
       }
+      else if (isPackageSnapshot(contentName)) {
+        return ContentTypes.APPLICATION_JSON;
+      }
     }
     return defaultContentValidator.determineContentType(
         strictContentTypeValidation, contentSupplier, mimeRulesSource, contentName, declaredContentType
     );
+  }
+
+  private boolean isPackageSnapshot(final String contentName) {
+    return contentName.split("/").length == 6 && "packages".equals(contentName.split("/")[4]);
   }
 }

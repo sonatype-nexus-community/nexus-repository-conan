@@ -119,14 +119,6 @@ public class HostedHandlers
             .getPackageSnapshot(path, context);
   };
 
-  /**
-   * Acknowledges a ping request
-   */
-  public final Handler ping = context -> {
-    log.debug("pong");
-    return HttpResponses.ok();
-  };
-
   private String getAssetPath(final ConanCoords coord) {
     return V1_CONANS + getPath(coord);
   }

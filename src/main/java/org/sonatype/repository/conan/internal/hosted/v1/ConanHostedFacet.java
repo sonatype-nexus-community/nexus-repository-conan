@@ -23,8 +23,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.hash.HashCode;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.Facet.Exposed;
@@ -51,7 +49,9 @@ import org.sonatype.repository.conan.internal.hosted.UploadUrlManager;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.sonatype.repository.conan.internal.utils.ConanFacetUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Supplier;
+import com.google.common.hash.HashCode;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.nexus.repository.http.HttpStatus.OK;
@@ -80,7 +80,7 @@ public class ConanHostedFacet
 
   @Inject
   public ConanHostedFacet(final UploadUrlManager uploadUrlManager) {
-    this.uploadUrlManager = uploadUrlManager;
+    this.uploadUrlManager = checkNotNull(uploadUrlManager);
   }
 
   /**
@@ -264,9 +264,9 @@ public class ConanHostedFacet
     ObjectMapper mapper = new ObjectMapper();
     String response = mapper.writeValueAsString(fileHashMap);
     return new Response.Builder()
-            .status(success(OK))
-            .payload(new StringPayload(response, APPLICATION_JSON))
-            .build();
+        .status(success(OK))
+        .payload(new StringPayload(response, APPLICATION_JSON))
+        .build();
   }
 
   public Response get(final Context context) {

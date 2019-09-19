@@ -39,7 +39,7 @@ public class ConanHostedApiV1
   }
 
   public void create(final Router.Builder builder) {
-    pingController.attach(builder, hostedHandlers.ping, VERSION);
+    pingController.attach(builder, VERSION);
     userController.attach(builder, VERSION);
     conanHostedControllerV1.attach(builder);
   }

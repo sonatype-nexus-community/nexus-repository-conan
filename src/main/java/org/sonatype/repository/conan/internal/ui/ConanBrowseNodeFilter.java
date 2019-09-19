@@ -7,6 +7,7 @@ import org.sonatype.nexus.repository.storage.BrowseNode;
 import org.sonatype.nexus.repository.storage.BrowseNodeFilter;
 import org.sonatype.repository.conan.internal.ConanFormat;
 
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE_SNAPSHOT;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 
 @Singleton

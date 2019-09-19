@@ -4,7 +4,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.sonatype.nexus.repository.http.HttpResponses;
 import org.sonatype.nexus.repository.proxy.ProxyHandler;
+import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.Router;
 import org.sonatype.repository.conan.internal.common.PingController;
 import org.sonatype.repository.conan.internal.common.UserController;
@@ -37,7 +39,7 @@ public class ConanProxyApiV1
   }
 
   public void create(final Router.Builder builder) {
-    pingController.attach(builder, proxyHandler, version);
+    pingController.attach(builder, version);
     conanProxyControllerV1.attach(builder);
   }
 }

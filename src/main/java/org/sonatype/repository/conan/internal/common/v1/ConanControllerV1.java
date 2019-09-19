@@ -27,6 +27,7 @@ import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE;
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE_SNAPSHOT;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SOURCES;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 
@@ -90,7 +91,7 @@ public class ConanControllerV1
         .create());
   }
 
-  protected void createGetRoutes(final Router.Builder builder, final Handler urlHandler, final Handler fetchHandler) {
+  protected void createGetRoutes(final Router.Builder builder, final Handler urlHandler, final Handler fetchHandler, Handler packageHandler) {
     createRoute(builder, ConanRoutes.downloadUrls(), DOWNLOAD_URL, urlHandler);
     createRoute(builder, ConanRoutes.conanManifest(), CONAN_MANIFEST, fetchHandler);
     createRoute(builder, ConanRoutes.conanFile(), CONAN_FILE, fetchHandler);
@@ -98,5 +99,6 @@ public class ConanControllerV1
     createRoute(builder, ConanRoutes.conanPackage(), CONAN_PACKAGE, fetchHandler);
     createRoute(builder, ConanRoutes.conanSource(), CONAN_SOURCES, fetchHandler);
     createRoute(builder, ConanRoutes.conanExport(), CONAN_EXPORT, fetchHandler);
+    createRoute(builder, ConanRoutes.packageSnapshot(), CONAN_PACKAGE_SNAPSHOT, packageHandler);
   }
 }

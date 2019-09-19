@@ -72,7 +72,6 @@ class ConanProxyRecipe
     repository.attach(attributesFacet.get())
     repository.attach(searchFacet.get())
     repository.attach(purgeUnusedFacet.get())
-
   }
 
   ViewFacet configure(ConfigurableViewFacet facet) {

@@ -26,7 +26,8 @@ enum AssetKind {
   CONAN_INFO(METADATA, "conaninfo.txt"),
   CONAN_PACKAGE(METADATA, "conan_package.tgz"),
   CONAN_SOURCES(METADATA, "conan_sources.tgz"),
-  CONAN_EXPORT(METADATA, "conan_export.tgz")
+  CONAN_EXPORT(METADATA, "conan_export.tgz"),
+  CONAN_PACKAGE_SNAPSHOT(METADATA, null)
 
   private final CacheType cacheType
 

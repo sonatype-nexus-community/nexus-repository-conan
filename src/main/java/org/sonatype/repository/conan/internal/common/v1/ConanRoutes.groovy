@@ -244,7 +244,7 @@ class ConanRoutes
   }
 
   private static TokenMatcher conanExportMatcher() {
-    new TokenMatcher("{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conan_export.tgz")
+    new TokenMatcher("{path:.*}/${STANDARD_FORM}/conan_export.tgz")
   }
 
   static String match(final TokenMatcher.State state, final String name) {

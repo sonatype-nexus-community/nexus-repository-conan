@@ -58,6 +58,7 @@ import static org.sonatype.nexus.common.hash.HashAlgorithm.MD5;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE;
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE_SNAPSHOT;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPath;
@@ -79,7 +80,8 @@ public class ConanProxyFacet
 
   @Inject
   public ConanProxyFacet(final ConanUrlIndexer conanUrlIndexer,
-                         final ConanHashVerifier hashVerifier) {
+                         final ConanHashVerifier hashVerifier)
+  {
     this.conanUrlIndexer = conanUrlIndexer;
     this.hashVerifier = hashVerifier;
   }
@@ -94,14 +96,10 @@ public class ConanProxyFacet
   @Nullable
   @Override
   protected Content getCachedContent(final Context context) throws IOException {
-    if (context.getRequest().getPath().equals("/v1/ping")) {
-      return null;
-    }
-
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     Content content = getAsset(buildAssetPath(context));
 
-    if(content != null && assetKind.equals(DOWNLOAD_URL)) {
+    if (content != null && assetKind.equals(DOWNLOAD_URL)) {
       return new Content(
           new StringPayload(
               conanUrlIndexer.updateAbsoluteUrls(context, content, getRepository()),
@@ -128,10 +126,6 @@ public class ConanProxyFacet
 
   @Override
   protected Content store(final Context context, final Content content) throws IOException {
-    if (context.getRequest().getPath().equals("/v1/ping")) {
-      return content;
-    }
-
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
 
     ConanCoords conanCoords = getCoords(context);
@@ -143,7 +137,8 @@ public class ConanProxyFacet
 
   private Content putPackage(final Content content,
                              final ConanCoords coords,
-                             final AssetKind assetKind) throws IOException {
+                             final AssetKind assetKind) throws IOException
+  {
     StorageFacet storageFacet = facet(StorageFacet.class);
     try (TempBlob tempBlob = storageFacet.createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
       return doPutPackage(tempBlob, content, coords, assetKind);
@@ -191,9 +186,10 @@ public class ConanProxyFacet
 
   private Component getOrCreateComponent(final StorageTx tx,
                                          final Bucket bucket,
-                                         final ConanCoords coords) {
+                                         final ConanCoords coords)
+  {
     Component component = findComponent(tx, getRepository(), coords);
-    if(component == null) {
+    if (component == null) {
       component = tx.createComponent(bucket, getRepository().getFormat())
           .group(coords.getGroup())
           .name(coords.getProject())
@@ -255,10 +251,10 @@ public class ConanProxyFacet
    * @return blob content
    */
   private Content saveAsset(final StorageTx tx,
-                                   final Asset asset,
-                                   final Supplier<InputStream> contentSupplier,
-                                   final Payload payload,
-                                   final HashCode hash) throws IOException
+                            final Asset asset,
+                            final Supplier<InputStream> contentSupplier,
+                            final Payload payload,
+                            final HashCode hash) throws IOException
   {
     AttributesMap contentAttributes = null;
     String contentType = null;
@@ -275,18 +271,18 @@ public class ConanProxyFacet
    * @return blob content
    */
   private Content saveAsset(final StorageTx tx,
-                                   final Asset asset,
-                                   final Supplier<InputStream> contentSupplier,
-                                   final String contentType,
-                                   final AttributesMap contentAttributes,
-                                   final HashCode hash) throws IOException
+                            final Asset asset,
+                            final Supplier<InputStream> contentSupplier,
+                            final String contentType,
+                            final AttributesMap contentAttributes,
+                            final HashCode hash) throws IOException
   {
     Content.applyToAsset(asset, maintainLastModified(asset, contentAttributes));
     AssetBlob assetBlob = tx.setBlob(
         asset, asset.name(), contentSupplier, HASH_ALGORITHMS, null, contentType, false
     );
 
-    if(!hashVerifier.verify(hash, assetBlob.getHashes().get(MD5))) {
+    if (!hashVerifier.verify(hash, assetBlob.getHashes().get(MD5))) {
       return null;
     }
     asset.markAsDownloaded();
@@ -303,7 +299,8 @@ public class ConanProxyFacet
   protected String getUrl(@Nonnull final Context context) {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
 
-    if(DOWNLOAD_URL.equals(assetKind)) {
+    if (DOWNLOAD_URL.equals(assetKind) ||
+        CONAN_PACKAGE_SNAPSHOT.equals(assetKind)) {
       return context.getRequest().getPath();
     }
 

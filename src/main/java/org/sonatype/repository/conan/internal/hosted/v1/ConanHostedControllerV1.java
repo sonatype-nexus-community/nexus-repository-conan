@@ -33,18 +33,6 @@ public class ConanHostedControllerV1
     createRoute(builder, ConanRoutes.uploadConanSource(), CONAN_SOURCES, hostedHandler.uploadConanSources);
     createRoute(builder, ConanRoutes.uploadConanExportZip(), CONAN_EXPORT, hostedHandler.uploadConanExport);
 
-    createGetRoutes(builder, hostedHandler.downloadUrl, hostedHandler.download);
-
-    builder.route(ConanRoutes.packageSnapshot()
-        .handler(timingHandler)
-        .handler(securityHandler)
-        .handler(exceptionHandler)
-        .handler(handlerContributor)
-        .handler(conditionalRequestHandler)
-        .handler(partialFetchHandler)
-        .handler(contentHeadersHandler)
-        .handler(unitOfWorkHandler)
-        .handler(hostedHandler.packageSnapshot)
-        .create());
+    createGetRoutes(builder, hostedHandler.downloadUrl, hostedHandler.download, hostedHandler.packageSnapshot);
   }
 }

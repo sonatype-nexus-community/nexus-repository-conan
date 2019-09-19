@@ -17,6 +17,6 @@ public class ConanProxyControllerV1
   ProxyHandler proxyHandler;
 
   public void attach(final Router.Builder builder) {
-    createGetRoutes(builder, proxyHandler, proxyHandler);
+    createGetRoutes(builder, proxyHandler, proxyHandler, proxyHandler);
   }
 }

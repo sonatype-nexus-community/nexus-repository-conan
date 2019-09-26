@@ -30,7 +30,7 @@ public class ConanBrowseNodeGenerator
 
   @Override
   public List<BrowsePaths> computeComponentPaths(final Asset asset, final Component component) {
-    return BrowsePaths.fromPaths(computeComponentPath(asset, component), false);
+    return BrowsePaths.fromPaths(createComponentPathList(asset, component), false);
   }
 
   @Override
@@ -38,13 +38,13 @@ public class ConanBrowseNodeGenerator
     checkNotNull(asset);
 
     if(component != null) {
-      return BrowsePaths.fromPaths(computeAssetPath(asset, component), false);
+      return BrowsePaths.fromPaths(createAssetPathList(asset, component), false);
     } else {
       return super.computeAssetPaths(asset, component);
     }
   }
 
-  private List<String> computeComponentPath(final Asset asset, final Component component) {
+  private List<String> createComponentPathList(final Asset asset, final Component component) {
     List<String> componentList = new ArrayList<>();
     componentList.add(component.group());
     componentList.add(component.name());
@@ -60,8 +60,8 @@ public class ConanBrowseNodeGenerator
     return ImmutableList.of(split[split.length-2], split[split.length-1]);
   }
 
-  private List<String> computeAssetPath(final Asset asset, final Component component) {
-    List<String> strings = computeComponentPath(asset, component);
+  private List<String> createAssetPathList(final Asset asset, final Component component) {
+    List<String> strings = createComponentPathList(asset, component);
     strings.addAll(assetSegment(asset.name()));
     return strings;
   }

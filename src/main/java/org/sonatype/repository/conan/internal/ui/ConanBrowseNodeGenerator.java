@@ -61,15 +61,9 @@ public class ConanBrowseNodeGenerator
   }
 
   private List<String> computeAssetPath(final Asset asset, final Component component) {
-    checkNotNull(asset);
-
-    if(component != null) {
-      List<String> strings = computeComponentPath(asset, component);
-      strings.addAll(assetSegment(asset.name()));
-      return strings;
-    } else {
-      return super.computeAssetPath(asset, component);
-    }
+    List<String> strings = computeComponentPath(asset, component);
+    strings.addAll(assetSegment(asset.name()));
+    return strings;
   }
 
 }

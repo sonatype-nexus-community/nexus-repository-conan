@@ -6,6 +6,7 @@ import java.util.List;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.sonatype.nexus.repository.browse.BrowsePaths;
 import org.sonatype.nexus.repository.browse.ComponentPathBrowseNodeGenerator;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
@@ -25,6 +26,22 @@ public class ConanBrowseNodeGenerator
 {
   public ConanBrowseNodeGenerator() {
     super();
+  }
+
+  @Override
+  public List<BrowsePaths> computeComponentPaths(final Asset asset, final Component component) {
+    return BrowsePaths.fromPaths(computeComponentPath(asset, component), false);
+  }
+
+  @Override
+  public List<BrowsePaths> computeAssetPaths(final Asset asset, final Component component) {
+    checkNotNull(asset);
+
+    if(component != null) {
+      return BrowsePaths.fromPaths(computeAssetPath(asset, component), false);
+    } else {
+      return super.computeAssetPaths(asset, component);
+    }
   }
 
   private List<String> computeComponentPath(final Asset asset, final Component component) {

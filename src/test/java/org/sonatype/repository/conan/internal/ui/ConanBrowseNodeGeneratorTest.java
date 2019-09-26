@@ -11,7 +11,7 @@ import org.sonatype.nexus.repository.storage.DefaultComponent;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
@@ -36,9 +36,9 @@ public class ConanBrowseNodeGeneratorTest
     Asset asset = createAsset(
         "v1/conans/jsonformoderncpp/2.1.1/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/download_urls");
 
-    List<String> assetPath = underTest.computeAssetPath(asset, component);
+    List<BrowsePaths> assetPath = underTest.computeAssetPaths(asset, component);
 
-    assertThat(assetPath, contains("vthiery", "jsonformoderncpp", "2.1.1", "stable", "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9", "download_urls"));
+    assertPaths(assetPath, asList("vthiery", "jsonformoderncpp", "2.1.1", "stable", "5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9", "download_urls"));
   }
 
 
@@ -47,9 +47,9 @@ public class ConanBrowseNodeGeneratorTest
     Asset asset = createAsset(
         "/v1/conans/jsonformoderncpp/2.1.1/vthiery/stable/download_urls");
 
-    List<String> assetPath = underTest.computeAssetPath(asset, component);
+    List<BrowsePaths> assetPath = underTest.computeAssetPaths(asset, component);
 
-    assertThat(assetPath, contains("vthiery", "jsonformoderncpp", "2.1.1", "stable", "download_urls"));
+    assertPaths(assetPath, asList("vthiery", "jsonformoderncpp", "2.1.1", "stable", "download_urls"));
   }
 
   private void assertPaths(List<BrowsePaths> paths, List<String> expectedPaths) {

@@ -3,6 +3,7 @@ package org.sonatype.repository.conan.internal.ui;
 import java.util.List;
 
 import org.sonatype.goodies.testsupport.TestSupport;
+import org.sonatype.nexus.repository.browse.BrowsePaths;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.storage.DefaultComponent;
@@ -11,7 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,6 +50,22 @@ public class ConanBrowseNodeGeneratorTest
     List<String> assetPath = underTest.computeAssetPath(asset, component);
 
     assertThat(assetPath, contains("vthiery", "jsonformoderncpp", "2.1.1", "stable", "download_urls"));
+  }
+
+  private void assertPaths(List<BrowsePaths> paths, List<String> expectedPaths) {
+    assertThat(expectedPaths.size(), is(expectedPaths.size()));
+    assertThat(paths.size(), is(expectedPaths.size()));
+
+    String requestPath = "";
+
+    for (int i = 0 ; i < expectedPaths.size() ; i++) {
+      requestPath += expectedPaths.get(i);
+      if (i < expectedPaths.size() - 1) {
+        requestPath += "/";
+      }
+      assertThat(paths.get(i).getBrowsePath(), is(expectedPaths.get(i)));
+      assertThat(paths.get(i).getRequestPath(), is(requestPath));
+    }
   }
 
   private Asset createAsset(String assetName) {

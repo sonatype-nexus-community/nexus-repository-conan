@@ -27,8 +27,7 @@ public class ConanBrowseNodeGenerator
     super();
   }
 
-  @Override
-  public List<String> computeComponentPath(final Asset asset, final Component component) {
+  private List<String> computeComponentPath(final Asset asset, final Component component) {
     List<String> componentList = new ArrayList<>();
     componentList.add(component.group());
     componentList.add(component.name());
@@ -36,7 +35,7 @@ public class ConanBrowseNodeGenerator
     return componentList;
   }
 
-  public List<String> assetSegment(final String path) {
+  private List<String> assetSegment(final String path) {
     String[] split = path.split("/");
     if(path.contains("packages")) {
       return ImmutableList.of(split[split.length-4], split[split.length-2], split[split.length-1]);
@@ -44,8 +43,7 @@ public class ConanBrowseNodeGenerator
     return ImmutableList.of(split[split.length-2], split[split.length-1]);
   }
 
-  @Override
-  public List<String> computeAssetPath(final Asset asset, final Component component) {
+  private List<String> computeAssetPath(final Asset asset, final Component component) {
     checkNotNull(asset);
 
     if(component != null) {

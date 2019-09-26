@@ -12,8 +12,6 @@ import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.repository.conan.internal.ConanFormat;
 
-import com.google.common.collect.ImmutableList;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -52,17 +50,17 @@ public class ConanBrowseNodeGenerator
     return path;
   }
 
-  private List<String> assetSegment(final String path) {
-    String[] split = path.split("/");
-    if(path.contains("packages")) {
-      return ImmutableList.of(split[split.length-4], split[split.length-2], split[split.length-1]);
-    }
-    return ImmutableList.of(split[split.length-2], split[split.length-1]);
-  }
-
   private List<String> createAssetPathList(final Asset asset, final Component component) {
     List<String> path = createComponentPathList(asset, component);
-    path.addAll(assetSegment(asset.name()));
+
+    String[] assetSegments = asset.name().split("/");
+    if(asset.name().contains("packages")) {
+      path.add(assetSegments[assetSegments.length-4]);
+    }
+
+    path.add(assetSegments[assetSegments.length-2]);
+    path.add(assetSegments[assetSegments.length-1]);
+
     return path;
   }
 

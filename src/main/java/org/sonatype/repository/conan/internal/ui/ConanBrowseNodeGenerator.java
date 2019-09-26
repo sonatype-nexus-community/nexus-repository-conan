@@ -45,11 +45,11 @@ public class ConanBrowseNodeGenerator
   }
 
   private List<String> createComponentPathList(final Asset asset, final Component component) {
-    List<String> componentList = new ArrayList<>();
-    componentList.add(component.group());
-    componentList.add(component.name());
-    componentList.add(component.version());
-    return componentList;
+    List<String> path = new ArrayList<>();
+    path.add(component.group());
+    path.add(component.name());
+    path.add(component.version());
+    return path;
   }
 
   private List<String> assetSegment(final String path) {
@@ -61,9 +61,9 @@ public class ConanBrowseNodeGenerator
   }
 
   private List<String> createAssetPathList(final Asset asset, final Component component) {
-    List<String> strings = createComponentPathList(asset, component);
-    strings.addAll(assetSegment(asset.name()));
-    return strings;
+    List<String> path = createComponentPathList(asset, component);
+    path.addAll(assetSegment(asset.name()));
+    return path;
   }
 
 }

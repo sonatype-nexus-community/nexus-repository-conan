@@ -54,7 +54,12 @@ public class ConanBrowseNodeGenerator
     List<String> path = createComponentPathList(asset, component);
 
     String[] assetSegments = asset.name().split("/");
-    if(asset.name().contains("packages")) {
+
+    if(assetSegments.length < 2) {
+      return path;
+    }
+
+    if(asset.name().contains("packages") && assetSegments.length >= 4) {
       path.add(assetSegments[assetSegments.length-4]);
     }
 

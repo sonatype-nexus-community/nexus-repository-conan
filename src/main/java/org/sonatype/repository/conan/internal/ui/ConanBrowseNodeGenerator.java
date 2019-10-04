@@ -6,12 +6,11 @@ import java.util.List;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.sonatype.nexus.repository.browse.BrowsePaths;
 import org.sonatype.nexus.repository.browse.ComponentPathBrowseNodeGenerator;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.repository.conan.internal.ConanFormat;
-
-import com.google.common.collect.ImmutableList;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -28,33 +27,46 @@ public class ConanBrowseNodeGenerator
   }
 
   @Override
-  public List<String> computeComponentPath(final Asset asset, final Component component) {
-    List<String> componentList = new ArrayList<>();
-    componentList.add(component.group());
-    componentList.add(component.name());
-    componentList.add(component.version());
-    return componentList;
-  }
-
-  public List<String> assetSegment(final String path) {
-    String[] split = path.split("/");
-    if(path.contains("packages")) {
-      return ImmutableList.of(split[split.length-4], split[split.length-2], split[split.length-1]);
-    }
-    return ImmutableList.of(split[split.length-2], split[split.length-1]);
+  public List<BrowsePaths> computeComponentPaths(final Asset asset, final Component component) {
+    return BrowsePaths.fromPaths(createComponentPathList(asset, component), false);
   }
 
   @Override
-  public List<String> computeAssetPath(final Asset asset, final Component component) {
+  public List<BrowsePaths> computeAssetPaths(final Asset asset, final Component component) {
     checkNotNull(asset);
 
     if(component != null) {
-      List<String> strings = computeComponentPath(asset, component);
-      strings.addAll(assetSegment(asset.name()));
-      return strings;
+      return BrowsePaths.fromPaths(createAssetPathList(asset, component), false);
     } else {
-      return super.computeAssetPath(asset, component);
+      return super.computeAssetPaths(asset, component);
     }
+  }
+
+  private List<String> createComponentPathList(final Asset asset, final Component component) {
+    List<String> path = new ArrayList<>();
+    path.add(component.group());
+    path.add(component.name());
+    path.add(component.version());
+    return path;
+  }
+
+  private List<String> createAssetPathList(final Asset asset, final Component component) {
+    List<String> path = createComponentPathList(asset, component);
+
+    String[] assetSegments = asset.name().split("/");
+
+    if(assetSegments.length < 2) {
+      return path;
+    }
+
+    if(asset.name().contains("packages") && assetSegments.length >= 4) {
+      path.add(assetSegments[assetSegments.length-4]);
+    }
+
+    path.add(assetSegments[assetSegments.length-2]);
+    path.add(assetSegments[assetSegments.length-1]);
+
+    return path;
   }
 
 }

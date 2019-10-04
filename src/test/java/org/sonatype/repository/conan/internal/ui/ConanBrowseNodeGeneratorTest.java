@@ -53,7 +53,6 @@ public class ConanBrowseNodeGeneratorTest
   }
 
   private void assertPaths(List<BrowsePaths> paths, List<String> expectedPaths) {
-    assertThat(expectedPaths.size(), is(expectedPaths.size()));
     assertThat(paths.size(), is(expectedPaths.size()));
 
     String requestPath = "";

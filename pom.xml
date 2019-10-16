@@ -22,7 +22,7 @@
     <version>3.19.0-01</version>
   </parent>
 
-  <artifactId>nexus-repository-conan-parent</artifactId>
+  <artifactId>conan-parent</artifactId>
   <version>0.0.6</version>
   <packaging>pom</packaging>
 

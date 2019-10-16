@@ -57,6 +57,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.MD5;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE_SNAPSHOT;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
@@ -300,7 +301,8 @@ public class ConanProxyFacet
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
 
     if (DOWNLOAD_URL.equals(assetKind) ||
-        CONAN_PACKAGE_SNAPSHOT.equals(assetKind)) {
+        CONAN_PACKAGE_SNAPSHOT.equals(assetKind) ||
+        CONAN_INFO.equals(assetKind)) {
       return context.getRequest().getPath();
     }
 

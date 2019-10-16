@@ -35,7 +35,7 @@ trait ConanRepoRecipes
   }
 
   @Nonnull
-  Repository createRHosted(final String name)
+  Repository createConanHosted(final String name)
   {
     createRepository(createHosted(name, 'conan-hosted'))
   }

@@ -37,55 +37,39 @@ import static org.sonatype.nexus.testsuite.testsupport.FormatClientSupport.statu
 public class ConanProxyIT
     extends ConanITSupport
 {
-  private static final String VERSION = "0.1.0.0";
+  private static final String VERSION = "3.7.0";
 
-  private static final String NAME_PACKAGE = "AlgoRhythm";
+  private static final String NAME_PACKAGE = "conan_package";
 
-  private static final String EXTENSION_TAR_GZ = ".tar.gz";
+  private static final String NAME_INFO = "conaninfo";
 
-  private static final String EXTENSION_CABAL = ".conan";
+  private static final String NAME_MANIFEST = "conanmanifest";
 
-  private static final String EXTENSION_JSON = ".json";
+  private static final String EXTENSION_TGZ = ".tgz";
 
-  private static final String NAME_INCREMENTAL_INDEX = "01-index";
+  private static final String EXTENSION_TXT = ".txt";
 
-  private static final String NAME_TIMESTAMP = "timestamp";
+  private static final String FILE_PACKAGE = NAME_PACKAGE + EXTENSION_TGZ;
 
-  private static final String NAME_SNAPSHOT = "snapshot";
+  private static final String FILE_INFO = NAME_INFO + EXTENSION_TXT;
 
-  private static final String NAME_MIRRORS = "mirrors";
-
-  private static final String NAME_ROOT = "root";
-
-  private static final String FILE_INCREMENTAL_INDEX = NAME_INCREMENTAL_INDEX + EXTENSION_TAR_GZ;
-
-  private static final String FILE_TIMESTAMP = NAME_TIMESTAMP + EXTENSION_JSON;
-
-  private static final String FILE_SNAPSHOT = NAME_SNAPSHOT + EXTENSION_JSON;
-
-  private static final String FILE_MIRRORS = NAME_MIRRORS + EXTENSION_JSON;
-
-  private static final String FILE_ROOT = NAME_ROOT + EXTENSION_JSON;
-
-  private static final String FILE_TAR_GZ_PACKAGE = NAME_PACKAGE + "-" + VERSION + EXTENSION_TAR_GZ;
-
-  private static final String FILE_CABAL_PACKAGE = NAME_PACKAGE + EXTENSION_CABAL;
+  private static final String FILE_MANIFEST = NAME_MANIFEST + EXTENSION_TXT;
   
-  private static final String DIRECTORY_PACKAGE = "package/" + NAME_PACKAGE + "-" + VERSION + "/";
+  private static final String DIRECTORY_PACKAGE = "vthiery/jsonformoderncpp/3.7.0/stable/0/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/0/";
   
   private static final String DIRECTORY_INVALID = "this/is/a/bad/path/";
 
-  private static final String PATH_TAR_GZ_PACKAGE = DIRECTORY_PACKAGE + FILE_TAR_GZ_PACKAGE;
+  private static final String PATH_TGZ_PACKAGE = DIRECTORY_PACKAGE + FILE_PACKAGE;
 
-  private static final String PATH_CABAL_PACKAGE = DIRECTORY_PACKAGE + FILE_CABAL_PACKAGE;
+  private static final String PATH_INFO = DIRECTORY_PACKAGE + FILE_INFO;
 
-  private static final String PATH_INVALID = DIRECTORY_INVALID + FILE_TAR_GZ_PACKAGE;
+  private static final String PATH_MANIFEST = DIRECTORY_PACKAGE + FILE_MANIFEST;
+
+  private static final String PATH_INVALID = DIRECTORY_INVALID + FILE_PACKAGE;
 
   public static final String MIME_GZIP = "application/x-gzip";
 
   public static final String MIME_TEXT = "text/plain";
-
-  public static final String MIME_JSON = "application/json";
 
   private ConanClient proxyClient;
 
@@ -104,8 +88,8 @@ public class ConanProxyIT
   @Before
   public void setup() throws Exception {
     server = Server.withPort(0)
-        .serve("/" + PATH_TAR_GZ_PACKAGE)
-        .withBehaviours(Behaviours.file(testData.resolveFile(FILE_TAR_GZ_PACKAGE)))
+        .serve("/" + "vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt")
+        .withBehaviours(Behaviours.file(testData.resolveFile("conaninfo.txt")))
         .start();
 
     proxyRepo = repos.createConanProxy("conan-test-proxy-online", server.getUrl().toExternalForm());
@@ -121,7 +105,7 @@ public class ConanProxyIT
       Repository proxyRepoUnresponsive =
           repos.createConanProxy("conan-test-proxy-notfound", serverUnresponsive.getUrl().toExternalForm());
       ConanClient proxyClientUnresponsive = conanClient(proxyRepoUnresponsive);
-      MatcherAssert.assertThat(FormatClientSupport.status(proxyClientUnresponsive.get(PATH_TAR_GZ_PACKAGE)), is(
+      MatcherAssert.assertThat(FormatClientSupport.status(proxyClientUnresponsive.get(PATH_TGZ_PACKAGE)), is(
           HttpStatus.NOT_FOUND));
     }
     finally {
@@ -136,29 +120,29 @@ public class ConanProxyIT
 
   @Test
   public void retrievePackageWhenRemoteOnline() throws Exception {
-    assertThat(status(proxyClient.get(PATH_TAR_GZ_PACKAGE)), is(HttpStatus.OK));
-
-    final Component component = findComponent(proxyRepo, NAME_PACKAGE);
-    assertThat(component.version(), is(VERSION));
-    assertThat(component.name(), is (NAME_PACKAGE));
-
-    final Asset asset = findAsset(proxyRepo, PATH_TAR_GZ_PACKAGE);
-    assertThat(asset.format(), is("conan"));
-    assertThat(asset.name(), is(PATH_TAR_GZ_PACKAGE));
-    assertThat(asset.contentType(), is(MIME_GZIP));
+    assertThat(status(proxyClient.get("vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt")), is(HttpStatus.OK));
+    //
+    //final Component component = findComponent(proxyRepo, FILE_PACKAGE);
+    //assertThat(component.version(), is(VERSION));
+    //assertThat(component.name(), is (NAME_PACKAGE));
+    //
+    //final Asset asset = findAsset(proxyRepo, FILE_PACKAGE);
+    //assertThat(asset.format(), is("conan"));
+    //assertThat(asset.name(), is(FILE_PACKAGE));
+    //assertThat(asset.contentType(), is(MIME_GZIP));
   }
-
-  @Test
-  public void retrieveConanWhenRemoteOffline() throws Exception {
-    try {
-      proxyRepo = repos.createConanProxy("conan-test-proxy-offline", server.getUrl().toExternalForm());
-      proxyClient.get(PATH_TAR_GZ_PACKAGE);
-    }
-    finally {
-      server.stop();
-    }
-    assertThat(status(proxyClient.get(PATH_TAR_GZ_PACKAGE)), is(HttpStatus.OK));
-  }
+  //
+  //@Test
+  //public void retrieveConanWhenRemoteOffline() throws Exception {
+  //  try {
+  //    proxyRepo = repos.createConanProxy("conan-test-proxy-offline", server.getUrl().toExternalForm());
+  //    proxyClient.get(PATH_TGZ_PACKAGE);
+  //  }
+  //  finally {
+  //    server.stop();
+  //  }
+  //  assertThat(status(proxyClient.get(PATH_TGZ_PACKAGE)), is(HttpStatus.OK));
+  //}
 
   @After
   public void tearDown() throws Exception {

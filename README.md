@@ -14,8 +14,9 @@
 -->
 # Nexus Repository Conan Format
 
-[![Build Status](https://travis-ci.org/sonatype-nexus-community/nexus-repository-conan.svg?branch=master)](https://travis-ci.org/sonatype-nexus-community/nexus-repository-conan) [![Join the chat at https://gitter.im/sonatype/nexus-developers](https://badges.gitter.im/sonatype/nexus-developers.svg)](https://gitter.im/sonatype/nexus-developers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
+[![Maven Central](https://img.shields.io/maven-central/v/org.sonatype.nexus.plugins/nexus-repository-conan.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22org.sonatype.nexus.plugins%22%20AND%20a:%22nexus-repository-conan%22) 
+[![CircleCI](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-conan.svg?style=svg)](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-conan)
+[![Join the chat at https://gitter.im/sonatype/nexus-developers](https://badges.gitter.im/sonatype/nexus-developers.svg)](https://gitter.im/sonatype/nexus-developers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![DepShield Badge](https://depshield.sonatype.org/badges/sonatype-nexus-community/nexus-repository-conan/depshield.svg)](https://depshield.github.io)
 
 # Table Of Contents
@@ -41,7 +42,7 @@ we would like things to flow.
 ### Requirements
 
 * [Apache Maven 3.3.3+](https://maven.apache.org/install.html)
-* [Java 8+](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+* [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 * Network access to https://repository.sonatype.org/content/groups/sonatype-public-grid
 
 Also, there is a good amount of information available at [Bundle Development](https://help.sonatype.com/display/NXRM3/Bundle+Development#BundleDevelopment-BundleDevelopmentOverview)

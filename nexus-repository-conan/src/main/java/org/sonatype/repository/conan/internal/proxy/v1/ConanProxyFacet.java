@@ -302,7 +302,8 @@ public class ConanProxyFacet
 
     if (DOWNLOAD_URL.equals(assetKind) ||
         CONAN_PACKAGE_SNAPSHOT.equals(assetKind) ||
-        CONAN_INFO.equals(assetKind)) {
+        CONAN_INFO.equals(assetKind) ||
+        CONAN_PACKAGE.equals(assetKind)) {
       return context.getRequest().getPath();
     }
 

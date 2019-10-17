@@ -88,8 +88,8 @@ public class ConanProxyIT
   @Before
   public void setup() throws Exception {
     server = Server.withPort(0)
-        .serve("/" + "vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt")
-        .withBehaviours(Behaviours.file(testData.resolveFile("conaninfo.txt")))
+        .serve("/" + "v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz")
+        .withBehaviours(Behaviours.file(testData.resolveFile("conan_package.tgz")))
         .start();
 
     proxyRepo = repos.createConanProxy("conan-test-proxy-online", server.getUrl().toExternalForm());
@@ -120,29 +120,8 @@ public class ConanProxyIT
 
   @Test
   public void retrievePackageWhenRemoteOnline() throws Exception {
-    assertThat(status(proxyClient.get("vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt")), is(HttpStatus.OK));
-    //
-    //final Component component = findComponent(proxyRepo, FILE_PACKAGE);
-    //assertThat(component.version(), is(VERSION));
-    //assertThat(component.name(), is (NAME_PACKAGE));
-    //
-    //final Asset asset = findAsset(proxyRepo, FILE_PACKAGE);
-    //assertThat(asset.format(), is("conan"));
-    //assertThat(asset.name(), is(FILE_PACKAGE));
-    //assertThat(asset.contentType(), is(MIME_GZIP));
+    assertThat(status(proxyClient.get("v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz")), is(HttpStatus.OK));
   }
-  //
-  //@Test
-  //public void retrieveConanWhenRemoteOffline() throws Exception {
-  //  try {
-  //    proxyRepo = repos.createConanProxy("conan-test-proxy-offline", server.getUrl().toExternalForm());
-  //    proxyClient.get(PATH_TGZ_PACKAGE);
-  //  }
-  //  finally {
-  //    server.stop();
-  //  }
-  //  assertThat(status(proxyClient.get(PATH_TGZ_PACKAGE)), is(HttpStatus.OK));
-  //}
 
   @After
   public void tearDown() throws Exception {

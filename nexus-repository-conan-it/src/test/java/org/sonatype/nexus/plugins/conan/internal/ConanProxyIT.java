@@ -37,8 +37,6 @@ import static org.sonatype.nexus.testsuite.testsupport.FormatClientSupport.statu
 public class ConanProxyIT
     extends ConanITSupport
 {
-  private static final String VERSION = "3.7.0";
-
   private static final String NAME_PACKAGE = "conan_package";
 
   private static final String NAME_INFO = "conaninfo";
@@ -55,7 +53,7 @@ public class ConanProxyIT
 
   private static final String FILE_MANIFEST = NAME_MANIFEST + EXTENSION_TXT;
   
-  private static final String DIRECTORY_PACKAGE = "vthiery/jsonformoderncpp/3.7.0/stable/0/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/0/";
+  private static final String DIRECTORY_PACKAGE = "v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
   
   private static final String DIRECTORY_INVALID = "this/is/a/bad/path/";
 
@@ -88,8 +86,8 @@ public class ConanProxyIT
   @Before
   public void setup() throws Exception {
     server = Server.withPort(0)
-        .serve("/" + "v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz")
-        .withBehaviours(Behaviours.file(testData.resolveFile("conan_package.tgz")))
+        .serve("/" + PATH_TGZ_PACKAGE)
+        .withBehaviours(Behaviours.file(testData.resolveFile(FILE_PACKAGE)))
         .start();
 
     proxyRepo = repos.createConanProxy("conan-test-proxy-online", server.getUrl().toExternalForm());
@@ -120,7 +118,7 @@ public class ConanProxyIT
 
   @Test
   public void retrievePackageWhenRemoteOnline() throws Exception {
-    assertThat(status(proxyClient.get("v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz")), is(HttpStatus.OK));
+    assertThat(status(proxyClient.get(PATH_TGZ_PACKAGE)), is(HttpStatus.OK));
   }
 
   @After

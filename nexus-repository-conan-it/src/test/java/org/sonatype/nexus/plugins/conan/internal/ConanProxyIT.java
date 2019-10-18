@@ -65,7 +65,7 @@ public class ConanProxyIT
 
   private static final String PATH_INVALID = DIRECTORY_INVALID + FILE_PACKAGE;
 
-  public static final String MIME_GZIP = "application/x-gzip";
+  public static final String MIME_GZIP = "application/gzip";
 
   public static final String MIME_TEXT = "text/plain";
 
@@ -119,9 +119,13 @@ public class ConanProxyIT
   @Test
   public void retrievePackageWhenRemoteOnline() throws Exception {
     assertThat(status(proxyClient.get(PATH_TGZ_PACKAGE)), is(HttpStatus.OK));
-    final Asset asset = findAsset(proxyRepo, PATH_TGZ_PACKAGE);
+    //final Component component = findComponent(proxyRepo, "/" + PATH_TGZ_PACKAGE);
+    //assertThat(component.version(), is("3.7.0"));	    //assertThat(component.version(), is(VERSION));
+    //assertThat(component.name(), is ("/" + PATH_TGZ_PACKAGE));	    //assertThat(component.name(), is (NAME_PACKAGE));
+
+    final Asset asset = findAsset(proxyRepo, "/" + PATH_TGZ_PACKAGE);
     assertThat(asset.format(), is("conan"));
-    assertThat(asset.name(), is(FILE_PACKAGE));
+    assertThat(asset.name(), is("/" + PATH_TGZ_PACKAGE));
     assertThat(asset.contentType(), is(MIME_GZIP));
   }
 

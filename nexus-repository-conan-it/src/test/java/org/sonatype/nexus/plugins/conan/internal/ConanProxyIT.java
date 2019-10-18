@@ -53,7 +53,7 @@ public class ConanProxyIT
 
   private static final String FILE_MANIFEST = NAME_MANIFEST + EXTENSION_TXT;
   
-  private static final String DIRECTORY_PACKAGE = "v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
+    private static final String DIRECTORY_PACKAGE = "v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
   
   private static final String DIRECTORY_INVALID = "this/is/a/bad/path/";
 
@@ -119,6 +119,10 @@ public class ConanProxyIT
   @Test
   public void retrievePackageWhenRemoteOnline() throws Exception {
     assertThat(status(proxyClient.get(PATH_TGZ_PACKAGE)), is(HttpStatus.OK));
+    final Asset asset = findAsset(proxyRepo, PATH_TGZ_PACKAGE);
+    assertThat(asset.format(), is("conan"));
+    assertThat(asset.name(), is(FILE_PACKAGE));
+    assertThat(asset.contentType(), is(MIME_GZIP));
   }
 
   @After

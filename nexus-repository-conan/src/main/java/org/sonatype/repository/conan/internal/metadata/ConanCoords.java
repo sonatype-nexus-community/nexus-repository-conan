@@ -13,12 +13,14 @@
 package org.sonatype.repository.conan.internal.metadata;
 
 import javax.annotation.Nullable;
+import javax.validation.constraints.Null.List;
 
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP;
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PATH;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION;
@@ -30,6 +32,8 @@ import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERS
  */
 public class ConanCoords
 {
+  final private String path;
+
   final private String group;
 
   final private String project;
@@ -40,17 +44,21 @@ public class ConanCoords
 
   final private String sha;
 
-  public ConanCoords(final String group,
+  public ConanCoords(@Nullable final String path,
+                     final String group,
                      final String project,
                      final String version,
                      final String channel,
                      @Nullable final String sha) {
+    this.path = path;
     this.group = checkNotNull(group);
     this.project = checkNotNull(project);
     this.version = checkNotNull(version);
     this.channel = checkNotNull(channel);
     this.sha = sha;
   }
+
+  public String getPath() { return path; }
 
   public String getGroup() {
     return group;
@@ -74,6 +82,7 @@ public class ConanCoords
 
   public static ConanCoords convertFromState(TokenMatcher.State state) {
     return new ConanCoords(
+        state.getTokens().getOrDefault(PATH, null),
         state.getTokens().get(GROUP),
         state.getTokens().get(PROJECT),
         state.getTokens().get(VERSION),
@@ -83,7 +92,8 @@ public class ConanCoords
   }
 
   public static String getPath(ConanCoords coord) {
-    return String.format("%s/%s/%s/%s%s",
+    return String.format("%s%s/%s/%s/%s%s",
+        coord.getPath() == null ? "" : coord.getPath() + "/",
         coord.getGroup(),
         coord.getProject(),
         coord.getVersion(),

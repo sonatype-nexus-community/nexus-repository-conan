@@ -29,6 +29,7 @@ import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.an
 import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.or
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PATH
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION
@@ -266,11 +267,15 @@ class ConanRoutes
 
   static ConanCoords getCoords(final Context context) {
     State state = matcherState(context)
-    return new ConanCoords(group(state), project(state), version(state), channel(state), sha(state))
+    return new ConanCoords(path(state), group(state), project(state), version(state), channel(state), sha(state))
   }
 
   static TokenMatcher.State matcherState(final Context context) {
     return context.getAttributes().require(TokenMatcher.State.class)
+  }
+
+  static String path(final State matcherState) {
+    return match(matcherState, PATH)
   }
 
   static String group(final State matcherState) {

@@ -300,10 +300,7 @@ public class ConanProxyFacet
   protected String getUrl(@Nonnull final Context context) {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
 
-    if (DOWNLOAD_URL.equals(assetKind) ||
-        CONAN_PACKAGE_SNAPSHOT.equals(assetKind) ||
-        CONAN_INFO.equals(assetKind) ||
-        CONAN_PACKAGE.equals(assetKind)) {
+    if (!DOWNLOAD_URL.equals(assetKind)) {
       return context.getRequest().getPath();
     }
 

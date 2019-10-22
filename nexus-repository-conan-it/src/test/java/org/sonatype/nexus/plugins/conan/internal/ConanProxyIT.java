@@ -88,6 +88,10 @@ public class ConanProxyIT
     server = Server.withPort(0)
         .serve("/" + PATH_TGZ_PACKAGE)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_PACKAGE)))
+        .serve("/" + PATH_INFO)
+        .withBehaviours(Behaviours.file(testData.resolveFile(FILE_INFO)))
+        .serve("/" + PATH_MANIFEST)
+        .withBehaviours(Behaviours.file(testData.resolveFile(FILE_MANIFEST)))
         .start();
 
     proxyRepo = repos.createConanProxy("conan-test-proxy-online", server.getUrl().toExternalForm());

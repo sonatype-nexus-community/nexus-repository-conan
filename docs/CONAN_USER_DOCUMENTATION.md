@@ -40,4 +40,4 @@ Add your newly created repository/repositories to conan ```conan remote add cona
 
 (Optional) Conan will already have a remote configured so if you want it to exclusively use NXRM you will need to 
     remove that remote first via ```conan remote remove conan-center```. *Warning: If you do not do this conan will
-    fetch from conan-center first and will circumvent NXRM*. To verify all other remotes have been removed ```conan remote list```.
+    fetch from conan-center first and will circumvent NXRM*. Verify all other remotes have been removed via ```conan remote list```.

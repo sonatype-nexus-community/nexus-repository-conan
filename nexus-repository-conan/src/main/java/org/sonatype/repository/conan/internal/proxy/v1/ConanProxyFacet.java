@@ -12,9 +12,12 @@
  */
 package org.sonatype.repository.conan.internal.proxy.v1;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -58,6 +61,7 @@ import static org.sonatype.nexus.common.hash.HashAlgorithm.MD5;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO;
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE_SNAPSHOT;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
@@ -105,6 +109,16 @@ public class ConanProxyFacet
           new StringPayload(
               conanUrlIndexer.updateAbsoluteUrls(context, content, getRepository()),
               ContentTypes.APPLICATION_JSON)
+      );
+    }
+    if (content != null && assetKind.equals(CONAN_PACKAGE_SNAPSHOT)) {
+      String result = new BufferedReader(new InputStreamReader(content.openInputStream())).lines().parallel().collect(
+          Collectors.joining("\n"));
+      return new Content(
+          new StringPayload(
+              result,
+              ContentTypes.APPLICATION_JSON
+          )
       );
     }
     return content;
@@ -164,6 +178,16 @@ public class ConanProxyFacet
                   conanUrlIndexer.updateAbsoluteUrls(context, saveMetadata, getRepository()),
                   ContentTypes.APPLICATION_JSON)
           );
+        case CONAN_PACKAGE_SNAPSHOT:
+            Content saveSnapshotMetadata = doSaveMetadata(tempBlob, content, assetKind, new AttributesMap(), coords);
+            String result = new BufferedReader(new InputStreamReader(saveSnapshotMetadata.openInputStream())).lines().parallel().collect(
+                Collectors.joining("\n"));
+            return new Content(
+                new StringPayload(
+                    result,
+                    ContentTypes.APPLICATION_JSON
+                )
+            );
         case CONAN_MANIFEST:
           attributesMap = ConanManifest.parse(tempBlob);
           break;
@@ -300,7 +324,8 @@ public class ConanProxyFacet
   protected String getUrl(@Nonnull final Context context) {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
 
-    if (!DOWNLOAD_URL.equals(assetKind) || !CONAN_PACKAGE_SNAPSHOT.equals(assetKind)) {
+    if (DOWNLOAD_URL.equals(assetKind) ||
+        CONAN_PACKAGE_SNAPSHOT.equals(assetKind)) {
       return context.getRequest().getPath();
     }
 

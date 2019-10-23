@@ -61,6 +61,6 @@ public class ConanContentValidator
   }
 
   private boolean isPackageSnapshot(final String contentName) {
-    return contentName.split("/").length == 6 && "packages".equals(contentName.split("/")[4]);
+    return contentName.split("/").length == 8 && "packages".equals(contentName.split("/")[6]);
   }
 }

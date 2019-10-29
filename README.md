@@ -12,7 +12,7 @@
     Eclipse Foundation. All other trademarks are the property of their respective owners.
 
 -->
-# Nexus Repository Conan Format
+# Nexus Repository JFrog Conan Format
 
 [![Maven Central](https://img.shields.io/maven-central/v/org.sonatype.nexus.plugins/nexus-repository-conan.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22org.sonatype.nexus.plugins%22%20AND%20a:%22nexus-repository-conan%22) 
 [![CircleCI](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-conan.svg?style=svg)](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-conan)
@@ -23,7 +23,7 @@
 * [Developing](#developing)
    * [Requirements](#requirements)
    * [Building](#building)
-* [Using Conan with Nexus Repository Manager 3](#using-conan-with-nexus-repository-manager-3)
+* [Using JFrog Conan with Nexus Repository Manager 3](#using-conan-with-nexus-repository-manager-3)
 * [Installing the plugin](#installing-the-plugin)
    * [Easiest Install](#easiest-install)
    * [Temporary Install](#temporary-install)
@@ -56,7 +56,7 @@ To build the project and generate the bundle use Maven
 
     mvn clean package -PbuildKar
 
-If everything checks out, the bundle for Conan should be available in the `target` folder
+If everything checks out, the bundle for JFrog Conan should be available in the `target` folder
 
 #### Build with Docker
 
@@ -76,7 +76,7 @@ The application will now be available from your browser at http://localhost:8081
 
 ## Installing the plugin
 
-There are a range of options for installing the Conan plugin. You'll need to build it first, and
+There are a range of options for installing the JFrog Conan plugin. You'll need to build it first, and
 then install the plugin with the options shown below:
 
 ### Easiest Install
@@ -124,7 +124,7 @@ is running. You will still need to start the bundle using the karaf commands men
 
 ### (most) Permanent Install
 
-If you are trying to use the Conan plugin permanently, it likely makes more sense to do the following:
+If you are trying to use the JFrog Conan plugin permanently, it likely makes more sense to do the following:
 
 * Copy the bundle into `<nexus_dir>/system/org/sonatype/nexus/plugins/nexus-repository-conan/0.0.6/nexus-repository-conan-0.0.6.jar`
 * If you are using OSS edition, make these mods in: `<nexus_dir>/system/com/sonatype/nexus/assemblies/nexus-oss-feature/3.x.y/nexus-oss-feature-3.x.y-features.xml`
@@ -153,7 +153,7 @@ to the open source community (read: you!)
 Remember:
 
 * Use this contribution at the risk tolerance that you have
-* Do NOT file Sonatype support tickets related to Conan support
+* Do NOT file Sonatype support tickets related to JFrog Conan support
 * DO file issues here on GitHub, so that the community can pitch in
 
 Phew, that was easier than I thought. Last but not least of all:

@@ -44,11 +44,11 @@ import org.sonatype.nexus.repository.view.payloads.BlobPayload;
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
 import org.sonatype.nexus.transaction.UnitOfWork;
 import org.sonatype.repository.conan.internal.AssetKind;
+import org.sonatype.repository.conan.internal.common.v1.ConanRoutes;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.sonatype.repository.conan.internal.metadata.ConanHashVerifier;
 import org.sonatype.repository.conan.internal.metadata.ConanManifest;
 import org.sonatype.repository.conan.internal.metadata.ConanUrlIndexer;
-import org.sonatype.repository.conan.internal.common.v1.ConanRoutes;
 
 import com.google.common.base.Supplier;
 import com.google.common.hash.HashCode;
@@ -60,11 +60,11 @@ import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE_SNAPSHOT;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
+import static org.sonatype.repository.conan.internal.common.v1.ConanRoutes.getCoords;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPath;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.buildAssetPathFromCoords;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
-import static org.sonatype.repository.conan.internal.common.v1.ConanRoutes.getCoords;
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findComponent;
 
 /**

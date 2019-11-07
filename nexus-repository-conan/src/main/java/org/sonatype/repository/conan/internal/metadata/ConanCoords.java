@@ -13,7 +13,6 @@
 package org.sonatype.repository.conan.internal.metadata;
 
 import javax.annotation.Nullable;
-import javax.validation.constraints.Null.List;
 
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 

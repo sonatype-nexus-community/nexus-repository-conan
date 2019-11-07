@@ -32,7 +32,6 @@ import org.sonatype.nexus.repository.view.handlers.ExceptionHandler;
 import org.sonatype.nexus.repository.view.handlers.HandlerContributor;
 import org.sonatype.nexus.repository.view.handlers.TimingHandler;
 import org.sonatype.repository.conan.internal.AssetKind;
-import org.sonatype.repository.conan.internal.common.v1.ConanRoutes;
 
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_EXPORT;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE;

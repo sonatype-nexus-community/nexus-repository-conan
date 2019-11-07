@@ -42,6 +42,8 @@ public class ConanProxyIT
 
   private static final String NAME_MANIFEST = "conanmanifest";
 
+  private static final String DOWNLOAD_URL = "download_urls";
+
   private static final String EXTENSION_TGZ = ".tgz";
 
   private static final String EXTENSION_TXT = ".txt";
@@ -52,7 +54,7 @@ public class ConanProxyIT
 
   private static final String FILE_MANIFEST = NAME_MANIFEST + EXTENSION_TXT;
   
-    private static final String DIRECTORY_PACKAGE = "v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
+  private static final String DIRECTORY_PACKAGE = "v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
   
   private static final String DIRECTORY_INVALID = "this/is/a/bad/path/";
 
@@ -64,9 +66,11 @@ public class ConanProxyIT
 
   private static final String PATH_INVALID = DIRECTORY_INVALID + FILE_PACKAGE;
 
-  public static final String MIME_GZIP = "application/gzip";
+  private static final String MIME_GZIP = "application/gzip";
 
-  public static final String MIME_TEXT = "text/plain";
+  private static final String MIME_TEXT = "text/plain";
+
+  private static final String DOWNLOAD_URLS = "v1/conans/jsonformoderncpp/3.7.0/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/download_urls";
 
   private ConanClient proxyClient;
 
@@ -91,6 +95,8 @@ public class ConanProxyIT
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_INFO)))
         .serve("/" + PATH_MANIFEST)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_MANIFEST)))
+        .serve("/" + DOWNLOAD_URLS)
+        .withBehaviours(Behaviours.file(testData.resolveFile(DOWNLOAD_URL)))
         .start();
 
     proxyRepo = repos.createConanProxy("conan-test-proxy-online", server.getUrl().toExternalForm());
@@ -121,6 +127,7 @@ public class ConanProxyIT
 
   @Test
   public void retrievePackageWhenRemoteOnline() throws Exception {
+    proxyClient.get(DOWNLOAD_URLS);
     assertThat(status(proxyClient.get(PATH_TGZ_PACKAGE)), is(HttpStatus.OK));
 
     final Asset asset = findAsset(proxyRepo, PATH_TGZ_PACKAGE);
@@ -131,6 +138,7 @@ public class ConanProxyIT
 
   @Test
   public void retrieveInfoWhenRemoteOnline() throws Exception {
+    proxyClient.get(DOWNLOAD_URLS);
     assertThat(status(proxyClient.get(PATH_INFO)), is(HttpStatus.OK));
 
     final Asset asset = findAsset(proxyRepo, PATH_INFO);
@@ -141,12 +149,18 @@ public class ConanProxyIT
 
   @Test
   public void retrieveManifestWhenRemoteOnline() throws Exception {
+    proxyClient.get(DOWNLOAD_URLS);
     assertThat(status(proxyClient.get(PATH_MANIFEST)), is(HttpStatus.OK));
 
     final Asset asset = findAsset(proxyRepo, PATH_MANIFEST);
     assertThat(asset.format(), is("conan"));
     assertThat(asset.name(), is(PATH_MANIFEST));
     assertThat(asset.contentType(), is(MIME_TEXT));
+  }
+
+  @Test
+  public void retrieveDownloadUrls() throws Exception {
+    assertThat(status(proxyClient.get(DOWNLOAD_URLS)), is(HttpStatus.OK));
   }
 
   @After

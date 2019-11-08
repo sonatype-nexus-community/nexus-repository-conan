@@ -14,9 +14,7 @@
 -->
 # Nexus Repository Conan Format
 
-[![Build Status](https://travis-ci.org/sonatype-nexus-community/nexus-repository-conan.svg?branch=master)](https://travis-ci.org/sonatype-nexus-community/nexus-repository-conan) [![Join the chat at https://gitter.im/sonatype/nexus-developers](https://badges.gitter.im/sonatype/nexus-developers.svg)](https://gitter.im/sonatype/nexus-developers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-[![DepShield Badge](https://depshield.sonatype.org/badges/sonatype-nexus-community/nexus-repository-conan/depshield.svg)](https://depshield.github.io)
+[![Maven Central](https://img.shields.io/maven-central/v/org.sonatype.nexus.plugins/nexus-repository-conan.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22org.sonatype.nexus.plugins%22%20AND%20a:%22nexus-repository-conan%22) [![CircleCI](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-conan.svg?style=svg)](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-conan) [![Join the chat at https://gitter.im/sonatype/nexus-developers](https://badges.gitter.im/sonatype/nexus-developers.svg)](https://gitter.im/sonatype/nexus-developers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![DepShield Badge](https://depshield.sonatype.org/badges/sonatype-nexus-community/nexus-repository-conan/depshield.svg)](https://depshield.github.io)
 
 # Table Of Contents
 * [Developing](#developing)

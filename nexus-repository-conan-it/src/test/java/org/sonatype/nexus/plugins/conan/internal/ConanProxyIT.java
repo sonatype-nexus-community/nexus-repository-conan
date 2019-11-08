@@ -20,6 +20,11 @@ import org.sonatype.nexus.repository.http.HttpStatus;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.testsuite.testsupport.NexusITSupport;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +33,7 @@ import org.ops4j.pax.exam.Option;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.sonatype.goodies.httpfixture.server.fluent.Behaviours.error;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.sonatype.nexus.testsuite.testsupport.FormatClientSupport.status;
 
 public class ConanProxyIT
@@ -136,7 +141,19 @@ public class ConanProxyIT
 
   @Test
   public void retrieveDownloadUrls() throws Exception {
-    assertThat(status(proxyClient.get(PATH_DOWNLOAD_URLS)), is(HttpStatus.OK));
+    CloseableHttpResponse response = proxyClient.get(PATH_DOWNLOAD_URLS);
+
+    assertThat(status(response), is(HttpStatus.OK));
+
+    HttpEntity entity = response.getEntity();
+
+    String download_urls = EntityUtils.toString(entity);
+
+    JsonObject obj = new JsonParser().parse(download_urls).getAsJsonObject();
+
+    assertThat(obj.get("conaninfo.txt").getAsString(), is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt"));
+
+    // TODO: Fill in last two asserts on keys
 
     final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS);
     assertThat(asset.format(), is("conan"));

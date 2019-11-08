@@ -306,9 +306,9 @@ public class ConanProxyFacet
 
     log.info("AssetKind {} to be fetched is {}", assetKind, context.getRequest().getPath());
 
-    // Find the original download_url
+    // TODO: There are two different URLs for DOWNLOAD_URL, this seems to only look in one of them, that seems problematic
     ConanCoords coords = ConanRoutes.getCoords(context);
-    String download_urls = String.format("%s/%s", ConanCoords.getPath(coords), "download_urls");
+    String download_urls = ConanCoords.getRecipePathWithPackages(coords, "download_urls");
     return getUrlFromDownloadAsset(download_urls, assetKind.getFilename());
   }
 

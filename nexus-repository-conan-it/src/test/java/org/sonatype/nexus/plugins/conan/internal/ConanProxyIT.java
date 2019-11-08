@@ -58,6 +58,8 @@ public class ConanProxyIT
   private static final String DIRECTORY_PACKAGE = "v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
 
   private static final String DIRECTORY_DOWNLOAD_URLS = "v1/conans/jsonformoderncpp/3.7.0/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
+
+  private static final String DIRECTORY_DOWNLOAD_URLS_WITHOUT_PACKAGES = "v1/conans/jsonformoderncpp/3.7.0/vthiery/stable/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
   
   private static final String DIRECTORY_INVALID = "this/is/a/bad/path/";
 

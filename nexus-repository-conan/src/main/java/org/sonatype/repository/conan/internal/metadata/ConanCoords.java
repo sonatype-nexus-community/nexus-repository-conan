@@ -99,4 +99,18 @@ public class ConanCoords
         coord.getChannel(),
         coord.getSha() == null ? "" : "/packages/" + coord.getSha());
   }
+
+  /**
+  * Gets the path in this format: https://github.com/conan-io/conan/blob/14f84411ddf5106b86be4464ccd76aea865ecd45/conans/model/rest_routes.py#L30
+   */
+  public static String getRecipePathWithPackages(ConanCoords coord, final String filename) {
+    return String.format("%s%s/%s/%s/%s%s%s",
+        coord.getPath() == null ? "" : coord.getPath() + "/",
+        coord.getProject(),
+        coord.getVersion(),
+        coord.getGroup(),
+        coord.getChannel(),
+        coord.getSha() == null ? "" : "/packages/" + coord.getSha(),
+        filename == null ? "" : "/" + filename);
+  }
 }

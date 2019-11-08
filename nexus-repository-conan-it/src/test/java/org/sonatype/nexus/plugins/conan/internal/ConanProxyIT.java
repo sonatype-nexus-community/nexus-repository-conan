@@ -18,11 +18,8 @@ import org.sonatype.nexus.pax.exam.NexusPaxExamSupport;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpStatus;
 import org.sonatype.nexus.repository.storage.Asset;
-import org.sonatype.nexus.repository.storage.Component;
-import org.sonatype.nexus.testsuite.testsupport.FormatClientSupport;
 import org.sonatype.nexus.testsuite.testsupport.NexusITSupport;
 
-import org.hamcrest.MatcherAssert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +46,8 @@ public class ConanProxyIT
 
   private static final String FILE_DOWNLOAD_URLS = "download_urls";
 
+  private static final String FILE_DOWNLOAD_URLS_NON_PACKAGE = "download_urls_non_package";
+
   private static final String FILE_PACKAGE = NAME_PACKAGE + EXTENSION_TGZ;
 
   private static final String FILE_INFO = NAME_INFO + EXTENSION_TXT;
@@ -59,7 +58,7 @@ public class ConanProxyIT
 
   private static final String DIRECTORY_DOWNLOAD_URLS = "v1/conans/jsonformoderncpp/3.7.0/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
 
-  private static final String DIRECTORY_DOWNLOAD_URLS_WITHOUT_PACKAGES = "v1/conans/jsonformoderncpp/3.7.0/vthiery/stable/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
+  private static final String PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES = "v1/conans/jsonformoderncpp/3.7.0/vthiery/stable/download_urls";
   
   private static final String DIRECTORY_INVALID = "this/is/a/bad/path/";
 
@@ -96,6 +95,8 @@ public class ConanProxyIT
     server = Server.withPort(0)
         .serve("/" + PATH_DOWNLOAD_URLS)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_DOWNLOAD_URLS)))
+        .serve("/" + PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES)
+        .withBehaviours(Behaviours.file(testData.resolveFile(FILE_DOWNLOAD_URLS_NON_PACKAGE)))
         .serve("/" + PATH_TGZ_PACKAGE)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_PACKAGE)))
         .serve("/" + PATH_INFO)
@@ -137,8 +138,15 @@ public class ConanProxyIT
   public void retrieveDownloadUrls() throws Exception {
     assertThat(status(proxyClient.get(PATH_DOWNLOAD_URLS)), is(HttpStatus.OK));
 
-    // TODO: investigate why this is null
     final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS);
+    assertThat(asset.format(), is("conan"));
+  }
+
+  @Test
+  public void retrieveDownloadUrlsFromNonPackageRoute() throws Exception {
+    assertThat(status(proxyClient.get(PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES)), is(HttpStatus.OK));
+
+    final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES);
     assertThat(asset.format(), is("conan"));
   }
 

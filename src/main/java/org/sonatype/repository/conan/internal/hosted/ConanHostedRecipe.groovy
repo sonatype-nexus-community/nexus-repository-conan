@@ -187,6 +187,7 @@ class ConanHostedRecipe
     createRoute(builder, downloadConanTgz(CONAN_SOURCES_URL), AssetKind.CONAN_SOURCES, hostedHandler.download)
     createRoute(builder, downloadConanTgz(CONAN_EXPORT_ZIP_URL), CONAN_EXPORT, hostedHandler.download)
 
+
     builder.route(packageSnapshot()
             .handler(timingHandler)
             .handler(securityHandler)
@@ -199,10 +200,7 @@ class ConanHostedRecipe
             .handler(hostedHandler.packageSnapshot)
             .create())
 
-    builder.route(searchPackages()
-        .handler(hostedHandler.searchPackages)
-        .create()
-    )
+    createRoute(builder, searchPackages(), AssetKind.CONAN_INFO, hostedHandler.searchPackages)
 
     builder.route(searchRecipes()
         .handler(hostedHandler.searchRecipes)

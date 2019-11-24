@@ -55,6 +55,8 @@ public class HostedHandlers
     ConanCoords coord = convertFromState(state);
     String assetPath = getAssetPath(coord);
 
+    System.out.println("UPLOAD REQUEST: " + context.getRequest());
+
     return context.getRepository()
         .facet(ConanHostedFacet.class)
         .uploadDownloadUrl(assetPath, coord, context.getRequest().getPayload(), assetKind);

@@ -12,9 +12,11 @@
  */
 package org.sonatype.repository.conan.internal.hosted;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -293,7 +295,7 @@ public class ConanHostedFacet
 
   @Nullable
   @TransactionalStoreBlob
-  protected Content doGet(final String path)
+  public Content doGet(final String path)
   {
     checkNotNull(path);
 

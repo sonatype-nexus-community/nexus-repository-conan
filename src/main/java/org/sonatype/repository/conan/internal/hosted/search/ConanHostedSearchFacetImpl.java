@@ -15,6 +15,7 @@ import org.sonatype.nexus.repository.view.Parameters;
 import org.sonatype.nexus.repository.view.Request;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
+import org.sonatype.repository.conan.internal.hosted.ConanHostedFacet;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import org.elasticsearch.action.search.SearchResponse;
@@ -57,10 +58,36 @@ public class ConanHostedSearchFacetImpl
   @Override
   public Content searchPackages(Context context) {
     TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
-    return searchRecipesFromCoords(convertFromState(state));
+    ConanCoords coords = convertFromState(state);
+    String repoUrl = context.getRepository().getUrl();
+
+    SearchResponse searchResponse = searchResponseFromCoords(coords);
+    ArrayList<String> packageUrls = searchUtils.getPackageUrls(searchResponse);
+
+    String packageResult = searchUtils.getPackageSearchReply(context, packageUrls);
+
+    return new Content(new StringPayload(packageResult, ContentTypes.APPLICATION_JSON));
+  }
+
+  private Content searchRecipesFromPackages(ConanCoords coords) {
+    SearchResponse searchResponse = searchResponseFromCoords(coords);
+    JsonArray allRecipes = searchUtils.getRecipesJSON(searchResponse);
+
+    return null;
   }
 
   private Content searchRecipesFromCoords(ConanCoords coords) {
+    SearchResponse searchResponse = searchResponseFromCoords(coords);
+
+    JsonArray allRecipes = searchUtils.getRecipesJSON(searchResponse);
+    allRecipes = searchUtils.filterByChannel(allRecipes, coords.getChannel());
+
+    String recipesResult = searchUtils.getRecipesResult(allRecipes);
+
+    return new Content(new StringPayload(recipesResult, ContentTypes.APPLICATION_JSON));
+  }
+
+  private SearchResponse searchResponseFromCoords(ConanCoords coords) {
     QueryBuilder query = searchUtils.getQueryBuilder(
         coords,
         getRepository().getName());
@@ -77,11 +104,7 @@ public class ConanHostedSearchFacetImpl
         10,
         SearchUtils.DEFAULT_TIMEOUT);
 
-    JsonArray allRecipes = searchUtils.getRecipesJSON(searchResponse);
-    allRecipes = searchUtils.filterByChannel(allRecipes, coords.getChannel());
-
-    String recipesResult = searchUtils.getRecipesResult(allRecipes);
-
-    return new Content(new StringPayload(recipesResult, ContentTypes.APPLICATION_JSON));
+    return searchResponse;
   }
+
 }

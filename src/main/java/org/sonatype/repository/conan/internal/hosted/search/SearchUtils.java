@@ -1,10 +1,19 @@
 package org.sonatype.repository.conan.internal.hosted.search;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.sonatype.nexus.repository.view.Content;
+import org.sonatype.nexus.repository.view.Context;
+import org.sonatype.repository.conan.internal.hosted.ConanHostedFacet;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -84,34 +93,11 @@ public class SearchUtils
    * This method receives a SearchResponse, which contains json
    * of the form:
    * $$$$$$$$$$$$$$$$$$
-   * {
+   * { ..."hits":{...."hits":[{..."_source":{...,
+   *    "assets":[{"content_type":"application/gzip",
+   *    name":"/v1/conans/conan/zlib/1.2.11/stable/conan_export.tgz",
    *    ....
-   *    "hits":{
-   *       ....
-   *       "hits":[
-   *          {
-   *             ....
-   *             "_source":{
-   *                "isPrerelease":false,
-   *                "assets":[
-   *                   {
-   *                      "content_type":"application/gzip",
-   *                      "name":"/v1/conans/conan/zlib/1.2.11/stable/conan_export.tgz",
-   *                      .....
-   *                   },
-   *                  .......
-   * 				]
-   *          },
-   *          {
-   *             ....
-   *          }
    * ...
-   * $$$$$$$$$$$$$
-   * So we have a "hits" object that contains a hits array. This hits array groups recipes and
-   * gives info about the content of everything inside the recipe. So what we basically do
-   * is that extract the first content of a 'hit' (from "assets" object)
-   * and then get the "name" attribute.
-   * Then this name 'attribute' is used to generate the recipe string.
    *
    * @param searchResponse The complete json result of search to ElasticSearch
    * @return A json(String) of all the recipe info that conan client can recognize
@@ -139,10 +125,101 @@ public class SearchUtils
     }
 
     return results;
-    //JsonObject finalResult = new JsonObject();
-    //finalResult.add("results", results);
+  }
 
-    //return finalResult.toString();
+  public ArrayList<String> getPackageUrls(SearchResponse searchResponse) {
+    JsonArray allHits = this.getAllHits(searchResponse);
+    ArrayList<String> conanFileUrls = new ArrayList<>();
+
+    for (JsonElement elem : allHits) {
+      JsonArray packageFiles = elem.getAsJsonObject()
+          .getAsJsonObject("_source")
+          .getAsJsonArray("assets");
+
+      for(JsonElement files : packageFiles) {
+        String assetKind = files.getAsJsonObject()
+            .getAsJsonObject("attributes")
+            .getAsJsonObject("conan")
+            .get("asset_kind")
+            .getAsString();
+
+        if(assetKind.equals("CONAN_INFO")) {
+          conanFileUrls.add(files.getAsJsonObject().get("name").getAsString());
+        }
+      }
+    }
+
+    return conanFileUrls;
+  }
+
+  public String getPackageSearchReply(Context context, ArrayList<String> conanInfoUrls) {
+    String line;
+    InputStream in;
+    InputStreamReader inReader;
+    BufferedReader reader;
+    Content content;
+
+    JsonObject parsedIni = new JsonObject();
+    JsonObject singlePackage;
+    JsonObject section;
+    JsonArray arrayElement = new JsonArray();
+    String sectionName = "";
+    String keyValue[];
+
+    for(String conanInfoUrl : conanInfoUrls) {
+        //section = new JsonObject(StringUtils.substringBetween("packages/", "/conaninfo.txt"));
+      section = new JsonObject();
+
+      try {
+        content = context.getRepository()
+            .facet(ConanHostedFacet.class)
+            .doGet(conanInfoUrl);
+
+        in = content.openInputStream();
+        inReader = new InputStreamReader(in);
+        reader = new BufferedReader(inReader);
+
+        singlePackage = new JsonObject();
+
+        // TODO filter only the information that conan client wants fromo conaninfo file
+
+        while( (line = reader.readLine()) != null) {
+          if(line.startsWith("[") && line.endsWith("]")) {
+            if(sectionName.equals("requires") || sectionName.equals("full_requires") || sectionName.equals("recipe_hash")) {
+              singlePackage.add(sectionName, arrayElement);
+              arrayElement = new JsonArray();
+            } else if(!sectionName.equals("")) {
+              singlePackage.add(sectionName, section);
+            }
+
+            sectionName = StringUtils.substringBetween(line, "[", "]");
+            section = new JsonObject();
+          } else {
+            if(line.indexOf('=') != -1) {
+              keyValue = line.split("=");
+              section.addProperty(keyValue[0].trim(), keyValue[1].trim());
+            } else if(sectionName.equals("requires") || sectionName.equals("full_requires") || sectionName.equals("recipe_hash")){
+              arrayElement.add(new JsonPrimitive(line.trim()));
+            }
+          }
+
+        }
+
+        System.out.println(singlePackage.toString());
+        System.out.println("QUALIFIER: " + conanInfoUrl);
+        System.out.println("Package Name: " + StringUtils.substringBetween(conanInfoUrl, "package/", "/conaninfo.txt"));
+
+
+        parsedIni.add(StringUtils.substringBetween(conanInfoUrl, "packages/","/conaninfo.txt"), singlePackage);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    System.out.println("PARSED INI:");
+    System.out.println(parsedIni);
+
+    return parsedIni.toString();
   }
 
   public JsonArray filterByChannel(JsonArray arr, String channelStr) {

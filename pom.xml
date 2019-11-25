@@ -13,87 +13,125 @@
     Eclipse Foundation. All other trademarks are the property of their respective owners.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>nexus-plugins</artifactId>
-    <version>3.19.0-SNAPSHOT</version>
+    <version>3.19.0-01</version>
   </parent>
-  <groupId>org.sonatype.repository</groupId>
-  <artifactId>nexus-repository-conan</artifactId>
-  <name>${project.groupId}:${project.artifactId}</name>
+
+  <artifactId>conan-parent</artifactId>
   <version>0.0.6</version>
+  <packaging>pom</packaging>
+
   <inceptionYear>2017</inceptionYear>
-  <packaging>bundle</packaging>
 
-  <dependencies>
+  <modules>
+    <module>nexus-repository-conan</module>
+    <module>nexus-repository-conan-it</module>
+  </modules>
 
-    <dependency>
-      <groupId>org.sonatype.nexus</groupId>
-      <artifactId>nexus-plugin-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
 
-    <dependency>
-      <groupId>org.sonatype.nexus</groupId>
-      <artifactId>nexus-repository</artifactId>
-      <scope>provided</scope>
-    </dependency>
+  <properties>
+    <nxrm-version>3.19.0-01</nxrm-version>
+  </properties>
 
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-compress</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.sonatype.goodies</groupId>
-      <artifactId>goodies-testsupport</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.spockframework</groupId>
-      <artifactId>spock-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.sonatype.nexus</groupId>
-      <artifactId>nexus-rapture</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-  </dependencies>
+  <repositories>
+    <!-- ensure we can find the parent pom when starting from an empty local .m2 repository -->
+    <repository>
+      <id>rso-snapshots</id>
+      <url>https://repository.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+  </repositories>
 
   <build>
     <plugins>
       <plugin>
-        <groupId>org.sonatype.nexus.buildsupport</groupId>
-        <artifactId>extjs-maven-plugin</artifactId>
-        <configuration>
-          <namespace>NX.conan</namespace>
-        </configuration>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>1.4.1</version>
+        <executions>
+          <execution>
+            <id>enforce-java</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <!--
+                Ensure use of Java 8, as required by NXRM
+                -->
+                <requireJavaVersion>
+                  <version>[1.8,1.9)</version>
+                </requireJavaVersion>
+                <!--
+                Require Maven 3.3.3+
+                -->
+                <requireMavenVersion>
+                  <version>[3.3.3,)</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
-
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>yuicompressor-maven-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.karaf.tooling</groupId>
-        <artifactId>karaf-maven-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.20</version>
-      </plugin>
-
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>deploy</id>
+      <!--
+      only sign during deploy phase
+      -->
+      <activation>
+        <property>
+          <name>performRelease</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.6</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>1.6.7</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>rso</serverId>
+              <nexusUrl>https://repository.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

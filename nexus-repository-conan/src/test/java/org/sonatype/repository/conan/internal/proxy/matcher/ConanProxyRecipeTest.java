@@ -34,7 +34,6 @@ public class ConanProxyRecipeTest
 {
   private static final String CONAN_FORMAT = "conan";
 
-
   @Mock
   private ConanFormat conanFormat;
 
@@ -43,8 +42,7 @@ public class ConanProxyRecipeTest
 
   @Mock
   private ConanProxyApiV1 conanApiV1;
-
-
+  
   private ConanProxyRecipe conanProxyRecipe;
 
   @Before

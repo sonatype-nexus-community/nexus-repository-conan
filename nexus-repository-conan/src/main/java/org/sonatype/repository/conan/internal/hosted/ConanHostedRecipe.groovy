@@ -17,6 +17,7 @@ import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
 
+import org.sonatype.nexus.common.property.SystemPropertiesHelper
 import org.sonatype.nexus.repository.Format
 import org.sonatype.nexus.repository.Repository
 import org.sonatype.nexus.repository.Type
@@ -88,5 +89,10 @@ class ConanHostedRecipe
     builder.defaultHandlers(notFound())
     facet.configure(builder.create())
     return facet
+  }
+
+  @Override
+  boolean isFeatureEnabled() {
+    SystemPropertiesHelper.getBoolean('nexus.conan.hosted.enabled', false)
   }
 }

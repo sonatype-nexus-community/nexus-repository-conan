@@ -62,8 +62,8 @@ class ConanProxyRecipe
 
   @Inject
   ConanProxyRecipe(@Named(ProxyType.NAME) final Type type,
-                             @Named(ConanFormat.NAME) final Format format,
-                             final ConanProxyApiV1 conanApiV1) {
+                   @Named(ConanFormat.NAME) final Format format,
+                   final ConanProxyApiV1 conanApiV1) {
     super(type, format)
     this.conanApiV1 = conanApiV1
   }

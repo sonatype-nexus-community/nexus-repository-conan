@@ -47,6 +47,8 @@ class ConanHostedRecipe
 {
   public static final String NAME = 'conan-hosted'
 
+  public static final String HOSTED_ENABLED_PROPERTY = 'nexus.conan.hosted.enabled'
+
   @Inject
   Provider<ConanHostedFacet> hostedFacet
 
@@ -93,6 +95,6 @@ class ConanHostedRecipe
 
   @Override
   boolean isFeatureEnabled() {
-    SystemPropertiesHelper.getBoolean('nexus.conan.hosted.enabled', false)
+    SystemPropertiesHelper.getBoolean(HOSTED_ENABLED_PROPERTY, false)
   }
 }

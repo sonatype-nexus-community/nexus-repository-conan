@@ -23,12 +23,11 @@ import org.sonatype.nexus.repository.Type
 import org.sonatype.nexus.repository.proxy.ProxyHandler
 import org.sonatype.nexus.repository.types.ProxyType
 import org.sonatype.nexus.repository.view.ConfigurableViewFacet
-import org.sonatype.nexus.repository.view.handlers.FormatHighAvailabilitySupportHandler
-import org.sonatype.nexus.repository.view.handlers.HighAvailabilitySupportChecker
 import org.sonatype.nexus.repository.view.Route
 import org.sonatype.nexus.repository.view.Router
 import org.sonatype.nexus.repository.view.ViewFacet
 import org.sonatype.nexus.repository.view.handlers.BrowseUnsupportedHandler
+import org.sonatype.nexus.repository.view.handlers.HighAvailabilitySupportChecker
 import org.sonatype.repository.conan.internal.ConanFormat
 import org.sonatype.repository.conan.internal.ConanRecipeSupport
 
@@ -54,9 +53,6 @@ class ConanProxyRecipe
 
   @Inject
   ProxyHandler proxyHandler
-
-  @Inject
-  FormatHighAvailabilitySupportHandler highAvailabilitySupportHandler
 
   private ConanProxyApiV1 conanApiV1
 
@@ -94,7 +90,6 @@ class ConanProxyRecipe
 
     builder.route(new Route.Builder()
         .matcher(BrowseUnsupportedHandler.MATCHER)
-        .handler(highAvailabilitySupportHandler)
         .handler(browseUnsupportedHandler)
         .create())
 

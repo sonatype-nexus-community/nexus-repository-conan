@@ -27,6 +27,7 @@ import org.sonatype.nexus.repository.view.Route
 import org.sonatype.nexus.repository.view.Router
 import org.sonatype.nexus.repository.view.ViewFacet
 import org.sonatype.nexus.repository.view.handlers.BrowseUnsupportedHandler
+import org.sonatype.nexus.repository.view.handlers.HighAvailabilitySupportChecker
 import org.sonatype.repository.conan.internal.ConanFormat
 import org.sonatype.repository.conan.internal.ConanRecipeSupport
 
@@ -48,16 +49,24 @@ class ConanProxyRecipe
   Provider<ConanProxyFacet> proxyFacet
 
   @Inject
+  HighAvailabilitySupportChecker highAvailabilitySupportChecker
+
+  @Inject
   ProxyHandler proxyHandler
 
   private ConanProxyApiV1 conanApiV1
 
   @Inject
-  protected ConanProxyRecipe(@Named(ProxyType.NAME) final Type type,
-                             @Named(ConanFormat.NAME) final Format format,
-                             final ConanProxyApiV1 conanApiV1) {
+  ConanProxyRecipe(@Named(ProxyType.NAME) final Type type,
+                   @Named(ConanFormat.NAME) final Format format,
+                   final ConanProxyApiV1 conanApiV1) {
     super(type, format)
     this.conanApiV1 = conanApiV1
+  }
+
+  @Override
+  boolean isFeatureEnabled() {
+    return highAvailabilitySupportChecker.isSupported(getFormat().getValue())
   }
 
   @Override

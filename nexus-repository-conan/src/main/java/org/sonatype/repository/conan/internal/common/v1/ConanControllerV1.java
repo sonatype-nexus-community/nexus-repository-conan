@@ -29,6 +29,7 @@ import org.sonatype.nexus.repository.view.Router;
 import org.sonatype.nexus.repository.view.handlers.ConditionalRequestHandler;
 import org.sonatype.nexus.repository.view.handlers.ContentHeadersHandler;
 import org.sonatype.nexus.repository.view.handlers.ExceptionHandler;
+import org.sonatype.nexus.repository.view.handlers.FormatHighAvailabilitySupportHandler;
 import org.sonatype.nexus.repository.view.handlers.HandlerContributor;
 import org.sonatype.nexus.repository.view.handlers.TimingHandler;
 import org.sonatype.repository.conan.internal.AssetKind;
@@ -63,6 +64,9 @@ public class ConanControllerV1
   protected ConditionalRequestHandler conditionalRequestHandler;
 
   @Inject
+  FormatHighAvailabilitySupportHandler highAvailabilitySupportHandler;
+
+  @Inject
   protected PartialFetchHandler partialFetchHandler;
 
   @Inject
@@ -92,6 +96,7 @@ public class ConanControllerV1
         .handler(timingHandler)
         .handler(assetKindHandler(assetKind))
         .handler(securityHandler)
+        .handler(highAvailabilitySupportHandler)
         .handler(exceptionHandler)
         .handler(handlerContributor)
         .handler(conditionalRequestHandler)

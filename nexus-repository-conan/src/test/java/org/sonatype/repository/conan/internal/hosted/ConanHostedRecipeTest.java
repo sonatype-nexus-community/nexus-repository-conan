@@ -2,12 +2,15 @@ package org.sonatype.repository.conan.internal.hosted;
 
 import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
+import org.sonatype.nexus.repository.types.HostedType;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.Request;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
+import org.sonatype.repository.conan.internal.ConanFormat;
 import org.sonatype.repository.conan.internal.common.v1.ConanRoutes;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -19,6 +22,7 @@ import static org.mockito.Mockito.when;
 import static org.sonatype.goodies.testsupport.hamcrest.DiffMatchers.equalTo;
 import static org.sonatype.nexus.repository.http.HttpMethods.POST;
 import static org.sonatype.nexus.repository.http.HttpMethods.PUT;
+import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.HOSTED_ENABLED_PROPERTY;
 
 public class ConanHostedRecipeTest
     extends TestSupport
@@ -39,6 +43,11 @@ public class ConanHostedRecipeTest
     attributesMap = new AttributesMap();
     when(context.getRequest()).thenReturn(request);
     when(context.getAttributes()).thenReturn(attributesMap);
+  }
+
+  @After
+  public void tearDown() {
+    System.getProperties().remove(HOSTED_ENABLED_PROPERTY);
   }
 
   @Test
@@ -141,5 +150,25 @@ public class ConanHostedRecipeTest
     assertThat(matcherState.getTokens().get("project"), is(equalTo("project")));
     assertThat(matcherState.getTokens().get("version"), is(equalTo("2.1.1")));
     assertThat(matcherState.getTokens().get("sha"), is(equalTo("5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9")));
+  }
+
+  @Test
+  public void hostedEnabledNexusConanHostedEnabledIsTrue() {
+    System.setProperty(HOSTED_ENABLED_PROPERTY, "true");
+    ConanHostedRecipe conanHostedRecipe = new ConanHostedRecipe(new HostedType(), new ConanFormat(), null);
+    assertThat(conanHostedRecipe.isFeatureEnabled(), is(true));
+  }
+
+  @Test
+  public void hostedDisabledNexusConanHostedEnabledIsFalse() {
+    System.setProperty(HOSTED_ENABLED_PROPERTY, "false");
+    ConanHostedRecipe conanHostedRecipe = new ConanHostedRecipe(new HostedType(), new ConanFormat(), null);
+    assertThat(conanHostedRecipe.isFeatureEnabled(), is(false));
+  }
+
+  @Test
+  public void hostedDisabledNexusConanHostedEnabledIsNotSet() {
+    ConanHostedRecipe conanHostedRecipe = new ConanHostedRecipe(new HostedType(), new ConanFormat(), null);
+    assertThat(conanHostedRecipe.isFeatureEnabled(), is(false));
   }
 }

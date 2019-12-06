@@ -32,8 +32,6 @@ import static org.mockito.Mockito.when;
 public class ConanProxyRecipeTest
     extends TestSupport
 {
-  private static final String CONAN_FORMAT = "conan";
-
   @Mock
   private ConanFormat conanFormat;
 
@@ -47,22 +45,22 @@ public class ConanProxyRecipeTest
 
   @Before
   public void setUp() {
-    when(conanFormat.getValue()).thenReturn(CONAN_FORMAT);
+    when(conanFormat.getValue()).thenReturn(ConanFormat.NAME);
     conanProxyRecipe = new ConanProxyRecipe(new ProxyType(), conanFormat, conanApiV1);
     conanProxyRecipe.setHighAvailabilitySupportChecker(highAvailabilitySupportChecker);
   }
 
   @Test
   public void haEnabledProxyRepository() {
-    when(highAvailabilitySupportChecker.isSupported(CONAN_FORMAT)).thenReturn(true);
+    when(highAvailabilitySupportChecker.isSupported(ConanFormat.NAME)).thenReturn(true);
     assertThat(conanProxyRecipe.isFeatureEnabled(), is(equalTo(true)));
-    verify(highAvailabilitySupportChecker).isSupported(CONAN_FORMAT);
+    verify(highAvailabilitySupportChecker).isSupported(ConanFormat.NAME);
   }
 
   @Test
   public void haDisabledProxyRepository() {
-    when(highAvailabilitySupportChecker.isSupported(CONAN_FORMAT)).thenReturn(false);
+    when(highAvailabilitySupportChecker.isSupported(ConanFormat.NAME)).thenReturn(false);
     assertThat(conanProxyRecipe.isFeatureEnabled(), is(equalTo(false)));
-    verify(highAvailabilitySupportChecker).isSupported(CONAN_FORMAT);
+    verify(highAvailabilitySupportChecker).isSupported(ConanFormat.NAME);
   }
 }

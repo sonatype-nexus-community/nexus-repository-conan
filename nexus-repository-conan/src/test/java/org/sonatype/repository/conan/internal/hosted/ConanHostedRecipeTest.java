@@ -1,3 +1,15 @@
+/*
+ * Sonatype Nexus (TM) Open Source Version
+ * Copyright (c) 2017-present Sonatype, Inc.
+ * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
+ *
+ * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
+ * which accompanies this distribution and is available at http://www.eclipse.org/legal/epl-v10.html.
+ *
+ * Sonatype Nexus (TM) Professional Version is available from Sonatype, Inc. "Sonatype" and "Sonatype Nexus" are trademarks
+ * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
+ * Eclipse Foundation. All other trademarks are the property of their respective owners.
+ */
 package org.sonatype.repository.conan.internal.hosted;
 
 import org.sonatype.goodies.testsupport.TestSupport;
@@ -28,8 +40,6 @@ import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.HO
 public class ConanHostedRecipeTest
     extends TestSupport
 {
-  private static final String CONAN_FORMAT = "conan";
-
   @Mock
   Request request;
 
@@ -161,7 +171,7 @@ public class ConanHostedRecipeTest
   @Test
   public void hostedEnabledNexusConanHostedEnabledIsTrueHaSupportIsTrue() {
     System.setProperty(HOSTED_ENABLED_PROPERTY, "true");
-    when(highAvailabilitySupportChecker.isSupported(CONAN_FORMAT)).thenReturn(true);
+    when(highAvailabilitySupportChecker.isSupported(ConanFormat.NAME)).thenReturn(true);
     ConanHostedRecipe conanHostedRecipe = new ConanHostedRecipe(new HostedType(), new ConanFormat(), null);
     conanHostedRecipe.setHighAvailabilitySupportChecker(highAvailabilitySupportChecker);
     assertThat(conanHostedRecipe.isFeatureEnabled(), is(true));
@@ -170,7 +180,7 @@ public class ConanHostedRecipeTest
   @Test
   public void hostedDisabledNexusConanHostedEnabledIsFalseHaSupportIsFalse() {
     System.setProperty(HOSTED_ENABLED_PROPERTY, "false");
-    when(highAvailabilitySupportChecker.isSupported(CONAN_FORMAT)).thenReturn(false);
+    when(highAvailabilitySupportChecker.isSupported(ConanFormat.NAME)).thenReturn(false);
     ConanHostedRecipe conanHostedRecipe = new ConanHostedRecipe(new HostedType(), new ConanFormat(), null);
     conanHostedRecipe.setHighAvailabilitySupportChecker(highAvailabilitySupportChecker);
     assertThat(conanHostedRecipe.isFeatureEnabled(), is(false));
@@ -179,7 +189,7 @@ public class ConanHostedRecipeTest
   @Test
   public void hostedDisabledNexusConanHostedEnabledIsTrueHaSupportIsFalse() {
     System.setProperty(HOSTED_ENABLED_PROPERTY, "true");
-    when(highAvailabilitySupportChecker.isSupported(CONAN_FORMAT)).thenReturn(false);
+    when(highAvailabilitySupportChecker.isSupported(ConanFormat.NAME)).thenReturn(false);
     ConanHostedRecipe conanHostedRecipe = new ConanHostedRecipe(new HostedType(), new ConanFormat(), null);
     conanHostedRecipe.setHighAvailabilitySupportChecker(highAvailabilitySupportChecker);
     assertThat(conanHostedRecipe.isFeatureEnabled(), is(false));
@@ -188,7 +198,7 @@ public class ConanHostedRecipeTest
   @Test
   public void hostedDisabledNexusConanHostedEnabledIsFalseHaSupportIsTrue() {
     System.setProperty(HOSTED_ENABLED_PROPERTY, "false");
-    when(highAvailabilitySupportChecker.isSupported(CONAN_FORMAT)).thenReturn(true);
+    when(highAvailabilitySupportChecker.isSupported(ConanFormat.NAME)).thenReturn(true);
     ConanHostedRecipe conanHostedRecipe = new ConanHostedRecipe(new HostedType(), new ConanFormat(), null);
     conanHostedRecipe.setHighAvailabilitySupportChecker(highAvailabilitySupportChecker);
     assertThat(conanHostedRecipe.isFeatureEnabled(), is(false));
@@ -196,7 +206,7 @@ public class ConanHostedRecipeTest
 
   @Test
   public void hostedDisabledNexusConanHostedEnabledIsNotSet() {
-    when(highAvailabilitySupportChecker.isSupported(CONAN_FORMAT)).thenReturn(false);
+    when(highAvailabilitySupportChecker.isSupported(ConanFormat.NAME)).thenReturn(false);
     ConanHostedRecipe conanHostedRecipe = new ConanHostedRecipe(new HostedType(), new ConanFormat(), null);
     conanHostedRecipe.setHighAvailabilitySupportChecker(highAvailabilitySupportChecker);
     assertThat(conanHostedRecipe.isFeatureEnabled(), is(false));

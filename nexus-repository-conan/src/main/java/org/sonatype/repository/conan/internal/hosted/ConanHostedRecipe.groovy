@@ -27,6 +27,7 @@ import org.sonatype.nexus.repository.view.Route
 import org.sonatype.nexus.repository.view.Router
 import org.sonatype.nexus.repository.view.ViewFacet
 import org.sonatype.nexus.repository.view.handlers.BrowseUnsupportedHandler
+import org.sonatype.nexus.repository.view.handlers.HighAvailabilitySupportChecker
 import org.sonatype.repository.conan.internal.ConanFormat
 import org.sonatype.repository.conan.internal.ConanRecipeSupport
 import org.sonatype.repository.conan.internal.hosted.v1.ConanHostedApiV1
@@ -43,7 +44,7 @@ import static org.sonatype.nexus.repository.http.HttpHandlers.notFound
 @Named(ConanHostedRecipe.NAME)
 @Singleton
 class ConanHostedRecipe
-  extends ConanRecipeSupport
+    extends ConanRecipeSupport
 {
   public static final String NAME = 'conan-hosted'
 
@@ -55,12 +56,16 @@ class ConanHostedRecipe
   @Inject
   Provider<ConanTokenFacet> tokenFacet
 
+  @Inject
+  HighAvailabilitySupportChecker highAvailabilitySupportChecker
+
   private ConanHostedApiV1 apiV1
 
   @Inject
   protected ConanHostedRecipe(@Named(HostedType.NAME) final Type type,
                               @Named(ConanFormat.NAME) final Format format,
-                              final ConanHostedApiV1 apiV1) {
+                              final ConanHostedApiV1 apiV1)
+  {
     super(type, format)
     this.apiV1 = apiV1
   }
@@ -95,6 +100,7 @@ class ConanHostedRecipe
 
   @Override
   boolean isFeatureEnabled() {
-    SystemPropertiesHelper.getBoolean(HOSTED_ENABLED_PROPERTY, false)
+    highAvailabilitySupportChecker.isSupported(getFormat().getValue()) &&
+        SystemPropertiesHelper.getBoolean(HOSTED_ENABLED_PROPERTY, false)
   }
 }

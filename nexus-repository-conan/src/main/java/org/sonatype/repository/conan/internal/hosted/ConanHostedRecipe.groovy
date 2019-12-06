@@ -1,12 +1,15 @@
 /*
  * Sonatype Nexus (TM) Open Source Version
  * Copyright (c) 2017-present Sonatype, Inc.
- * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
+ * All rights reserved. Includes the third-party code listed at http://links.sonatype
+ * .com/products/nexus/oss/attributions.
  *
- * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
+ * This program and the accompanying materials are made available under the terms of the Eclipse Public License
+ * Version 1.0,
  * which accompanies this distribution and is available at http://www.eclipse.org/legal/epl-v10.html.
  *
- * Sonatype Nexus (TM) Professional Version is available from Sonatype, Inc. "Sonatype" and "Sonatype Nexus" are trademarks
+ * Sonatype Nexus (TM) Professional Version is available from Sonatype, Inc. "Sonatype" and "Sonatype Nexus" are
+ * trademarks
  * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
@@ -27,6 +30,7 @@ import org.sonatype.nexus.repository.view.Route
 import org.sonatype.nexus.repository.view.Router
 import org.sonatype.nexus.repository.view.ViewFacet
 import org.sonatype.nexus.repository.view.handlers.BrowseUnsupportedHandler
+import org.sonatype.nexus.repository.view.handlers.HighAvailabilitySupportChecker
 import org.sonatype.repository.conan.internal.ConanFormat
 import org.sonatype.repository.conan.internal.ConanRecipeSupport
 import org.sonatype.repository.conan.internal.hosted.v1.ConanHostedApiV1
@@ -43,7 +47,7 @@ import static org.sonatype.nexus.repository.http.HttpHandlers.notFound
 @Named(ConanHostedRecipe.NAME)
 @Singleton
 class ConanHostedRecipe
-  extends ConanRecipeSupport
+    extends ConanRecipeSupport
 {
   public static final String NAME = 'conan-hosted'
 
@@ -55,12 +59,16 @@ class ConanHostedRecipe
   @Inject
   Provider<ConanTokenFacet> tokenFacet
 
+  @Inject
+  HighAvailabilitySupportChecker highAvailabilitySupportChecker
+
   private ConanHostedApiV1 apiV1
 
   @Inject
   protected ConanHostedRecipe(@Named(HostedType.NAME) final Type type,
                               @Named(ConanFormat.NAME) final Format format,
-                              final ConanHostedApiV1 apiV1) {
+                              final ConanHostedApiV1 apiV1)
+  {
     super(type, format)
     this.apiV1 = apiV1
   }
@@ -95,6 +103,7 @@ class ConanHostedRecipe
 
   @Override
   boolean isFeatureEnabled() {
-    SystemPropertiesHelper.getBoolean(HOSTED_ENABLED_PROPERTY, false)
+    highAvailabilitySupportChecker.isSupported(getFormat().getValue()) &&
+        SystemPropertiesHelper.getBoolean(HOSTED_ENABLED_PROPERTY, false)
   }
 }

@@ -6,6 +6,7 @@ import org.sonatype.nexus.repository.types.HostedType;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.Request;
+import org.sonatype.nexus.repository.view.handlers.HighAvailabilitySupportChecker;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.repository.conan.internal.ConanFormat;
 import org.sonatype.repository.conan.internal.common.v1.ConanRoutes;
@@ -27,6 +28,8 @@ import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.HO
 public class ConanHostedRecipeTest
     extends TestSupport
 {
+  private static final String CONAN_FORMAT = "conan";
+
   @Mock
   Request request;
 
@@ -35,6 +38,9 @@ public class ConanHostedRecipeTest
 
   @Mock
   Handler handler;
+
+  @Mock
+  HighAvailabilitySupportChecker highAvailabilitySupportChecker;
 
   AttributesMap attributesMap;
 
@@ -153,22 +159,46 @@ public class ConanHostedRecipeTest
   }
 
   @Test
-  public void hostedEnabledNexusConanHostedEnabledIsTrue() {
+  public void hostedEnabledNexusConanHostedEnabledIsTrueHaSupportIsTrue() {
     System.setProperty(HOSTED_ENABLED_PROPERTY, "true");
+    when(highAvailabilitySupportChecker.isSupported(CONAN_FORMAT)).thenReturn(true);
     ConanHostedRecipe conanHostedRecipe = new ConanHostedRecipe(new HostedType(), new ConanFormat(), null);
+    conanHostedRecipe.setHighAvailabilitySupportChecker(highAvailabilitySupportChecker);
     assertThat(conanHostedRecipe.isFeatureEnabled(), is(true));
   }
 
   @Test
-  public void hostedDisabledNexusConanHostedEnabledIsFalse() {
+  public void hostedDisabledNexusConanHostedEnabledIsFalseHaSupportIsFalse() {
     System.setProperty(HOSTED_ENABLED_PROPERTY, "false");
+    when(highAvailabilitySupportChecker.isSupported(CONAN_FORMAT)).thenReturn(false);
     ConanHostedRecipe conanHostedRecipe = new ConanHostedRecipe(new HostedType(), new ConanFormat(), null);
+    conanHostedRecipe.setHighAvailabilitySupportChecker(highAvailabilitySupportChecker);
+    assertThat(conanHostedRecipe.isFeatureEnabled(), is(false));
+  }
+
+  @Test
+  public void hostedDisabledNexusConanHostedEnabledIsTrueHaSupportIsFalse() {
+    System.setProperty(HOSTED_ENABLED_PROPERTY, "true");
+    when(highAvailabilitySupportChecker.isSupported(CONAN_FORMAT)).thenReturn(false);
+    ConanHostedRecipe conanHostedRecipe = new ConanHostedRecipe(new HostedType(), new ConanFormat(), null);
+    conanHostedRecipe.setHighAvailabilitySupportChecker(highAvailabilitySupportChecker);
+    assertThat(conanHostedRecipe.isFeatureEnabled(), is(false));
+  }
+
+  @Test
+  public void hostedDisabledNexusConanHostedEnabledIsFalseHaSupportIsTrue() {
+    System.setProperty(HOSTED_ENABLED_PROPERTY, "false");
+    when(highAvailabilitySupportChecker.isSupported(CONAN_FORMAT)).thenReturn(true);
+    ConanHostedRecipe conanHostedRecipe = new ConanHostedRecipe(new HostedType(), new ConanFormat(), null);
+    conanHostedRecipe.setHighAvailabilitySupportChecker(highAvailabilitySupportChecker);
     assertThat(conanHostedRecipe.isFeatureEnabled(), is(false));
   }
 
   @Test
   public void hostedDisabledNexusConanHostedEnabledIsNotSet() {
+    when(highAvailabilitySupportChecker.isSupported(CONAN_FORMAT)).thenReturn(false);
     ConanHostedRecipe conanHostedRecipe = new ConanHostedRecipe(new HostedType(), new ConanFormat(), null);
+    conanHostedRecipe.setHighAvailabilitySupportChecker(highAvailabilitySupportChecker);
     assertThat(conanHostedRecipe.isFeatureEnabled(), is(false));
   }
 }

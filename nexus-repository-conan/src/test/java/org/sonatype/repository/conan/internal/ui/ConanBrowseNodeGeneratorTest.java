@@ -1,3 +1,15 @@
+/*
+ * Sonatype Nexus (TM) Open Source Version
+ * Copyright (c) 2017-present Sonatype, Inc.
+ * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
+ *
+ * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
+ * which accompanies this distribution and is available at http://www.eclipse.org/legal/epl-v10.html.
+ *
+ * Sonatype Nexus (TM) Professional Version is available from Sonatype, Inc. "Sonatype" and "Sonatype Nexus" are trademarks
+ * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
+ * Eclipse Foundation. All other trademarks are the property of their respective owners.
+ */
 package org.sonatype.repository.conan.internal.ui;
 
 import java.util.List;
@@ -38,15 +50,31 @@ public class ConanBrowseNodeGeneratorTest
 
     List<BrowsePaths> assetPath = underTest.computeAssetPaths(asset, component);
 
+    assertThat(assetPath.size(), is(7));
+    assertThat(assetPath.get(0).getBrowsePath(), is("vthiery"));
+    assertThat(assetPath.get(1).getBrowsePath(), is("jsonformoderncpp"));
+    assertThat(assetPath.get(2).getBrowsePath(), is("2.1.1"));
+    assertThat(assetPath.get(3).getBrowsePath(), is("stable"));
+    assertThat(assetPath.get(4).getBrowsePath(), is("packages"));
+    assertThat(assetPath.get(5).getBrowsePath(), is("5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9"));
+    assertThat(assetPath.get(6).getBrowsePath(), is("download_urls"));
+  }
+
+  @Test
+  public void canComputePackageName() {
+    Asset asset = createAsset(
+        "v1/conans/jsonformoderncpp/2.1.1/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9");
+
+    List<BrowsePaths> assetPath = underTest.computeAssetPaths(asset, component);
+
     assertThat(assetPath.size(), is(6));
     assertThat(assetPath.get(0).getBrowsePath(), is("vthiery"));
     assertThat(assetPath.get(1).getBrowsePath(), is("jsonformoderncpp"));
     assertThat(assetPath.get(2).getBrowsePath(), is("2.1.1"));
     assertThat(assetPath.get(3).getBrowsePath(), is("stable"));
-    assertThat(assetPath.get(4).getBrowsePath(), is("5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9"));
-    assertThat(assetPath.get(5).getBrowsePath(), is("download_urls"));
+    assertThat(assetPath.get(4).getBrowsePath(), is("packages"));
+    assertThat(assetPath.get(5).getBrowsePath(), is("5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9"));
   }
-
 
   @Test
   public void canComputeNonPackagePath() {

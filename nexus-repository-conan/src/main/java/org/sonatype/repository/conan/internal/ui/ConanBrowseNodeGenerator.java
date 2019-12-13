@@ -53,14 +53,14 @@ public class ConanBrowseNodeGenerator
   private List<BrowsePaths> assetSegment(final String path) {
     String[] split = path.split("/");
     if(path.contains("packages")) {
-      if (split.length == 6) {
+      if (split.length == 8) {
         return BrowsePaths
-            .fromPaths(ImmutableList.of(split[split.length - 2], split[split.length - 1]),
+            .fromPaths(ImmutableList.of(split[split.length - 3], split[split.length - 2], split[split.length - 1]),
                 false);
       }
       else {
         return BrowsePaths
-            .fromPaths(ImmutableList.of(split[split.length - 4], split[split.length - 2], split[split.length - 1]),
+            .fromPaths(ImmutableList.of(split[split.length - 4], split[split.length - 3], split[split.length - 2], split[split.length - 1]),
                 false);
       }
     }

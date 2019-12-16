@@ -25,3 +25,4 @@ hs_err_pid*
 .DS_store
 *.iml
 target
+local-config.yml

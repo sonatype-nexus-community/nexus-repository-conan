@@ -46,7 +46,7 @@ class ConanProxyHelper
   }
 
   static String buildAssetPathFromCoords(ConanCoords conanCoords, AssetKind assetKind) {
-    if (AssetKind.DOWNLOAD_URL.equals(assetKind) || AssetKind.CONAN_PACKAGE_SNAPSHOT.equals(assetKind)) {
+    if (AssetKind.DOWNLOAD_URL == assetKind || AssetKind.CONAN_PACKAGE_SNAPSHOT == assetKind) {
       return ConanCoords.getRecipePathWithPackages(conanCoords, assetKind.getFilename())
     }
     return ConanCoords.getPath(conanCoords) + "/" + assetKind.getFilename()

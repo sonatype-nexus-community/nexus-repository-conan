@@ -12,6 +12,7 @@
  */
 package org.sonatype.repository.conan.internal.ui;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,13 +63,11 @@ public class ConanBrowseNodeGenerator
       strings.addAll(assetSegment(asset.name()));
       return strings;
     }
-    else {
-      return super.computeAssetPaths(asset, component);
-    }
+    return super.computeAssetPaths(asset, null);
   }
 
   private List<BrowsePaths> assetSegment(final String path) {
-    String[] split = path.split("/");
+    String[] split = path.split(File.separator);
     int fileNameIndex = split.length - 1;
     int channelIndex = split.length - 2;
     int packageNameIndex;

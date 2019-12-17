@@ -69,14 +69,15 @@ public class ConanBrowseNodeGenerator
 
   private List<BrowsePaths> assetSegment(final String path) {
     String[] split = path.split("/");
-
     int fileNameIndex = split.length - 1;
     int channelIndex = split.length - 2;
-    int packageNameIndex = split.length - 1;
-    int packagesSegmentIndex = split.length - 2;
+    int packageNameIndex;
+    int packagesSegmentIndex;
 
     if (path.contains(PACKAGES_SEGMENT)) {
       if (split.length == PACKAGE_SNAPSHOT_PATH_LENGTH) {
+        packageNameIndex = split.length - 1;
+        packagesSegmentIndex = split.length - 2;
         channelIndex = split.length - 3;
         return BrowsePaths
             .fromPaths(ImmutableList.of(split[channelIndex], split[packagesSegmentIndex], split[packageNameIndex]),

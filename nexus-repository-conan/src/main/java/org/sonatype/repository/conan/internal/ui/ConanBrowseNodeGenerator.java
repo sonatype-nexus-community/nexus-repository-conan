@@ -1,3 +1,15 @@
+/*
+ * Sonatype Nexus (TM) Open Source Version
+ * Copyright (c) 2017-present Sonatype, Inc.
+ * All rights reserved. Includes the third-party code listed at http://links.sonatype.com/products/nexus/oss/attributions.
+ *
+ * This program and the accompanying materials are made available under the terms of the Eclipse Public License Version 1.0,
+ * which accompanies this distribution and is available at http://www.eclipse.org/legal/epl-v10.html.
+ *
+ * Sonatype Nexus (TM) Professional Version is available from Sonatype, Inc. "Sonatype" and "Sonatype Nexus" are trademarks
+ * of Sonatype, Inc. Apache Maven is a trademark of the Apache Software Foundation. M2eclipse is a trademark of the
+ * Eclipse Foundation. All other trademarks are the property of their respective owners.
+ */
 package org.sonatype.repository.conan.internal.ui;
 
 import java.util.ArrayList;
@@ -24,6 +36,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ConanBrowseNodeGenerator
     extends ComponentPathBrowseNodeGenerator
 {
+  private static final int PACKAGE_SNAPSHOT_PATH_LENGTH = 8;
+
+  private static final String PACKAGES_SEGMENT = "packages";
+
   public ConanBrowseNodeGenerator() {
     super();
   }
@@ -41,29 +57,41 @@ public class ConanBrowseNodeGenerator
   public List<BrowsePaths> computeAssetPaths(final Asset asset, final Component component) {
     checkNotNull(asset);
 
-    if(component != null) {
+    if (component != null) {
       List<BrowsePaths> strings = computeComponentPaths(asset, component);
       strings.addAll(assetSegment(asset.name()));
       return strings;
-    } else {
+    }
+    else {
       return super.computeAssetPaths(asset, component);
     }
   }
 
   private List<BrowsePaths> assetSegment(final String path) {
     String[] split = path.split("/");
-    if(path.contains("packages")) {
-      if (split.length == 8) {
+
+    int fileNameIndex = split.length - 1;
+    int channelIndex = split.length - 2;
+    int packageNameIndex = split.length - 1;
+    int packagesSegmentIndex = split.length - 2;
+
+    if (path.contains(PACKAGES_SEGMENT)) {
+      if (split.length == PACKAGE_SNAPSHOT_PATH_LENGTH) {
+        channelIndex = split.length - 3;
         return BrowsePaths
-            .fromPaths(ImmutableList.of(split[split.length - 3], split[split.length - 2], split[split.length - 1]),
+            .fromPaths(ImmutableList.of(split[channelIndex], split[packagesSegmentIndex], split[packageNameIndex]),
                 false);
       }
       else {
+        packageNameIndex = split.length - 2;
+        packagesSegmentIndex = split.length - 3;
+        channelIndex = split.length - 4;
         return BrowsePaths
-            .fromPaths(ImmutableList.of(split[split.length - 4], split[split.length - 3], split[split.length - 2], split[split.length - 1]),
+            .fromPaths(ImmutableList
+                    .of(split[channelIndex], split[packagesSegmentIndex], split[packageNameIndex], split[fileNameIndex]),
                 false);
       }
     }
-    return BrowsePaths.fromPaths(ImmutableList.of(split[split.length-2], split[split.length-1]), false);
+    return BrowsePaths.fromPaths(ImmutableList.of(split[channelIndex], split[fileNameIndex]), false);
   }
 }

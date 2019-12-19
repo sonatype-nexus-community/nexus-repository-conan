@@ -69,17 +69,6 @@ public class ConanRoutingRuleIT
   @Rule
   public RoutingRuleRule routingRules = new RoutingRuleRule(() -> ruleStore);
 
-  private EntityId createBlockedRoutingRule(final String name, final String matcher) {
-    RoutingRule rule = routingRules.create(name, matcher);
-    return rule.id();
-  }
-
-  private void attachRuleToRepository(final Repository repository, final EntityId routingRuleId) throws Exception {
-    org.sonatype.nexus.repository.config.Configuration configuration = repository.getConfiguration();
-    configuration.setRoutingRuleId(routingRuleId);
-    repositoryManager.update(configuration);
-  }
-
   @Configuration
   public static Option[] configureNexus() {
     return NexusPaxExamSupport.options(
@@ -105,6 +94,17 @@ public class ConanRoutingRuleIT
   @After
   public void tearDown() throws Exception {
     server.stop();
+  }
+
+  private EntityId createBlockedRoutingRule(final String name, final String matcher) {
+    RoutingRule rule = routingRules.create(name, matcher);
+    return rule.id();
+  }
+
+  private void attachRuleToRepository(final Repository repository, final EntityId routingRuleId) throws Exception {
+    org.sonatype.nexus.repository.config.Configuration configuration = repository.getConfiguration();
+    configuration.setRoutingRuleId(routingRuleId);
+    repositoryManager.update(configuration);
   }
 
   private void assertGetResponseStatus(

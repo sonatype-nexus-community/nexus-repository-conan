@@ -50,6 +50,7 @@ public class ConanProxyApiV1
 
   public void create(final Router.Builder builder) {
     pingController.attach(builder, version);
+    userController.attach(builder, version);
     conanProxyControllerV1.attach(builder);
   }
 }

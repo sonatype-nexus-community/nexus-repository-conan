@@ -30,6 +30,7 @@ import org.sonatype.nexus.repository.view.handlers.BrowseUnsupportedHandler
 import org.sonatype.nexus.repository.view.handlers.HighAvailabilitySupportChecker
 import org.sonatype.repository.conan.internal.ConanFormat
 import org.sonatype.repository.conan.internal.ConanRecipeSupport
+import org.sonatype.repository.conan.internal.security.token.ConanTokenFacet
 
 import com.google.inject.Provider
 
@@ -54,6 +55,9 @@ class ConanProxyRecipe
   @Inject
   ProxyHandler proxyHandler
 
+  @Inject
+  Provider<ConanTokenFacet> tokenFacet
+
   private ConanProxyApiV1 conanApiV1
 
   @Inject
@@ -74,6 +78,7 @@ class ConanProxyRecipe
     repository.attach(securityFacet.get())
     repository.attach(configure(viewFacet.get()))
     repository.attach(httpClientFacet.get())
+    repository.attach(tokenFacet.get())
     repository.attach(negativeCacheFacet.get())
     repository.attach(componentMaintenanceFacet.get())
     repository.attach(proxyFacet.get())

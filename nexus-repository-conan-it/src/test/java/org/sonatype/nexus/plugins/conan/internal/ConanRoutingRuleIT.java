@@ -38,6 +38,8 @@ import org.ops4j.pax.exam.Option;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.sonatype.nexus.repository.http.HttpStatus.OK;
+import static org.sonatype.nexus.repository.http.HttpStatus.FORBIDDEN;
 
 public class ConanRoutingRuleIT
     extends ConanITSupport
@@ -121,11 +123,11 @@ public class ConanRoutingRuleIT
 
   @Test
   public void testRoutingRule() throws Exception {
-    assertGetResponseStatus(proxyClient, proxyRepo, JSON_FOR_MODERN_CPP_URL, 200);
+    assertGetResponseStatus(proxyClient, proxyRepo, JSON_FOR_MODERN_CPP_URL, OK);
   }
 
   @Test
   public void testBlockRoute() throws Exception {
-    assertGetResponseStatus(proxyClient, proxyRepo, JSON_FOR_MODERN_CPP_BLOCKED_URL, 403);
+    assertGetResponseStatus(proxyClient, proxyRepo, JSON_FOR_MODERN_CPP_BLOCKED_URL, FORBIDDEN);
   }
 }

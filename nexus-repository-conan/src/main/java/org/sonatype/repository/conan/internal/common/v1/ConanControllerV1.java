@@ -19,6 +19,7 @@ import javax.inject.Singleton;
 
 import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.repository.http.PartialFetchHandler;
+import org.sonatype.nexus.repository.routing.RoutingRuleHandler;
 import org.sonatype.nexus.repository.security.SecurityHandler;
 import org.sonatype.nexus.repository.storage.UnitOfWorkHandler;
 import org.sonatype.nexus.repository.view.Context;
@@ -73,6 +74,9 @@ public class ConanControllerV1
   protected ContentHeadersHandler contentHeadersHandler;
 
   @Inject
+  RoutingRuleHandler routingRuleHandler;
+
+  @Inject
   protected UnitOfWorkHandler unitOfWorkHandler;
 
   private Handler assetKindHandler(final AssetKind assetKind) {
@@ -97,6 +101,7 @@ public class ConanControllerV1
         .handler(assetKindHandler(assetKind))
         .handler(securityHandler)
         .handler(highAvailabilitySupportHandler)
+        .handler(routingRuleHandler)
         .handler(exceptionHandler)
         .handler(handlerContributor)
         .handler(conditionalRequestHandler)

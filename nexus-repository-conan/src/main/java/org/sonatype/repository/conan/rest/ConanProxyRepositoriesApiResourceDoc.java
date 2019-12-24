@@ -39,7 +39,7 @@ public interface ConanProxyRepositoriesApiResourceDoc
       @ApiResponse(code = 401, message = AUTHENTICATION_REQUIRED),
       @ApiResponse(code = 403, message = INSUFFICIENT_PERMISSIONS)
   })
-  Response createRepository(@Valid @NotNull final ConanProxyRepositoryApiRequest request);
+  Response createRepository(final ConanProxyRepositoryApiRequest request);
 
   @ApiOperation("Update Conan proxy repository")
   @ApiResponses(value = {
@@ -48,6 +48,6 @@ public interface ConanProxyRepositoriesApiResourceDoc
       @ApiResponse(code = 403, message = INSUFFICIENT_PERMISSIONS)
   })
   Response updateRepository(
-      @Valid @NotNull final ConanProxyRepositoryApiRequest request,
+      final ConanProxyRepositoryApiRequest request,
       @ApiParam(value = "Name of the repository to update") final String repositoryName);
 }

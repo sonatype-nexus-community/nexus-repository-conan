@@ -199,10 +199,9 @@ class ConanHostedRecipe
             .handler(hostedHandler.packageSnapshot)
             .create())
 
-    builder.route(searchPackages()
-        .handler(hostedHandler.searchPackages)
-        .create()
-    )
+    // This way of building route, by including AssetKind.CONAN_INFO, ensures that the
+    // unit of work is set, which allows us to access ConanHostedFacet.doGet(...) method
+    createRoute(builder, searchPackages(), AssetKind.CONAN_INFO, hostedHandler.searchPackages)
 
     builder.route(searchRecipes()
         .handler(hostedHandler.searchRecipes)

@@ -1,0 +1,10 @@
+[33mda474e3[m[33m ([m[1;36mHEAD -> [m[1;32mhosted-search[m[33m, [m[1;31morigin/hosted-package-search[m[33m, [m[1;32mhosted-package-search[m[33m)[m HEAD@{0}: merge hosted-package-search: Fast-forward
+[33m850839a[m[33m ([m[1;31morigin/hosted-search[m[33m)[m HEAD@{1}: checkout: moving from hosted-package-search to hosted-search
+[33mda474e3[m[33m ([m[1;36mHEAD -> [m[1;32mhosted-search[m[33m, [m[1;31morigin/hosted-package-search[m[33m, [m[1;32mhosted-package-search[m[33m)[m HEAD@{2}: checkout: moving from hosted-package-search to hosted-package-search
+[33mda474e3[m[33m ([m[1;36mHEAD -> [m[1;32mhosted-search[m[33m, [m[1;31morigin/hosted-package-search[m[33m, [m[1;32mhosted-package-search[m[33m)[m HEAD@{3}: commit: First draft for package search based on complete search string
+[33m850839a[m[33m ([m[1;31morigin/hosted-search[m[33m)[m HEAD@{4}: checkout: moving from hosted-search to hosted-package-search
+[33m850839a[m[33m ([m[1;31morigin/hosted-search[m[33m)[m HEAD@{5}: checkout: moving from hosted-package-search to hosted-search
+[33m850839a[m[33m ([m[1;31morigin/hosted-search[m[33m)[m HEAD@{6}: checkout: moving from hosted-search to hosted-package-search
+[33m850839a[m[33m ([m[1;31morigin/hosted-search[m[33m)[m HEAD@{7}: commit: Partial Search without sorted order
+[33mb9d72ea[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{8}: checkout: moving from master to hosted-search
+[33mb9d72ea[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{9}: clone: from https://github.com/1BE6-ankit/nexus-repository-conan.git

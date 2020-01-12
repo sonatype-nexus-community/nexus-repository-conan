@@ -293,6 +293,12 @@ public class ConanHostedFacet
 
   @Nullable
   @TransactionalStoreBlob
+  public Content doGetPublic(final String path) {
+    return doGet(path);
+  }
+
+  @Nullable
+  @TransactionalStoreBlob
   protected Content doGet(final String path)
   {
     checkNotNull(path);

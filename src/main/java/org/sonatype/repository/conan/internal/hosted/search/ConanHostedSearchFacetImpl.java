@@ -7,12 +7,15 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.sonatype.nexus.repository.FacetSupport;
+import org.sonatype.nexus.repository.http.HttpResponses;
 import org.sonatype.nexus.repository.search.SearchService;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.ContentTypes;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Parameters;
 import org.sonatype.nexus.repository.view.Request;
+import org.sonatype.nexus.repository.view.Response;
+import org.sonatype.nexus.repository.view.Status;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
@@ -44,23 +47,57 @@ public class ConanHostedSearchFacetImpl
   }
 
   @Override
-  public Content searchRecipes(Context context) {
+  public Response searchRecipes(Context context) {
     Request request = context.getRequest();
     Parameters paramsObj = request.getParameters();
     String params = paramsObj.get("q"); // ?q=params..
 
     ConanCoords coords = searchUtils.coordsFromParams(params);
+    String recipesResult = getRecipeNamesFromCoords(coords);
+    Content content =
+        new Content(new StringPayload(recipesResult, ContentTypes.APPLICATION_JSON));
 
-    return searchRecipesFromCoords(coords);
+    return HttpResponses.ok(content);
   }
 
   @Override
-  public Content searchPackages(Context context) {
+  public Response searchPackages(Context context) {
     TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
-    return searchRecipesFromCoords(convertFromState(state));
+    ConanCoords coords = convertFromState(state);
+
+    SearchResponse searchResponse = getSearchResponseFromCoords(coords);
+    ArrayList<String> packageUrls = searchUtils.getConanInfoUrls(searchResponse);
+    String packageResult = searchUtils.getPackageSearchReply(context, packageUrls);
+
+    Content payload;
+
+    if(packageResult.equals("{}")) {
+      String notFound = "Recipe not found: " + searchUtils.recipeNameFromCoords(coords);
+      payload = new Content(new StringPayload(notFound, ContentTypes.TEXT_PLAIN));
+
+      // create a 404 response because HttpResponse does not have a method that provides
+      // payload for 404 requests
+      return (new Response.Builder()).status(Status.success(404)).payload(payload).build();
+    }
+
+    payload =
+        new Content(new StringPayload(packageResult, ContentTypes.APPLICATION_JSON));
+
+    return HttpResponses.ok(payload);
   }
 
-  private Content searchRecipesFromCoords(ConanCoords coords) {
+  private String getRecipeNamesFromCoords(ConanCoords coords) {
+    SearchResponse searchResponse = getSearchResponseFromCoords(coords);
+
+    JsonArray allRecipes = searchUtils.getRecipesJSON(searchResponse);
+    allRecipes = searchUtils.filterByChannel(allRecipes, coords.getChannel());
+
+    String recipesResult = searchUtils.getRecipesResult(allRecipes);
+
+    return recipesResult;
+  }
+
+  private SearchResponse getSearchResponseFromCoords(ConanCoords coords) {
     QueryBuilder query = searchUtils.getQueryBuilder(
         coords,
         getRepository().getName());
@@ -77,11 +114,6 @@ public class ConanHostedSearchFacetImpl
         10,
         SearchUtils.DEFAULT_TIMEOUT);
 
-    JsonArray allRecipes = searchUtils.getRecipesJSON(searchResponse);
-    allRecipes = searchUtils.filterByChannel(allRecipes, coords.getChannel());
-
-    String recipesResult = searchUtils.getRecipesResult(allRecipes);
-
-    return new Content(new StringPayload(recipesResult, ContentTypes.APPLICATION_JSON));
+    return searchResponse;
   }
 }

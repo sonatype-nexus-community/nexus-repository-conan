@@ -20,7 +20,6 @@ import javax.inject.Singleton;
 import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpResponses;
-import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.Headers;
@@ -126,24 +125,20 @@ public class HostedHandlers
   };
 
   /**
-   * Search matching recipes based on partial or empty search
+   * Return matching recipe names based on partial or empty search
    */
-  final Handler searchRecipes = context -> {
-    Content searchResult = context.getRepository()
+  final Handler searchRecipes = context ->
+      context.getRepository()
         .facet(ConanHostedSearchFacet.class)
         .searchRecipes(context);
-    return HttpResponses.ok(searchResult);
-  };
 
   /**
-   * Search full package
+   * Search by full package name and return full recipes info
    */
-  final Handler searchPackages = context -> {
-    Content searchResult = context.getRepository()
+  final Handler searchPackages = context ->
+    context.getRepository()
         .facet(ConanHostedSearchFacet.class)
         .searchPackages(context);
-    return HttpResponses.ok(searchResult);
-  };
 
   final Handler packageSnapshot = context -> {
     State state = context.getAttributes().require(State.class);

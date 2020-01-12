@@ -1,11 +1,9 @@
 package org.sonatype.repository.conan.internal.hosted.search;
 
-import java.io.IOException;
-
 import org.sonatype.nexus.repository.Facet;
 import org.sonatype.nexus.repository.Facet.Exposed;
-import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
+import org.sonatype.nexus.repository.view.Response;
 
 @Exposed
 public interface ConanHostedSearchFacet
@@ -14,11 +12,11 @@ public interface ConanHostedSearchFacet
   /**
    * Fetches recipe based on rest queries ?q=
    */
-  Content searchRecipes(final Context context);
+  Response searchRecipes(final Context context);
 
   /**
    * Returs package info for a fully matching search qualifier:
    * eg: Poco/1.7.8p3@pocoproject/stable
    */
-  Content searchPackages(final Context context);
+  Response searchPackages(final Context context);
 }

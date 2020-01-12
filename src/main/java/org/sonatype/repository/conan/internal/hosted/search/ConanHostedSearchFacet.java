@@ -10,13 +10,13 @@ public interface ConanHostedSearchFacet
     extends Facet
 {
   /**
-   * Fetches recipe based on rest queries ?q=
+   * Returns result for matching recipe names based on rest queries ?q=
    */
   Response searchRecipes(final Context context);
 
   /**
-   * Returs package info for a fully matching search qualifier:
-   * eg: Poco/1.7.8p3@pocoproject/stable
+   * Returns all binaries(info) info for a 'full package recipe reference query':
+   * example of a client query: Poco/1.7.8p3@pocoproject/stable
    */
   Response searchPackages(final Context context);
 }

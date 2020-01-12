@@ -26,8 +26,6 @@ import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
-import com.google.gson.JsonArray;
-
 import static org.sonatype.repository.conan.internal.metadata.ConanCoords.convertFromState;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -53,7 +51,9 @@ public class ConanHostedSearchFacetImpl
     String params = paramsObj.get("q"); // ?q=params..
 
     ConanCoords coords = searchUtils.coordsFromParams(params);
-    String recipesResult = getRecipeNamesFromCoords(coords);
+    SearchResponse searchResponse = getSearchResponseFromCoords(coords);
+    String recipesResult = searchUtils.getRecipesJSON(searchResponse, coords);
+
     Content content =
         new Content(new StringPayload(recipesResult, ContentTypes.APPLICATION_JSON));
 
@@ -62,15 +62,15 @@ public class ConanHostedSearchFacetImpl
 
   @Override
   public Response searchPackages(Context context) {
-    TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
+    TokenMatcher.State state =
+        context.getAttributes().require(TokenMatcher.State.class);
     ConanCoords coords = convertFromState(state);
 
     SearchResponse searchResponse = getSearchResponseFromCoords(coords);
     ArrayList<String> packageUrls = searchUtils.getConanInfoUrls(searchResponse);
-    String packageResult = searchUtils.getPackageSearchReply(context, packageUrls);
+    String packageResult = searchUtils.getBinariesInfo(context, packageUrls);
 
     Content payload;
-
     if(packageResult.equals("{}")) {
       String notFound = "Recipe not found: " + searchUtils.recipeNameFromCoords(coords);
       payload = new Content(new StringPayload(notFound, ContentTypes.TEXT_PLAIN));
@@ -86,17 +86,13 @@ public class ConanHostedSearchFacetImpl
     return HttpResponses.ok(payload);
   }
 
-  private String getRecipeNamesFromCoords(ConanCoords coords) {
-    SearchResponse searchResponse = getSearchResponseFromCoords(coords);
-
-    JsonArray allRecipes = searchUtils.getRecipesJSON(searchResponse);
-    allRecipes = searchUtils.filterByChannel(allRecipes, coords.getChannel());
-
-    String recipesResult = searchUtils.getRecipesResult(allRecipes);
-
-    return recipesResult;
-  }
-
+  /**
+   * Make request to Elastic search based on the client input, which is represented
+   * by ConanCoords and return the raw result.
+   *
+   * @param coords Represents the request that the client made.
+   * @return An Elastic Search SearchResponse
+   */
   private SearchResponse getSearchResponseFromCoords(ConanCoords coords) {
     QueryBuilder query = searchUtils.getQueryBuilder(
         coords,
@@ -104,7 +100,7 @@ public class ConanHostedSearchFacetImpl
 
     // SortBuilder to get recipes in ascending order
     List<SortBuilder> sortRecipes = new ArrayList<>();
-    sortRecipes.add(SortBuilders.fieldSort("name.raw").order(SortOrder.ASC));
+    sortRecipes.add(SortBuilders.fieldSort("name").order(SortOrder.ASC));
 
     // TODO add sort based on version number because it is treated as string
 

@@ -13,6 +13,7 @@ import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.repository.conan.internal.hosted.ConanHostedFacet;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -35,8 +36,10 @@ public class SearchUtils
    * Returns a ConanCoords object that represents the recipe info
    * required for a search.
    *
-   * @param paramQ This string is equal to the search string from conan:
+   * @param paramQ This string is of the following format
    *               name/version@group/channel
+   *
+   * @return Extract the parts of paramQ and return a ConanCoords object
    */
   public ConanCoords coordsFromParams(String paramQ) {
     String packageName = "*";
@@ -63,18 +66,19 @@ public class SearchUtils
   }
 
   /**
-   * Receives parameters for package path: package/version@user/channel
-   * as ConanCoords object
+   * Uses the package path: package/version@user/channel represented
+   * as a ConanCoords object to create a QueryBuilder to make search requests
+   * to Elastic Search.
    *
-   * @param coords Conancoords built from search string passed by user.
+   * @param coords Conancoords based on the input provided by the client
    *
-   * @return QueryBuilder for ElasticSearch based on parameters
+   * @return QueryBuilder for ElasticSearch.
    */
   QueryBuilder getQueryBuilder(ConanCoords coords, String repoName) {
     // TODO Implement channel QueryBuilder
 
     QueryStringQueryBuilder nameQuery = QueryBuilders.queryStringQuery(coords.getProject())
-        .field("name.raw");
+        .field("name");
 
     // This search by version name will not be fully correct as it is treated as string
     // This unintended behaviour may occur when searching something like: [<1.1.1]
@@ -83,7 +87,7 @@ public class SearchUtils
 
     // for nexus elastic search user is group
     QueryStringQueryBuilder groupQuery = QueryBuilders.queryStringQuery(coords.getGroup())
-        .field("group.raw");
+        .field("group");
 
     QueryStringQueryBuilder repoQuery = QueryBuilders.queryStringQuery(repoName)
         .field("repository_name");
@@ -100,7 +104,6 @@ public class SearchUtils
   /**
    * This method receives a SearchResponse, which contains json
    * of the form:
-   * $$$$$$$$$$$$$$$$$$
    * { ..."hits":{...."hits":[{..."_source":{...,
    *    "assets":[{"content_type":"application/gzip",
    *    name":"/v1/conans/conan/zlib/1.2.11/stable/conan_export.tgz",
@@ -109,11 +112,11 @@ public class SearchUtils
    *
    * @param searchResponse The complete json result of search from ElasticSearch.
    *                       This was probably obtained after making a search request
-   *                       based on ConanCoords.
+   *                       to ElasticSearch using ConanCoords.
    * @return A json(String) of all the recipe info that conan client can recognize
    * Conan wants recipe info in form: {results: ["recipe1", "recipe2"....]}
    */
-  public JsonArray  getRecipesJSON(SearchResponse searchResponse) {
+  public String  getRecipesJSON(SearchResponse searchResponse, ConanCoords coords) {
     // TODO Get only the recipe info from Elastic Search, not the whole array of package file lists
 
     JsonArray allHits = this.getAllHits(searchResponse);
@@ -131,10 +134,17 @@ public class SearchUtils
           .get("name");
 
       recipe = this.nexusAssetToRecipe(temp.toString());
-      results.add(new JsonPrimitive(recipe));
+
+      // filter by channel
+      if(this.filterByChannel(recipe, coords.getChannel()))
+        results.add(new JsonPrimitive(recipe));
     }
 
-    return results;
+    // group the parsed binaries info as: {results: ["binary-recipe1", "binary-recipe2", ...]}
+    JsonObject finalResult = new JsonObject();
+    finalResult.add("results", results);
+
+    return finalResult.toString();
   }
 
   /**
@@ -175,10 +185,10 @@ public class SearchUtils
    *
    * @param context This Context object is used for accessing the storage
    * @param conanInfoUrls All "ConanInfo Urls" for the recipes of a package.
-   * @return The final result of the search that the user expects for a fully qualifiying
-   * package search.
+   * @return The final result of the search that the user expects for a
+   * 'full package recipe reference query'
    */
-  public String getPackageSearchReply(Context context, ArrayList<String> conanInfoUrls) {
+  public String getBinariesInfo(Context context, ArrayList<String> conanInfoUrls) {
     String line;
     InputStream in;
     InputStreamReader inReader;
@@ -187,54 +197,65 @@ public class SearchUtils
 
     JsonObject parsedIni = new JsonObject(); // main Json result
     JsonObject singlePackage; // temporary ini result for a single package recipe
-    JsonObject section;
-    JsonArray arrayElement = new JsonArray();
+
+    // temporary object for forming a section of an ini file that contains data in key:value form.
+    // for example with [options]
+    JsonObject sectionObject;
+
+    // temporary storage while parsing a content of section that does not have data in key:value form.
+    // So we need to represent the values present as an array
+    JsonArray sectionArray;
+
     String sectionName = "";
-    String keyValue[];
+    String packageHashValue;
+    String keyValue[]; // store key-value pair during parsing
 
     for(String conanInfoUrl : conanInfoUrls) {
-      section = new JsonObject();
+      singlePackage = new JsonObject();
+      sectionObject = new JsonObject();
+      sectionArray = new JsonArray();
 
       try {
         content = context.getRepository()
             .facet(ConanHostedFacet.class)
             .doGetPublic(conanInfoUrl);
 
+        // Try to open the conaninfo file
         in = content.openInputStream();
         inReader = new InputStreamReader(in);
         reader = new BufferedReader(inReader);
 
-        singlePackage = new JsonObject();
-
-        // TODO filter only the information that conan client wants fromo conaninfo file
-
-        while( (line = reader.readLine()) != null) {
+        while((line = reader.readLine()) != null) {
           if(line.startsWith("[") && line.endsWith("]")) {
             // start of a 'Section' of an ini file
 
             if(sectionName.equals("requires") || sectionName.equals("full_requires") || sectionName.equals("recipe_hash")) {
-              //
+              // These sections do not have key=vaue form. Their result is stored as array
 
-              singlePackage.add(sectionName, arrayElement);
-              arrayElement = new JsonArray();
+              singlePackage.add(sectionName, sectionArray);
+              sectionArray = new JsonArray();
             } else if(!sectionName.equals("")) {
-              singlePackage.add(sectionName, section);
+              // This is not the first section. So add previous section's content to the singlePackage array
+              singlePackage.add(sectionName, sectionObject);
             }
 
             sectionName = StringUtils.substringBetween(line, "[", "]");
-            section = new JsonObject();
+            sectionObject = new JsonObject();
           } else {
             if(line.indexOf('=') != -1) {
+              // section with key:value content
               keyValue = line.split("=");
-              section.addProperty(keyValue[0].trim(), keyValue[1].trim());
+              sectionObject.addProperty(keyValue[0].trim(), keyValue[1].trim());
             } else if(sectionName.equals("requires") || sectionName.equals("full_requires") || sectionName.equals("recipe_hash")){
-              arrayElement.add(new JsonPrimitive(line.trim()));
+              // section with array content
+              sectionArray.add(new JsonPrimitive(line.trim()));
             }
           }
 
         }
 
-        parsedIni.add(StringUtils.substringBetween(conanInfoUrl, "packages/","/conaninfo.txt"), singlePackage);
+        packageHashValue = StringUtils.substringBetween(conanInfoUrl, "packages/","/conaninfo.txt");
+        parsedIni.add(packageHashValue, singlePackage); // key is the package hash. The content parsed is the value;
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -243,24 +264,11 @@ public class SearchUtils
     return parsedIni.toString();
   }
 
-  public JsonArray filterByChannel(JsonArray arr, String channelStr) {
-    JsonArray filtered = new JsonArray();
-    String recipe;
-    int channelPos;
-    for(JsonElement elem : arr) {
-      recipe = elem.getAsString();
-      channelPos = recipe.lastIndexOf('/') + 1;
+  private boolean filterByChannel(String recipeName, String channelFilter) {
+    String recipeChannel;
+    recipeChannel = recipeName.substring(recipeName.lastIndexOf('/') + 1);
 
-      if(recipe.substring(channelPos).equals(channelStr) || channelStr=="*")
-        filtered.add(elem);
-    }
-    return filtered;
-  }
-
-  public String getRecipesResult(JsonArray arr) {
-    JsonObject finalResult = new JsonObject();
-    finalResult.add("results", arr);
-    return finalResult.toString();
+    return FilenameUtils.wildcardMatch(recipeChannel, channelFilter);
   }
 
   private JsonArray getAllHits(SearchResponse searchResponse) {
@@ -268,13 +276,13 @@ public class SearchUtils
     responseJson = new JsonParser().parse(searchResponse.toString()).getAsJsonObject();
     responseJson = responseJson.getAsJsonObject("hits"); // first hits object
 
-    // hits array containing all the recipes and their contents
+    // hits array containing all the recipes and their content info
     return responseJson.getAsJsonArray("hits");
   }
 
   /**
    * Converts an asset name obtained by querying to elastic search to
-   * conan equivalent recipe name:
+   * conan based recipe name:
    *
    * @param assetName String like - "/v1/conans/conan/zlib/1.2.11/stable/conan_export.tgz"
    *
@@ -288,6 +296,10 @@ public class SearchUtils
         symbols[6];
   }
 
+  /**
+   * @param coords ConanCoord object for a package recipe
+   * @return Recipe name of form: name/version@group/channel
+   */
   public String recipeNameFromCoords(ConanCoords coords) {
     return coords.getProject() + "/"+
         coords.getVersion() + "@" +

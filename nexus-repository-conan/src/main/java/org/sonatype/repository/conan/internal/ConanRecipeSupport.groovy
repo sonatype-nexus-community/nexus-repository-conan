@@ -89,7 +89,7 @@ abstract class ConanRecipeSupport
   HandlerContributor handlerContributor
 
   @Inject
-  Provider<DefaultComponentMaintenanceImpl> componentMaintenanceFacet
+  Provider<ConanComponentMaintenanceImpl> componentMaintenanceFacet
 
   @Inject
   Provider<HttpClientFacet> httpClientFacet

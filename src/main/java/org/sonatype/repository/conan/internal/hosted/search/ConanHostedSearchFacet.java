@@ -11,12 +11,19 @@ public interface ConanHostedSearchFacet
 {
   /**
    * Returns result for matching recipe names based on rest queries ?q=
+   *
+   *
+   * An example of a client query that results in this response is:
+   * "conan search OpenSSL/1.1.1@*"
    */
   Response searchRecipes(final Context context);
 
   /**
-   * Returns all binaries(info) info for a 'full package recipe reference query':
-   * example of a client query: Poco/1.7.8p3@pocoproject/stable
+   * Returns the matching binaries' details(based on conaninfo file of a binary)
+   * for a 'full package recipe reference query'.
+   *
+   * An example of a client query that results in this response is:
+   * "conan search Poco/1.7.8p3@pocoproject/stable"
    */
   Response searchPackages(final Context context);
 }

@@ -30,7 +30,9 @@ import com.google.gson.JsonPrimitive;
 @Singleton
 public class SearchUtils
 {
-  public static final Integer DEFAULT_TIMEOUT = 5;
+  public static final Integer DEFAULT_TIMEOUT = 20; // TODO: Verify the time unit
+  public static final Integer ELASTIC_SEARCH_FROM = 0;
+  public static final Integer ELASTIC_SEARCH_SIZE = 100;
 
   /**
    * Returns a ConanCoords object that represents the recipe info
@@ -61,7 +63,6 @@ public class SearchUtils
       if(beforeAt.length!=0) packageName = beforeAt[0];
     }
 
-
     return new ConanCoords(group, packageName, version, channel, "*");
   }
 
@@ -70,7 +71,7 @@ public class SearchUtils
    * as a ConanCoords object to create a QueryBuilder to make search requests
    * to Elastic Search.
    *
-   * @param coords Conancoords based on the input provided by the client
+   * @param coords Conancoords based on the search query made by the client
    *
    * @return QueryBuilder for ElasticSearch.
    */
@@ -116,7 +117,7 @@ public class SearchUtils
    * @return A json(String) of all the recipe info that conan client can recognize
    * Conan wants recipe info in form: {results: ["recipe1", "recipe2"....]}
    */
-  public String  getRecipesJSON(SearchResponse searchResponse, ConanCoords coords) {
+  public String getRecipesJSON(SearchResponse searchResponse, ConanCoords coords) {
     // TODO Get only the recipe info from Elastic Search, not the whole array of package file lists
 
     JsonArray allHits = this.getAllHits(searchResponse);
@@ -150,7 +151,8 @@ public class SearchUtils
   /**
    * The "full package search" made by conan expects the server to return the content of
    * conaninfo file. This method iterates over the information of packages obtained from
-   * 'Elastic Search' searchResponse and filters the location of the conanfiles.
+   * 'Elastic Search' searchResponse and filters the location of the unique conanfiles
+   * of the binaries of the package that the user is searching.
    *
    * @return Return all unique conanfile urls based on searchResponse.
    * */
@@ -158,12 +160,22 @@ public class SearchUtils
     JsonArray allHits = this.getAllHits(searchResponse);
     ArrayList<String> conanFileUrls = new ArrayList<>();
 
-    for (JsonElement elem : allHits) {
-      JsonArray packageFiles = elem.getAsJsonObject()
+    System.out.println(allHits.toString());
+
+    for (JsonElement binaryHit : allHits) {
+      /*
+      The elements of the hits array of SearchResponse contains the info of a
+      package groupd by the name. So all file names(attributes) of a search result,
+      for example: "Poco/1.7.8p3@pocoproject/stable" are grouped in one hit.
+       */
+
+      JsonArray packageFiles = binaryHit.getAsJsonObject()
           .getAsJsonObject("_source")
           .getAsJsonArray("assets");
 
       for(JsonElement files : packageFiles) {
+        // iterate over all the result of a package, and extract Unique conaninfo files.
+
         String assetKind = files.getAsJsonObject()
             .getAsJsonObject("attributes")
             .getAsJsonObject("conan")
@@ -230,7 +242,7 @@ public class SearchUtils
             // start of a 'Section' of an ini file
 
             if(sectionName.equals("requires") || sectionName.equals("full_requires") || sectionName.equals("recipe_hash")) {
-              // These sections do not have key=vaue form. Their result is stored as array
+              // These sections do not have key=vaue form. Their result is stored as an array
 
               singlePackage.add(sectionName, sectionArray);
               sectionArray = new JsonArray();

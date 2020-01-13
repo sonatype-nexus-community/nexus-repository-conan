@@ -1,7 +1,6 @@
 package org.sonatype.repository.conan.internal.hosted.search;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -22,9 +21,6 @@ import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 
 import static org.sonatype.repository.conan.internal.metadata.ConanCoords.convertFromState;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -48,7 +44,7 @@ public class ConanHostedSearchFacetImpl
   public Response searchRecipes(Context context) {
     Request request = context.getRequest();
     Parameters paramsObj = request.getParameters();
-    String params = paramsObj.get("q"); // ?q=params..
+    String params = paramsObj.get("q"); // get ?q=params..
 
     ConanCoords coords = searchUtils.coordsFromParams(params);
     SearchResponse searchResponse = getSearchResponseFromCoords(coords);
@@ -98,16 +94,10 @@ public class ConanHostedSearchFacetImpl
         coords,
         getRepository().getName());
 
-    // SortBuilder to get recipes in ascending order
-    List<SortBuilder> sortRecipes = new ArrayList<>();
-    sortRecipes.add(SortBuilders.fieldSort("name").order(SortOrder.ASC));
-
-    // TODO add sort based on version number because it is treated as string
-
     SearchResponse searchResponse = nexusSearchService.search(query,
-        sortRecipes,
-        0,
-        10,
+        null,
+        SearchUtils.ELASTIC_SEARCH_FROM,
+        SearchUtils.ELASTIC_SEARCH_SIZE,
         SearchUtils.DEFAULT_TIMEOUT);
 
     return searchResponse;

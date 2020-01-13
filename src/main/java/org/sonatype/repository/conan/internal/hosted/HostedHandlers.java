@@ -28,9 +28,9 @@ import org.sonatype.nexus.repository.view.Status;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State;
 import org.sonatype.repository.conan.internal.AssetKind;
+import org.sonatype.repository.conan.internal.hosted.search.ConanHostedSearchFacet;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.sonatype.repository.conan.internal.security.token.ConanTokenFacet;
-import org.sonatype.repository.conan.internal.hosted.search.ConanHostedSearchFacet;
 
 import static org.sonatype.nexus.repository.http.HttpStatus.NOT_FOUND;
 import static org.sonatype.repository.conan.internal.metadata.ConanCoords.convertFromState;
@@ -66,7 +66,7 @@ public class HostedHandlers
   final Handler uploadConanInfo = context -> upload(context, "conaninfo.txt");
 
   final Handler uploadConanPackage = context -> upload(context, "conan_package.tgz");
-  
+
   final Handler uploadConanSources = context -> upload(context, "conan_sources.tgz");
 
   final Handler uploadConanExport = context -> upload(context, "conan_export.tgz");
@@ -80,8 +80,8 @@ public class HostedHandlers
      */
     Headers headers = context.getRequest().getHeaders();
     String method = context.getRequest().getAction();
-    
-    if(headers.contains(CLIENT_CHECKSUM) && method != "PUT") {
+
+    if (headers.contains(CLIENT_CHECKSUM) && method != "PUT") {
       return new Response.Builder()
           .status(Status.failure(NOT_FOUND))
           .build();
@@ -129,16 +129,16 @@ public class HostedHandlers
    */
   final Handler searchRecipes = context ->
       context.getRepository()
-        .facet(ConanHostedSearchFacet.class)
-        .searchRecipes(context);
+          .facet(ConanHostedSearchFacet.class)
+          .searchRecipes(context);
 
   /**
    * Search by full package name and return full recipes info
    */
   final Handler searchPackages = context ->
-    context.getRepository()
-        .facet(ConanHostedSearchFacet.class)
-        .searchPackages(context);
+      context.getRepository()
+          .facet(ConanHostedSearchFacet.class)
+          .searchPackages(context);
 
   final Handler packageSnapshot = context -> {
     State state = context.getAttributes().require(State.class);
@@ -146,8 +146,8 @@ public class HostedHandlers
     String path = getAssetPath(coord);
 
     return context.getRepository()
-            .facet(ConanHostedFacet.class)
-            .getPackageSnapshot(path, context);
+        .facet(ConanHostedFacet.class)
+        .getPackageSnapshot(path, context);
   };
 
   /**

@@ -22,8 +22,8 @@ import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 
-import static org.sonatype.repository.conan.internal.metadata.ConanCoords.convertFromState;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.sonatype.repository.conan.internal.metadata.ConanCoords.convertFromState;
 
 @Named
 public class ConanHostedSearchFacetImpl
@@ -31,11 +31,14 @@ public class ConanHostedSearchFacetImpl
     implements ConanHostedSearchFacet
 {
   private final SearchService nexusSearchService;
+
   private final SearchUtils searchUtils;
 
   @Inject
-  public ConanHostedSearchFacetImpl(final SearchService nexusSearchService,
-                                    final SearchUtils searchUtils) {
+  public ConanHostedSearchFacetImpl(
+      final SearchService nexusSearchService,
+      final SearchUtils searchUtils)
+  {
     this.nexusSearchService = checkNotNull(nexusSearchService);
     this.searchUtils = checkNotNull(searchUtils);
   }
@@ -67,7 +70,7 @@ public class ConanHostedSearchFacetImpl
     String packageResult = searchUtils.getBinariesInfo(context, packageUrls);
 
     Content payload;
-    if(packageResult.equals("{}")) {
+    if (packageResult.equals("{}")) {
       String notFound = "Recipe not found: " + searchUtils.recipeNameFromCoords(coords);
       payload = new Content(new StringPayload(notFound, ContentTypes.TEXT_PLAIN));
 

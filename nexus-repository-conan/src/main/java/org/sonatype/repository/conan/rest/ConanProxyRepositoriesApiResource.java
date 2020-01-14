@@ -29,12 +29,14 @@ import org.sonatype.nexus.rest.Resource;
 import org.sonatype.nexus.validation.Validate;
 import org.sonatype.repository.conan.api.ConanProxyRepositoryApiRequest;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 
+import static org.sonatype.nexus.rest.ApiDocConstants.API_REPOSITORY_MANAGEMENT;
 import static org.sonatype.nexus.rest.ApiDocConstants.AUTHENTICATION_REQUIRED;
 import static org.sonatype.nexus.rest.ApiDocConstants.INSUFFICIENT_PERMISSIONS;
 import static org.sonatype.nexus.rest.ApiDocConstants.REPOSITORY_CREATED;
@@ -42,6 +44,7 @@ import static org.sonatype.nexus.rest.ApiDocConstants.REPOSITORY_NOT_FOUND;
 import static org.sonatype.nexus.rest.ApiDocConstants.REPOSITORY_UPDATED;
 
 @Named
+@Api(value = API_REPOSITORY_MANAGEMENT)
 @Singleton
 @Path(RepositoriesApiResource.RESOURCE_URI + "/conan/proxy")
 public class ConanProxyRepositoriesApiResource

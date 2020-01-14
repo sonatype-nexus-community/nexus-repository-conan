@@ -25,7 +25,6 @@ import org.sonatype.nexus.repository.rest.api.AbstractRepositoriesApiResource;
 import org.sonatype.nexus.repository.rest.api.AbstractRepositoryApiRequestToConfigurationConverter;
 import org.sonatype.nexus.repository.rest.api.AuthorizingRepositoryManager;
 import org.sonatype.nexus.repository.rest.api.RepositoriesApiResource;
-import org.sonatype.nexus.rest.Resource;
 import org.sonatype.nexus.validation.Validate;
 import org.sonatype.repository.conan.api.ConanProxyRepositoryApiRequest;
 

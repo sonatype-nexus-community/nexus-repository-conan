@@ -12,12 +12,16 @@
  */
 package org.sonatype.nexus.plugins.conan.internal;
 
+import java.io.IOException;
+
 import org.sonatype.goodies.httpfixture.server.fluent.Behaviours;
 import org.sonatype.goodies.httpfixture.server.fluent.Server;
 import org.sonatype.nexus.pax.exam.NexusPaxExamSupport;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpStatus;
 import org.sonatype.nexus.repository.storage.Asset;
+import org.sonatype.nexus.repository.storage.Component;
+import org.sonatype.nexus.repository.storage.ComponentMaintenance;
 import org.sonatype.nexus.testsuite.testsupport.NexusITSupport;
 
 import com.google.gson.JsonObject;
@@ -32,6 +36,7 @@ import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.sonatype.nexus.testsuite.testsupport.FormatClientSupport.status;
@@ -39,11 +44,11 @@ import static org.sonatype.nexus.testsuite.testsupport.FormatClientSupport.statu
 public class ConanProxyIT
     extends ConanITSupport
 {
-  private static final String NAME_PACKAGE = "conan_package";
+  private static final String DIRECTORY_PACKAGE = "v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
 
-  private static final String NAME_INFO = "conaninfo";
+  private static final String DIRECTORY_DOWNLOAD_URLS = "v1/conans/jsonformoderncpp/3.7.0/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
 
-  private static final String NAME_MANIFEST = "conanmanifest";
+  private static final String DIRECTORY_INVALID = "this/is/a/bad/path/";
 
   private static final String EXTENSION_TGZ = ".tgz";
 
@@ -53,19 +58,29 @@ public class ConanProxyIT
 
   private static final String FILE_DOWNLOAD_URLS_NON_PACKAGE = "download_urls_non_package";
 
+  private static final String NAME_PACKAGE = "conan_package";
+
+  private static final String NAME_INFO = "conaninfo";
+
+  private static final String NAME_MANIFEST = "conanmanifest";
+
   private static final String FILE_PACKAGE = NAME_PACKAGE + EXTENSION_TGZ;
 
   private static final String FILE_INFO = NAME_INFO + EXTENSION_TXT;
 
   private static final String FILE_MANIFEST = NAME_MANIFEST + EXTENSION_TXT;
-  
-  private static final String DIRECTORY_PACKAGE = "v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
 
-  private static final String DIRECTORY_DOWNLOAD_URLS = "v1/conans/jsonformoderncpp/3.7.0/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
+  private static final String LIBRARY_NAME = "jsonformoderncpp";
+
+  private static final String LIBRARY_VENDOR = "vthiery";
+
+  private static final String LIBRARY_VERSION = "3.7.0";
+
+  private static final String MIME_GZIP = "application/gzip";
+
+  private static final String MIME_TEXT = "text/plain";
 
   private static final String PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES = "v1/conans/jsonformoderncpp/3.7.0/vthiery/stable/download_urls";
-  
-  private static final String DIRECTORY_INVALID = "this/is/a/bad/path/";
 
   private static final String PATH_TGZ_PACKAGE = DIRECTORY_PACKAGE + FILE_PACKAGE;
 
@@ -75,9 +90,6 @@ public class ConanProxyIT
 
   private static final String PATH_INVALID = DIRECTORY_INVALID + FILE_PACKAGE;
 
-  private static final String MIME_GZIP = "application/gzip";
-
-  private static final String MIME_TEXT = "text/plain";
 
   private static final String PATH_DOWNLOAD_URLS = DIRECTORY_DOWNLOAD_URLS + FILE_DOWNLOAD_URLS;
 
@@ -114,25 +126,6 @@ public class ConanProxyIT
     proxyClient = conanClient(proxyRepo);
     proxyClient.get(PATH_DOWNLOAD_URLS);
   }
-
-  //TODO: current behavior is that a downloads_url file must be present when getting from the server otherwise a 500 status will be thrown
-  //@Test
-  //public void unresponsiveRemoteProduces404() throws Exception {
-  //  Server serverUnresponsive = Server.withPort(0)
-  //      .serve("/*")
-  //      .withBehaviours(error(HttpStatus.NOT_FOUND))
-  //      .start();
-  //  try {
-  //    Repository proxyRepoUnresponsive =
-  //        repos.createConanProxy("conan-test-proxy-notfound", serverUnresponsive.getUrl().toExternalForm());
-  //    ConanClient proxyClientUnresponsive = conanClient(proxyRepoUnresponsive);
-  //    MatcherAssert.assertThat(FormatClientSupport.status(proxyClientUnresponsive.get(PATH_MANIFEST)), is(
-  //        HttpStatus.NOT_FOUND));
-  //  }
-  //  finally {
-  //    serverUnresponsive.stop();
-  //  }
-  //}
 
   @Test
   public void invalidPathsReturn404() throws Exception {
@@ -205,6 +198,25 @@ public class ConanProxyIT
     assertThat(asset.format(), is("conan"));
     assertThat(asset.name(), is(PATH_MANIFEST));
     assertThat(asset.contentType(), is(MIME_TEXT));
+  }
+
+  @Test
+  public void checkComponentRemovedWhenAssetRemoved() throws IOException {
+    assertThat(status(proxyClient.get(PATH_MANIFEST)), is(HttpStatus.OK));
+
+    Asset asset = findAsset(proxyRepo, PATH_MANIFEST);
+    Component component =  findComponent(proxyRepo,LIBRARY_NAME);
+    assertThat(component.name(), is(equalTo(LIBRARY_NAME)));
+    assertThat(component.version(), is(equalTo(LIBRARY_VERSION)));
+    assertThat(component.group(), is(equalTo(LIBRARY_VENDOR)));
+
+    ComponentMaintenance maintenanceFacet = proxyRepo.facet(ComponentMaintenance.class);
+    maintenanceFacet.deleteAsset(asset.getEntityMetadata().getId());
+
+    asset = findAsset(proxyRepo, PATH_MANIFEST);
+    assertThat(asset, is(equalTo(null)));
+    component = findComponent(proxyRepo,LIBRARY_NAME);
+    assertThat(component, is(equalTo(null)));
   }
 
   @After

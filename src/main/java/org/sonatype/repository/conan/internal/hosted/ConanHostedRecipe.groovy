@@ -201,7 +201,7 @@ class ConanHostedRecipe
 
     // This way of building route, by including AssetKind.CONAN_INFO, ensures that the
     // unit of work is set, which allows us to access ConanHostedFacet.doGet(...) method
-    createRoute(builder, searchPackages(), AssetKind.CONAN_INFO, hostedHandler.searchPackages)
+    createRoute(builder, searchBinaries(), AssetKind.CONAN_INFO, hostedHandler.searchBinaries)
 
     builder.route(searchRecipes()
         .handler(hostedHandler.searchRecipes)
@@ -270,19 +270,8 @@ class ConanHostedRecipe
   }
 
   /**
-   * Matches on full search package urls
-   */
-  static Builder searchPackages() {
-    new Builder().matcher(
-        and(
-            new ActionMatcher(GET),
-            new TokenMatcher(FULL_SEARCH_URL)
-        )
-    )
-  }
-
-  /**
-   * Matches on Empty and Partial Search urls
+   * Matches on Empty and Partial Search urls:
+   * For queries of type: "conan search OpenSSL/1.1.1@*"
    */
   static Builder searchRecipes() {
     new Builder().matcher(
@@ -292,6 +281,19 @@ class ConanHostedRecipe
                 new TokenMatcher(EMPTY_SEARCH_URL),
                 new TokenMatcher(PARTIAL_SEARCH_URL)
             )
+        )
+    )
+  }
+
+  /**
+   * Matches on full search package urls
+   * For queries of type: "conan search Poco/1.7.8p3@pocoproject/stable"
+   */
+  static Builder searchBinaries() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET),
+            new TokenMatcher(FULL_SEARCH_URL)
         )
     )
   }

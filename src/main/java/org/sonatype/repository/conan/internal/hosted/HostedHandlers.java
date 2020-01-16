@@ -135,10 +135,10 @@ public class HostedHandlers
   /**
    * Search by full package name and return full recipes info
    */
-  final Handler searchPackages = context ->
+  final Handler searchBinaries = context ->
       context.getRepository()
           .facet(ConanHostedSearchFacet.class)
-          .searchPackages(context);
+          .searchBinaries(context);
 
   final Handler packageSnapshot = context -> {
     State state = context.getAttributes().require(State.class);

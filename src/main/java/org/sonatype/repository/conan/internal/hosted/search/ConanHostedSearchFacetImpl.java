@@ -60,7 +60,7 @@ public class ConanHostedSearchFacetImpl
   }
 
   @Override
-  public Response searchPackages(Context context) {
+  public Response searchBinaries(Context context) {
     TokenMatcher.State state =
         context.getAttributes().require(TokenMatcher.State.class);
     ConanCoords coords = convertFromState(state);

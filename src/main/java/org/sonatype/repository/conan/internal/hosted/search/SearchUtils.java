@@ -128,7 +128,17 @@ public class SearchUtils
   public String getRecipesJSON(SearchResponse searchResponse, ConanCoords coords) {
     // TODO Get only the recipe info from Elastic Search, not the whole array of package file lists
 
-    JsonArray allHits = this.getAllHits(searchResponse);
+    JsonArray allHits = getAllHits(searchResponse);
+    JsonArray results = getRecipesJSONHelper(allHits, coords);
+
+    // group the parsed binaries info as: {results: ["binary-recipe1", "binary-recipe2", ...]}
+    JsonObject finalResult = new JsonObject();
+    finalResult.add("results", results);
+
+    return finalResult.toString();
+  }
+
+  public JsonArray getRecipesJSONHelper(JsonArray allHits, ConanCoords coords) {
     JsonArray results = new JsonArray();
 
     // now using the name attribute of the first member from
@@ -150,11 +160,7 @@ public class SearchUtils
       }
     }
 
-    // group the parsed binaries info as: {results: ["binary-recipe1", "binary-recipe2", ...]}
-    JsonObject finalResult = new JsonObject();
-    finalResult.add("results", results);
-
-    return finalResult.toString();
+    return results;
   }
 
   /**
@@ -208,32 +214,18 @@ public class SearchUtils
    * 'full package recipe reference query'
    */
   public String getBinariesInfo(Context context, ArrayList<String> conanInfoUrls) {
-    String line;
     InputStream in;
     InputStreamReader inReader;
     BufferedReader reader;
     Content content;
 
     JsonObject parsedIni = new JsonObject(); // main Json result
-    JsonObject singlePackage; // temporary ini result for a single package recipe
-
-    // temporary object for forming a section of an ini file that contains data in key:value form.
-    // for example with [options]
-    JsonObject sectionObject;
-
-    // temporary storage while parsing a content of section that does not have data in key:value form.
-    // So we need to represent the values present as an array
-    JsonArray sectionArray;
-
-    String sectionName = "";
     String packageHashValue;
-    String keyValue[]; // store key-value pair during parsing
+
+    JsonObject parsedConanInfo;
 
     for (String conanInfoUrl : conanInfoUrls) {
-      singlePackage = new JsonObject();
-      sectionObject = new JsonObject();
-      sectionArray = new JsonArray();
-
+      // parse the conaninfo file for a binary
       try {
         content = context.getRepository()
             .facet(ConanHostedFacet.class)
@@ -244,44 +236,10 @@ public class SearchUtils
         inReader = new InputStreamReader(in);
         reader = new BufferedReader(inReader);
 
-        while ((line = reader.readLine()) != null) {
-          if (line.startsWith("[") && line.endsWith("]")) {
-            // start of a 'Section' of an ini file
-
-            if (sectionName.equals("requires") ||
-                sectionName.equals("full_requires") ||
-                sectionName.equals("recipe_hash")) {
-              // These sections do not have key=vaue form. Their result is stored as an array
-
-              singlePackage.add(sectionName, sectionArray);
-              sectionArray = new JsonArray();
-            }
-            else if (!sectionName.equals("")) {
-              // This is not the first section. So add previous section's content to the singlePackage array
-              singlePackage.add(sectionName, sectionObject);
-            }
-
-            sectionName = StringUtils.substringBetween(line, "[", "]");
-            sectionObject = new JsonObject();
-          }
-          else {
-            if (line.indexOf('=') != -1) {
-              // section with key:value content
-              keyValue = line.split("=");
-              sectionObject.addProperty(keyValue[0].trim(), keyValue[1].trim());
-            }
-            else if (sectionName.equals("requires") ||
-                sectionName.equals("full_requires") ||
-                sectionName.equals("recipe_hash"))
-            {
-              // section with array content
-              sectionArray.add(new JsonPrimitive(line.trim()));
-            }
-          }
-        }
+        parsedConanInfo = extractConanInfoFile(reader);
 
         packageHashValue = StringUtils.substringBetween(conanInfoUrl, "packages/", "/conaninfo.txt");
-        parsedIni.add(packageHashValue, singlePackage); // key is the package hash. The content parsed is the value;
+        parsedIni.add(packageHashValue, parsedConanInfo); // key is the package hash. The content parsed is the value;
       }
       catch (Exception e) {
         e.printStackTrace();
@@ -290,6 +248,19 @@ public class SearchUtils
 
     return parsedIni.toString();
   }
+
+  public JsonObject extractConanInfoFile(BufferedReader reader) throws Exception {
+    // helper class for storing intermediate information
+    ConanInfofile conanInfofile = new ConanInfofile();
+    String line;
+
+    while ((line = reader.readLine()) != null) {
+      conanInfofile.parseLine(line);
+    }
+
+    return conanInfofile.getMainResult();
+  }
+
 
   private boolean filterByChannel(String recipeName, String channelFilter) {
     String recipeChannel;
@@ -331,5 +302,66 @@ public class SearchUtils
         coords.getVersion() + "@" +
         coords.getGroup() + "/" +
         coords.getChannel();
+  }
+
+  private class ConanInfofile {
+    // current section name
+    private String sectionName;
+
+    // represents the ini file for a binary
+    private JsonObject completeBinaryInfo;
+
+    // data to store content of section that contains key-value pairs
+    private JsonObject sectionObject;
+
+    // data to store the content of a section that contains list data
+    private JsonArray sectionArray;
+
+    public ConanInfofile() {
+      sectionName = "";
+      completeBinaryInfo = new JsonObject();
+      sectionObject = new JsonObject();
+      sectionArray = new JsonArray();
+    }
+
+    public JsonObject getMainResult() {
+      return completeBinaryInfo;
+    }
+
+    public boolean isArraySection() {
+      return sectionName.equals("requires") ||
+          sectionName.equals("full_requires") ||
+          sectionName.equals("recipe_hash");
+    }
+
+    public void parseLine(String line) {
+      if (line.startsWith("[") && line.endsWith("]")) {
+        // start of a 'Section' of an ini file
+
+        if (isArraySection()) {
+          // These sections do not have key=vaue form. Their result is stored as an array
+          completeBinaryInfo.add(sectionName, sectionArray);
+        }
+        else if (!sectionName.equals("")) {
+          // This is not the first section. So add previous section's content to the singlePackage array
+          completeBinaryInfo.add(sectionName, sectionObject);
+        }
+
+        sectionName = StringUtils.substringBetween(line, "[", "]");
+        sectionArray = new JsonArray();
+        sectionObject = new JsonObject();
+      }
+      else {
+        if (line.indexOf('=') != -1) {
+          // section with key:value content
+          String keyValue[] = line.split("=");
+          sectionObject.addProperty(keyValue[0].trim(), keyValue[1].trim());
+        }
+        else if (isArraySection()) {
+          // section with array content
+          sectionArray.add(new JsonPrimitive(line.trim()));
+        }
+      }
+    }
   }
 }

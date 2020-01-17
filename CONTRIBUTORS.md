@@ -20,5 +20,7 @@ Sonatype internal people:
 * [@DarthHater](https://github.com/darthhater/) (Jeffry Hesse)
 
 External contributors:
+* [@1BE6-ankit](https://github.com/1BE6-ankit/) (Ankit Koirala)
+
 
 ![Possibly You!](http://i.imgur.com/A3eScYul.jpg)

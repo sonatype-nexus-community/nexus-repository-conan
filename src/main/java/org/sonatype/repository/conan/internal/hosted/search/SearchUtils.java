@@ -126,8 +126,6 @@ public class SearchUtils
    * Conan wants recipe info in form: {results: ["recipe1", "recipe2"....]}
    */
   public String getRecipesJSON(SearchResponse searchResponse, ConanCoords coords) {
-    // TODO Get only the recipe info from Elastic Search, not the whole array of package file lists
-
     JsonArray allHits = getAllHits(searchResponse);
     JsonArray results = getRecipesJSONHelper(allHits, coords);
 
@@ -171,8 +169,7 @@ public class SearchUtils
    *
    * @return Return all unique conanfile urls based on searchResponse.
    */
-  public ArrayList<String> getConanInfoUrls(SearchResponse searchResponse) {
-    JsonArray allHits = this.getAllHits(searchResponse);
+  public ArrayList<String> getConanInfoUrls(JsonArray allHits) {
     ArrayList<String> allUrls = new ArrayList<>();
 
     for (JsonElement packageHit : allHits) {
@@ -229,6 +226,7 @@ public class SearchUtils
     String packageHashValue;
 
     JsonObject parsedConanInfo;
+    ConanInfofile conanInfofile;
 
     for (String conanInfoUrl : conanInfoUrls) {
       // parse the conaninfo file for a binary
@@ -242,7 +240,13 @@ public class SearchUtils
         inReader = new InputStreamReader(in);
         reader = new BufferedReader(inReader);
 
-        parsedConanInfo = extractConanInfoFile(reader);
+        // helper class for storing intermediate information
+        conanInfofile = new ConanInfofile();
+        String line;
+        while ((line = reader.readLine()) != null) {
+          conanInfofile.parseLine(line);
+        }
+        parsedConanInfo = conanInfofile.getMainResult();
 
         packageHashValue = StringUtils.substringBetween(conanInfoUrl, "packages/", "/conaninfo.txt");
         parsedIni.add(packageHashValue, parsedConanInfo); // key is the package hash. The content parsed is the value;
@@ -255,18 +259,6 @@ public class SearchUtils
     return parsedIni.toString();
   }
 
-  public JsonObject extractConanInfoFile(BufferedReader reader) throws Exception {
-    // helper class for storing intermediate information
-    ConanInfofile conanInfofile = new ConanInfofile();
-    String line;
-
-    while ((line = reader.readLine()) != null) {
-      conanInfofile.parseLine(line);
-    }
-
-    return conanInfofile.getMainResult();
-  }
-
   private boolean filterByChannel(String recipeName, String channelFilter) {
     String recipeChannel;
     recipeChannel = recipeName.substring(recipeName.lastIndexOf('/') + 1);
@@ -274,7 +266,7 @@ public class SearchUtils
     return FilenameUtils.wildcardMatch(recipeChannel, channelFilter);
   }
 
-  private JsonArray getAllHits(SearchResponse searchResponse) {
+  public JsonArray getAllHits(SearchResponse searchResponse) {
     JsonObject responseJson;
     responseJson = new JsonParser().parse(searchResponse.toString()).getAsJsonObject();
     responseJson = responseJson.getAsJsonObject("hits"); // first hits object

@@ -19,6 +19,7 @@ import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
+import com.google.gson.JsonArray;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 
@@ -66,21 +67,24 @@ public class ConanHostedSearchFacetImpl
     ConanCoords coords = convertFromState(state);
 
     SearchResponse searchResponse = getSearchResponseFromCoords(coords);
-    ArrayList<String> packageUrls = searchUtils.getConanInfoUrls(searchResponse);
+    JsonArray allHits = searchUtils.getAllHits(searchResponse);
+    ArrayList<String> packageUrls = searchUtils.getConanInfoUrls(allHits);
     String packageResult = searchUtils.getBinariesInfo(context, packageUrls);
 
+    System.out.println("ALL THIGS: " + allHits.toString());
     Content payload;
     if (packageResult.equals("{}")) {
-      String notFound = "Recipe not found: " + searchUtils.recipeNameFromCoords(coords);
-      payload = new Content(new StringPayload(notFound, ContentTypes.TEXT_PLAIN));
-
-      // create a 404 response because HttpResponse does not have a method that provides
-      // payload for 404 requests
-      return (new Response.Builder()).status(Status.success(404)).payload(payload).build();
+      if(allHits.size() > 0) {
+        // In this case package recipe exists, but there are no packages for the reference search
+        payload = new Content(new StringPayload("{}", ContentTypes.APPLICATION_JSON));
+      } else {
+        String notFound = "Recipe not found: " + searchUtils.recipeNameFromCoords(coords);
+        payload = new Content(new StringPayload(notFound, ContentTypes.TEXT_PLAIN));
+        return (new Response.Builder()).status(Status.success(404)).payload(payload).build();
+      }
+    } else {
+      payload = new Content(new StringPayload(packageResult, ContentTypes.APPLICATION_JSON));
     }
-
-    payload =
-        new Content(new StringPayload(packageResult, ContentTypes.APPLICATION_JSON));
 
     return HttpResponses.ok(payload);
   }

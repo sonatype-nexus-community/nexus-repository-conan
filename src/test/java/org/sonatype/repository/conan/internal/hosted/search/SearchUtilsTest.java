@@ -152,8 +152,7 @@ public class SearchUtilsTest
   }
 
   /**
-   * Test for class ConanInfofile and indirectly for extractConanInfoFile,
-   * getBinariesInfo
+   * Test for class ConanInfofile and indirectly for getBinariesInfo
    */
   @Test
   public void ConanInfofileClassWorks() {

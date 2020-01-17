@@ -54,8 +54,7 @@ public class ConanHostedSearchFacetImpl
     SearchResponse searchResponse = getSearchResponseFromCoords(coords);
     String recipesResult = searchUtils.getRecipesJSON(searchResponse, coords);
 
-    Content content =
-        new Content(new StringPayload(recipesResult, ContentTypes.APPLICATION_JSON));
+    Content content = new Content(new StringPayload(recipesResult, ContentTypes.APPLICATION_JSON));
 
     return HttpResponses.ok(content);
   }
@@ -71,7 +70,6 @@ public class ConanHostedSearchFacetImpl
     ArrayList<String> packageUrls = searchUtils.getConanInfoUrls(allHits);
     String packageResult = searchUtils.getBinariesInfo(context, packageUrls);
 
-    System.out.println("ALL THIGS: " + allHits.toString());
     Content payload;
     if (packageResult.equals("{}")) {
       if(allHits.size() > 0) {

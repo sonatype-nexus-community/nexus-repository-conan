@@ -4,6 +4,7 @@ import org.sonatype.goodies.testsupport.TestSupport;
 import org.sonatype.nexus.common.collect.AttributesMap;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Handler;
+import org.sonatype.nexus.repository.view.Parameters;
 import org.sonatype.nexus.repository.view.Request;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 
@@ -16,8 +17,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.sonatype.goodies.testsupport.hamcrest.DiffMatchers.equalTo;
+import static org.sonatype.nexus.repository.http.HttpMethods.GET;
 import static org.sonatype.nexus.repository.http.HttpMethods.POST;
 import static org.sonatype.nexus.repository.http.HttpMethods.PUT;
+import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.searchBinaries;
+import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.searchRecipes;
 import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.uploadConanPackageZip;
 import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.uploadConanfile;
 import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.uploadConaninfo;
@@ -36,6 +40,9 @@ public class ConanHostedRecipeTest
   @Mock
   Handler handler;
 
+  @Mock
+  Parameters parameters;
+
   AttributesMap attributesMap;
 
   @Before
@@ -43,6 +50,7 @@ public class ConanHostedRecipeTest
     attributesMap = new AttributesMap();
     when(context.getRequest()).thenReturn(request);
     when(context.getAttributes()).thenReturn(attributesMap);
+    when(request.getParameters()).thenReturn(parameters);
   }
 
   @Test
@@ -55,6 +63,28 @@ public class ConanHostedRecipeTest
     assertThat(matcherState.getTokens().get("group"), is(equalTo("group")));
     assertThat(matcherState.getTokens().get("project"), is(equalTo("project")));
     assertThat(matcherState.getTokens().get("version"), is(equalTo("2.1.1")));
+  }
+
+  @Test
+  public void canMatchOnRecipeBasedSearch() {
+    when(request.getAction()).thenReturn(GET);
+    when(request.getPath()).thenReturn("/v1/conans/search"); // for empty search
+
+    assertTrue(searchRecipes().handler(handler).create().getMatcher().matches(context));
+
+    // TODO: Add tests for non-empty recipe based search
+  }
+
+  @Test
+  public void canMatchOnBinaryBasedSearch() {
+    when(request.getAction()).thenReturn(GET);
+    when(request.getPath()).thenReturn("/v1/conans/Poco/1.7.8p3/pocoproject/stable/search");
+
+    assertTrue(searchBinaries().handler(handler).create().getMatcher().matches(context));
+    TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
+    assertThat(matcherState.getTokens().get("group"), is(equalTo("pocoproject")));
+    assertThat(matcherState.getTokens().get("project"), is(equalTo("Poco")));
+    assertThat(matcherState.getTokens().get("version"), is(equalTo("1.7.8p3")));
   }
 
   @Test

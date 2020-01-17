@@ -44,7 +44,7 @@ public class ConanHashVerifier
     checkNotNull(bucket);
     checkNotNull(assetPath);
 
-    AttributesMap attributes = getAttributes(tx, bucket, assetPath);
+    AttributesMap attributes = getConanmanifestHashes(tx, bucket, assetPath);
 
     if(attributes != null) {
       String filename = getFilenameFromPath(assetPath);
@@ -55,14 +55,14 @@ public class ConanHashVerifier
     return null;
   }
 
-  private AttributesMap getAttributes(final StorageTx tx, final Bucket bucket, final String assetPath) {
+  private AttributesMap getConanmanifestHashes(final StorageTx tx, final Bucket bucket, final String assetPath) {
     String originalFilename = getFilenameFromPath(assetPath);
     String manifestFile = assetPath.replace(originalFilename, AssetKind.CONAN_MANIFEST.getFilename());
     Asset asset = findAsset(tx, bucket, manifestFile);
     if(asset == null) {
       return null;
     }
-    return asset.formatAttributes();
+    return ConanManifest.parse(tx.getBlob(asset.blobRef()).getInputStream());
   }
 
   private static String getFilenameFromPath(final String assetPath) {

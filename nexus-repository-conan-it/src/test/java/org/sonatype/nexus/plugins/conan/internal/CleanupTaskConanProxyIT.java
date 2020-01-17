@@ -48,7 +48,7 @@ public class CleanupTaskConanProxyIT
       "v1/conans/jsonformoderncpp/3.7.0/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/" +
           DOWNLOAD_URLS_FILE_NAME;
 
-  private static final String LIB_DOWNLOAD_URLS_FILE_NAME = "dowload_urls_lib";
+  private static final String LIB_DOWNLOAD_URLS_FILE_NAME = "download_urls_lib";
 
   private static final String LIB_URL =
       "v1/conans/lib/1.0.0/some_vendor/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/" +

@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import org.sonatype.goodies.httpfixture.server.fluent.Behaviours;
 import org.sonatype.goodies.httpfixture.server.fluent.Server;
+import org.sonatype.nexus.common.app.BaseUrlHolder;
 import org.sonatype.nexus.pax.exam.NexusPaxExamSupport;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpStatus;
@@ -38,7 +39,6 @@ import org.ops4j.pax.exam.Option;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.sonatype.nexus.testsuite.testsupport.FormatClientSupport.status;
 
 public class ConanProxyIT
@@ -76,6 +76,25 @@ public class ConanProxyIT
 
   private static final String LIBRARY_VERSION = "3.7.0";
 
+  private static final String LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_DIRECTORY =
+      "v1/conans/lib/1.0.0/some_vendor/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
+
+  private static final String LIB_WITH_WRONG_CONANINFO_HASH_PACKAGE_DIRECTORY =
+      "v1/conans/some_vendor/lib/1.0.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
+
+  private static final String LIB_WITH_WRONG_CONANINFO_HASH_CONANMANIFEST_FILE_NAME = "conanmanifest_wrong_hash.txt";
+
+  private static final String LIB_WITH_WRONG_CONANINFO_HASH_CONANMANIFEST_PATH =
+      LIB_WITH_WRONG_CONANINFO_HASH_PACKAGE_DIRECTORY + FILE_MANIFEST;
+
+  private static final String LIB_WITH_WRONG_CONANINFO_HASH_CONANINFO_PATH =
+      LIB_WITH_WRONG_CONANINFO_HASH_PACKAGE_DIRECTORY + FILE_INFO;
+
+  private static final String LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_FILE_NAME = "download_urls_lib";
+
+  private static final String LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_PATH =
+      LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_DIRECTORY + FILE_DOWNLOAD_URLS;
+
   private static final String MIME_GZIP = "application/gzip";
 
   private static final String MIME_TEXT = "text/plain";
@@ -90,8 +109,8 @@ public class ConanProxyIT
 
   private static final String PATH_INVALID = DIRECTORY_INVALID + FILE_PACKAGE;
 
-
   private static final String PATH_DOWNLOAD_URLS = DIRECTORY_DOWNLOAD_URLS + FILE_DOWNLOAD_URLS;
+
 
   private ConanClient proxyClient;
 
@@ -109,17 +128,25 @@ public class ConanProxyIT
 
   @Before
   public void setup() throws Exception {
-    server = Server.withPort(0)
+    BaseUrlHolder.set(this.nexusUrl.toString());
+
+    server = Server.withPort(57575)
         .serve("/" + PATH_DOWNLOAD_URLS)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_DOWNLOAD_URLS)))
         .serve("/" + PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_DOWNLOAD_URLS_NON_PACKAGE)))
+        .serve("/" + LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_PATH)
+        .withBehaviours(Behaviours.file(testData.resolveFile(LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_FILE_NAME)))
         .serve("/" + PATH_TGZ_PACKAGE)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_PACKAGE)))
         .serve("/" + PATH_INFO)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_INFO)))
+        .serve("/" + LIB_WITH_WRONG_CONANINFO_HASH_CONANINFO_PATH)
+        .withBehaviours(Behaviours.file(testData.resolveFile(FILE_INFO)))
         .serve("/" + PATH_MANIFEST)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_MANIFEST)))
+        .serve("/" + LIB_WITH_WRONG_CONANINFO_HASH_CONANMANIFEST_PATH)
+        .withBehaviours(Behaviours.file(testData.resolveFile(LIB_WITH_WRONG_CONANINFO_HASH_CONANMANIFEST_FILE_NAME)))
         .start();
 
     proxyRepo = repos.createConanProxy("conan-test-proxy-online", server.getUrl().toExternalForm());
@@ -182,8 +209,9 @@ public class ConanProxyIT
 
   @Test
   public void retrieveInfoWhenRemoteOnline() throws Exception {
+    CloseableHttpResponse response = proxyClient.get(PATH_MANIFEST);
+    response.close();
     assertThat(status(proxyClient.get(PATH_INFO)), is(HttpStatus.OK));
-
     final Asset asset = findAsset(proxyRepo, PATH_INFO);
     assertThat(asset.format(), is("conan"));
     assertThat(asset.name(), is(PATH_INFO));
@@ -205,7 +233,7 @@ public class ConanProxyIT
     assertThat(status(proxyClient.get(PATH_MANIFEST)), is(HttpStatus.OK));
 
     Asset asset = findAsset(proxyRepo, PATH_MANIFEST);
-    Component component =  findComponent(proxyRepo,LIBRARY_NAME);
+    Component component =  findComponent(proxyRepo, LIBRARY_NAME);
     assertThat(component.name(), is(equalTo(LIBRARY_NAME)));
     assertThat(component.version(), is(equalTo(LIBRARY_VERSION)));
     assertThat(component.group(), is(equalTo(LIBRARY_VENDOR)));
@@ -217,6 +245,16 @@ public class ConanProxyIT
     assertThat(asset, is(equalTo(null)));
     component = findComponent(proxyRepo,LIBRARY_NAME);
     assertThat(component, is(equalTo(null)));
+  }
+
+  @Test
+  public void failRetrieveConaninfoWhenWrongHashInConanmanifest() throws Exception {
+    CloseableHttpResponse response = proxyClient.get(LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_PATH);
+    response.close();
+    response = proxyClient.get(LIB_WITH_WRONG_CONANINFO_HASH_CONANMANIFEST_PATH);
+    response.close();
+    assertThat(status(proxyClient.get(LIB_WITH_WRONG_CONANINFO_HASH_CONANINFO_PATH)), is(HttpStatus.NOT_FOUND));
+    assertThat(findAsset(proxyRepo, LIB_WITH_WRONG_CONANINFO_HASH_CONANINFO_PATH), is(equalTo(null)));
   }
 
   @After

@@ -1,5 +1,0 @@
-{
-  "conaninfo.txt" : "https://api.bintray.com/conan/conan/conan-center/v1/some_vendor/conan/lib/1.0.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt",
-  "conan_package.tgz" : "https://api.bintray.com/conan/conan/conan-center/v1/some_vendor/conan/lib/1.0.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz",
-  "conanmanifest.txt" : "https://api.bintray.com/conan/conan/conan-center/v1/some_vendor/conan/lib/1.1.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conanmanifest.txt"
-}

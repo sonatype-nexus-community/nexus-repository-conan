@@ -173,35 +173,41 @@ public class SearchUtils
    */
   public ArrayList<String> getConanInfoUrls(SearchResponse searchResponse) {
     JsonArray allHits = this.getAllHits(searchResponse);
-    ArrayList<String> conanFileUrls = new ArrayList<>();
+    ArrayList<String> allUrls = new ArrayList<>();
 
-    for (JsonElement binaryHit : allHits) {
-      /*
-      The elements of the hits array of SearchResponse contains the info of a
-      package groupd by the name. So all file names(attributes) of a search result,
-      for example: "Poco/1.7.8p3@pocoproject/stable" are grouped in one hit.
-       */
+    for (JsonElement packageHit : allHits) {
+      getConanInfoUrlFromHit(packageHit, allUrls);
+    }
 
-      JsonArray packageFiles = binaryHit.getAsJsonObject()
-          .getAsJsonObject("_source")
-          .getAsJsonArray("assets");
+    return allUrls;
+  }
 
-      for (JsonElement files : packageFiles) {
-        // iterate over all the result of a package, and extract Unique conaninfo files.
+  /**
+   * The elements of the hits array of SearchResponse contains the info of a
+   * package represented by the package name. So all file names(attributes) of
+   * a search result, for example: "Poco/1.7.8p3@pocoproject/stable" are grouped in one hit.
+   * So from a hit for a package, we look for all unique conaninfofiles and extract them.
+   */
+  public void getConanInfoUrlFromHit(JsonElement packageHit, ArrayList<String> allUrls) {
+    JsonArray packageFiles = packageHit.getAsJsonObject()
+        .getAsJsonObject("_source")
+        .getAsJsonArray("assets");
 
-        String assetKind = files.getAsJsonObject()
+    for (JsonElement file : packageFiles) {
+      // iterate over all the result of a package, and extract Unique conaninfo files.
+      try {
+        String assetKind = file.getAsJsonObject()
             .getAsJsonObject("attributes")
             .getAsJsonObject("conan")
             .get("asset_kind")
             .getAsString();
 
         if (assetKind.equals("CONAN_INFO")) {
-          conanFileUrls.add(files.getAsJsonObject().get("name").getAsString());
+          allUrls.add(file.getAsJsonObject().get("name").getAsString());
         }
+      } catch (Exception e) {
       }
     }
-
-    return conanFileUrls;
   }
 
   /**
@@ -261,7 +267,6 @@ public class SearchUtils
     return conanInfofile.getMainResult();
   }
 
-
   private boolean filterByChannel(String recipeName, String channelFilter) {
     String recipeChannel;
     recipeChannel = recipeName.substring(recipeName.lastIndexOf('/') + 1);
@@ -304,7 +309,7 @@ public class SearchUtils
         coords.getChannel();
   }
 
-  private class ConanInfofile {
+  public static class ConanInfofile {
     // current section name
     private String sectionName;
 
@@ -324,11 +329,23 @@ public class SearchUtils
       sectionArray = new JsonArray();
     }
 
+    /**
+     * WARNING: This method should be called only after all the lines
+     * are fed to parseLine method
+     *
+     * @return Returns the parsed conaninfo file as JsonObject
+     */
     public JsonObject getMainResult() {
+      // check if all content has been added
+      if(!sectionName.equals("")) {
+        addSection();
+        sectionName = "";
+      }
+
       return completeBinaryInfo;
     }
 
-    public boolean isArraySection() {
+    private boolean isArraySection() {
       return sectionName.equals("requires") ||
           sectionName.equals("full_requires") ||
           sectionName.equals("recipe_hash");
@@ -337,19 +354,8 @@ public class SearchUtils
     public void parseLine(String line) {
       if (line.startsWith("[") && line.endsWith("]")) {
         // start of a 'Section' of an ini file
-
-        if (isArraySection()) {
-          // These sections do not have key=vaue form. Their result is stored as an array
-          completeBinaryInfo.add(sectionName, sectionArray);
-        }
-        else if (!sectionName.equals("")) {
-          // This is not the first section. So add previous section's content to the singlePackage array
-          completeBinaryInfo.add(sectionName, sectionObject);
-        }
-
+        addSection();
         sectionName = StringUtils.substringBetween(line, "[", "]");
-        sectionArray = new JsonArray();
-        sectionObject = new JsonObject();
       }
       else {
         if (line.indexOf('=') != -1) {
@@ -363,5 +369,20 @@ public class SearchUtils
         }
       }
     }
+
+    private void addSection() {
+      if (isArraySection()) {
+        // These sections do not have key=vaue form. Their result is stored as an array
+        completeBinaryInfo.add(sectionName, sectionArray);
+      }
+      else if (!sectionName.equals("")) {
+        // This is not the first section. So add previous section's content to the singlePackage array
+        completeBinaryInfo.add(sectionName, sectionObject);
+      }
+
+      sectionArray = new JsonArray();
+      sectionObject = new JsonObject();
+    }
+
   }
 }

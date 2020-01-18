@@ -125,7 +125,7 @@ public class HostedHandlers
   };
 
   /**
-   * Return matching recipe names based on partial or empty search
+   * Return matching recipe names.
    */
   final Handler searchRecipes = context ->
       context.getRepository()

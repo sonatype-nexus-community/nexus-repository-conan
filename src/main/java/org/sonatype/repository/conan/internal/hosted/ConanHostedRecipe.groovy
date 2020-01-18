@@ -123,9 +123,7 @@ class ConanHostedRecipe
 
   private static final String PING = "/v1/ping"
 
-  private static final String EMPTY_SEARCH_URL = "/v1/conans/search"
-
-  private static final String PARTIAL_SEARCH_URL = "/v1/conans/search?q="
+  private static final String RECIPE_SEARCH_URL = "/v1/conans/search"
 
   private static final GString FULL_SEARCH_URL = BASE_URL + "/search"
 
@@ -270,17 +268,14 @@ class ConanHostedRecipe
   }
 
   /**
-   * Matches on Empty and Partial Search urls:
+   * Matches on Recipe Search URL
    * For queries of type: "conan search OpenSSL/1.1.1@*"
    */
   static Builder searchRecipes() {
     new Builder().matcher(
         and(
             new ActionMatcher(GET),
-            or(
-                new TokenMatcher(EMPTY_SEARCH_URL),
-                new TokenMatcher(PARTIAL_SEARCH_URL)
-            )
+            new TokenMatcher(RECIPE_SEARCH_URL),
         )
     )
   }

@@ -68,11 +68,9 @@ public class ConanHostedRecipeTest
   @Test
   public void canMatchOnRecipeBasedSearch() {
     when(request.getAction()).thenReturn(GET);
-    when(request.getPath()).thenReturn("/v1/conans/search"); // for empty search
+    when(request.getPath()).thenReturn("/v1/conans/search");
 
     assertTrue(searchRecipes().handler(handler).create().getMatcher().matches(context));
-
-    // TODO: Add tests for non-empty recipe based search
   }
 
   @Test

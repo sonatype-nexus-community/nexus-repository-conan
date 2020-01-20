@@ -209,8 +209,10 @@ public class ConanProxyIT
 
   @Test
   public void retrieveInfoWhenRemoteOnline() throws Exception {
+    // Conan client gets conanmanifest.txt file to examine conanifo.txt file hash
     CloseableHttpResponse response = proxyClient.get(PATH_MANIFEST);
     response.close();
+    // Conan client gets conanifo.txt file
     assertThat(status(proxyClient.get(PATH_INFO)), is(HttpStatus.OK));
     final Asset asset = findAsset(proxyRepo, PATH_INFO);
     assertThat(asset.format(), is("conan"));
@@ -249,10 +251,14 @@ public class ConanProxyIT
 
   @Test
   public void failRetrieveConaninfoWhenWrongHashInConanmanifest() throws Exception {
+    // Conan client gets download_urls.txt file to discover links of all dependency artifacts.
     CloseableHttpResponse response = proxyClient.get(LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_PATH);
     response.close();
+    // Conan client gets conanmanifest.txt file to examine conanifo.txt file hash
     response = proxyClient.get(LIB_WITH_WRONG_CONANINFO_HASH_CONANMANIFEST_PATH);
     response.close();
+    // Conan client gets conanifo.txt file. Its hash is not equal to hash from conanmanifest.tx file
+    // therefore it will be ignored.
     assertThat(status(proxyClient.get(LIB_WITH_WRONG_CONANINFO_HASH_CONANINFO_PATH)), is(HttpStatus.NOT_FOUND));
     assertThat(findAsset(proxyRepo, LIB_WITH_WRONG_CONANINFO_HASH_CONANINFO_PATH), is(equalTo(null)));
   }

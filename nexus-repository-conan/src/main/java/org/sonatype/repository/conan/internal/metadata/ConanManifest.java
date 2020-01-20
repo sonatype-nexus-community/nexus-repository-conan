@@ -33,9 +33,9 @@ public class ConanManifest
   private static final Logger LOGGER = Loggers.getLogger(ConanManifest.class);
 
   /**
-   * Extract all the md5 for files and add to attributes for later lookup
+   * Extract all the md5 for conan files
    * @param conanManifestContentStream
-   * @return
+   * @return Returns {AttributesMap} of file path keys to file md5 hash values
    */
   public static AttributesMap parse(InputStream conanManifestContentStream) {
     AttributesMap attributesMap = new AttributesMap();
@@ -55,9 +55,9 @@ public class ConanManifest
 
 
   /**
-   * Extract all the md5 for files and add to attributes for later lookup
+   * Extract all the md5 for conan files
    * @param blob
-   * @return
+   * @return Returns {AttributesMap} of file path keys to file md5 hash values
    */
   public static AttributesMap parse(TempBlob blob) {
     return parse(blob.get());

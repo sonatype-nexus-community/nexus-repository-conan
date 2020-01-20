@@ -44,6 +44,8 @@ import static org.sonatype.nexus.testsuite.testsupport.FormatClientSupport.statu
 public class ConanProxyIT
     extends ConanITSupport
 {
+  private static final int CONAN_REMOTE_PORT = 57777;
+
   private static final String DIRECTORY_PACKAGE = "v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
 
   private static final String DIRECTORY_DOWNLOAD_URLS = "v1/conans/jsonformoderncpp/3.7.0/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
@@ -130,7 +132,7 @@ public class ConanProxyIT
   public void setup() throws Exception {
     BaseUrlHolder.set(this.nexusUrl.toString());
 
-    server = Server.withPort(57575)
+    server = Server.withPort(CONAN_REMOTE_PORT)
         .serve("/" + PATH_DOWNLOAD_URLS)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_DOWNLOAD_URLS)))
         .serve("/" + PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES)

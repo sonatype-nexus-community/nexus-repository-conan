@@ -14,6 +14,7 @@ package org.sonatype.repository.conan.internal.metadata;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.sonatype.goodies.common.Loggers;
@@ -32,13 +33,13 @@ public class ConanManifest
   private static final Logger LOGGER = Loggers.getLogger(ConanManifest.class);
 
   /**
-   * Extract all the md5 for files and add to attributes for later lookup
-   * @param blob
-   * @return
+   * Extract all the md5 for conan files
+   * @param conanManifestContentStream
+   * @return Returns {AttributesMap} of file path keys to file md5 hash values
    */
-  public static AttributesMap parse(TempBlob blob) {
+  public static AttributesMap parse(InputStream conanManifestContentStream) {
     AttributesMap attributesMap = new AttributesMap();
-    try(BufferedReader reader = new BufferedReader(new InputStreamReader(blob.get()))) {
+    try(BufferedReader reader = new BufferedReader(new InputStreamReader(conanManifestContentStream))) {
       String line;
       while ((line = reader.readLine()) != null) {
         String[] split = line.split(":");
@@ -50,5 +51,15 @@ public class ConanManifest
       LOGGER.warn("Unable to convertKeys manifest file");
     }
     return attributesMap;
+  }
+
+
+  /**
+   * Extract all the md5 for conan files
+   * @param blob
+   * @return Returns {AttributesMap} of file path keys to file md5 hash values
+   */
+  public static AttributesMap parse(TempBlob blob) {
+    return parse(blob.get());
   }
 }

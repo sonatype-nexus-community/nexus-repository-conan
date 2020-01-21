@@ -39,6 +39,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ConanContentValidator
     implements ContentValidator
 {
+
+  private static final String PACKAGES = "packages";
+
   private static final String X_PYTHON = "text/x-python";
 
   private final DefaultContentValidator defaultContentValidator;
@@ -73,6 +76,8 @@ public class ConanContentValidator
   }
 
   private boolean isPackageSnapshot(final String contentName) {
-    return contentName.split("/").length == 8 && "packages".equals(contentName.split("/")[6]);
+    String[] args = contentName.split("/");
+    String expectPackage = args[args.length - 2];
+    return PACKAGES.equals(expectPackage);
   }
 }

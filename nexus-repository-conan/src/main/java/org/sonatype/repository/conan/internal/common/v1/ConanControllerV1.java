@@ -113,13 +113,13 @@ public class ConanControllerV1
   }
 
   protected void createGetRoutes(final Router.Builder builder, final Handler urlHandler, final Handler fetchHandler, Handler packageHandler) {
-    createRoute(builder, ConanRoutes.downloadUrls(), DOWNLOAD_URL, urlHandler);
-    createRoute(builder, ConanRoutes.conanManifest(), CONAN_MANIFEST, fetchHandler);
-    createRoute(builder, ConanRoutes.conanFile(), CONAN_FILE, fetchHandler);
-    createRoute(builder, ConanRoutes.conanInfo(), CONAN_INFO, fetchHandler);
-    createRoute(builder, ConanRoutes.conanPackage(), CONAN_PACKAGE, fetchHandler);
-    createRoute(builder, ConanRoutes.conanSource(), CONAN_SOURCES, fetchHandler);
-    createRoute(builder, ConanRoutes.conanExport(), CONAN_EXPORT, fetchHandler);
-    createRoute(builder, ConanRoutes.packageSnapshot(), CONAN_PACKAGE_SNAPSHOT, packageHandler);
+    createRoute(builder, ConanRoutes.downloadUrlsProxy(), DOWNLOAD_URL, urlHandler);
+    createRoute(builder, ConanRoutes.conanManifestProxy(), CONAN_MANIFEST, fetchHandler);
+    createRoute(builder, ConanRoutes.conanFileProxy(), CONAN_FILE, fetchHandler);
+    createRoute(builder, ConanRoutes.conanInfoProxy(), CONAN_INFO, fetchHandler);
+    createRoute(builder, ConanRoutes.conanPackageProxy(), CONAN_PACKAGE, fetchHandler);
+    createRoute(builder, ConanRoutes.conanSourceProxy(), CONAN_SOURCES, fetchHandler);
+    createRoute(builder, ConanRoutes.conanExportProxy(), CONAN_EXPORT, fetchHandler);
+    createRoute(builder, ConanRoutes.packageSnapshotProxy(), CONAN_PACKAGE_SNAPSHOT, packageHandler);
   }
 }

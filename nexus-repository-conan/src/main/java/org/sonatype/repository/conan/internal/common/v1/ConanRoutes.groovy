@@ -18,7 +18,6 @@ import org.sonatype.nexus.repository.view.matchers.ActionMatcher
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State
 import org.sonatype.repository.conan.internal.metadata.ConanCoords
-
 import static com.google.common.base.Preconditions.checkNotNull
 import static org.sonatype.nexus.repository.http.HttpMethods.GET
 import static org.sonatype.nexus.repository.http.HttpMethods.HEAD
@@ -26,6 +25,7 @@ import static org.sonatype.nexus.repository.http.HttpMethods.POST
 import static org.sonatype.nexus.repository.http.HttpMethods.PUT
 import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.and
 import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.or
+import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.API_VERSION
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PATH
@@ -133,6 +133,18 @@ class ConanRoutes
     )
   }
 
+  static Builder downloadUrlsProxy() {
+    return new Builder().matcher(
+        and(
+            new ActionMatcher(GET, HEAD),
+            or(
+                new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/download_urls"),
+                new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${DOWNLOAD_FORM}/download_urls")
+            )
+        )
+    )
+  }
+
   private static TokenMatcher downloadUrlsMatcher() {
     return new TokenMatcher("/{path:.*}/${DOWNLOAD_FORM}/download_urls")
   }
@@ -152,6 +164,18 @@ class ConanRoutes
             or(
                 conanManifestPackagesMatcher(),
                 conanManifestMatcher()
+            )
+        )
+    )
+  }
+
+  static Builder conanManifestProxy() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET, HEAD),
+            or(
+                new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conanmanifest.txt"),
+                new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${STANDARD_FORM}/conanmanifest.txt")
             )
         )
     )
@@ -178,6 +202,15 @@ class ConanRoutes
     )
   }
 
+  static Builder conanFileProxy() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET, HEAD),
+            new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${STANDARD_FORM}/conanfile.py")
+        )
+    )
+  }
+
   private static TokenMatcher conanFileMatcher() {
     new TokenMatcher("/{path:.*}/${STANDARD_FORM}/conanfile.py")
   }
@@ -195,6 +228,15 @@ class ConanRoutes
         and(
             new ActionMatcher(GET, HEAD),
             conanInfoPackagesMatcher()
+        )
+    )
+  }
+
+  static Builder conanInfoProxy() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET, HEAD),
+            new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conaninfo.txt")
         )
     )
   }
@@ -220,29 +262,38 @@ class ConanRoutes
     )
   }
 
-  static Builder conanSource() {
+  static Builder conanPackageProxy() {
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
-            conanSourceMatcher()
+            new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conan_package.tgz")
         )
     )
   }
 
-  static Builder conanExport() {
+  static Builder conanSourceProxy() {
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
-            conanExportMatcher()
+            new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${STANDARD_FORM}/conan_sources.tgz")
         )
     )
   }
 
-  static Builder packageSnapshot() {
+  static Builder conanExportProxy() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET, HEAD),
+            new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${STANDARD_FORM}/conan_export.tgz")
+        )
+    )
+  }
+
+  static Builder packageSnapshotProxy() {
     new Builder().matcher(
         and(
             new ActionMatcher(HEAD, GET),
-            new TokenMatcher("/{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}")
+            new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}")
         )
     )
   }
@@ -266,7 +317,8 @@ class ConanRoutes
 
   static ConanCoords getCoords(final Context context) {
     State state = matcherState(context)
-    return new ConanCoords(path(state), group(state), project(state), version(state), channel(state), sha(state))
+    String path = path(state)
+    return new ConanCoords(path, group(state), project(state), version(state), channel(state), sha(state))
   }
 
   static TokenMatcher.State matcherState(final Context context) {

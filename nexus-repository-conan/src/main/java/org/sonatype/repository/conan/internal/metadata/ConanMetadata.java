@@ -17,6 +17,9 @@ package org.sonatype.repository.conan.internal.metadata;
  */
 public class ConanMetadata
 {
+
+  public final static String API_VERSION = "api_version";
+
   public final static String PATH = "path";
 
   public final static String PROJECT = "project";

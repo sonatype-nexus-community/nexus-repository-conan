@@ -37,7 +37,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ConanBrowseNodeGenerator
     extends ComponentPathBrowseNodeGenerator
 {
-  private static final int PACKAGE_SNAPSHOT_PATH_LENGTH = 8;
+  private static final int PACKAGE_SNAPSHOT_PATH_LENGTH = 7;
 
   private static final String PACKAGES_SEGMENT = "packages";
 

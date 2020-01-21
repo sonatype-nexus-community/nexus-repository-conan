@@ -14,7 +14,6 @@ package org.sonatype.repository.conan.internal.proxy.v1;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,7 +46,6 @@ import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.common.v1.ConanRoutes;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.sonatype.repository.conan.internal.metadata.ConanHashVerifier;
-import org.sonatype.repository.conan.internal.metadata.ConanManifest;
 import org.sonatype.repository.conan.internal.metadata.ConanUrlIndexer;
 
 import com.google.common.base.Supplier;
@@ -153,28 +151,17 @@ public class ConanProxyFacet
   {
     StorageFacet storageFacet = facet(StorageFacet.class);
     try (TempBlob tempBlob = storageFacet.createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
-      AttributesMap attributesMap;
       switch (assetKind) {
         case DOWNLOAD_URL:
-          Content saveMetadata = doSaveMetadata(tempBlob, content, assetKind, new AttributesMap(), coords);
+          Content saveMetadata = doSaveMetadata(tempBlob, content, assetKind, coords);
 
           return new Content(
               new StringPayload(
                   conanUrlIndexer.updateAbsoluteUrls(context, saveMetadata, getRepository()),
                   ContentTypes.APPLICATION_JSON)
           );
-        case CONAN_MANIFEST:
-          attributesMap = ConanManifest.parse(tempBlob);
-          break;
-        case CONAN_FILE:
-          //TODO: Parse file to get license information and description, email, group etc
-          attributesMap = new AttributesMap();
-          break;
-        default:
-          attributesMap = new AttributesMap();
-          break;
       }
-      return doSaveMetadata(tempBlob, content, assetKind, attributesMap, coords);
+      return doSaveMetadata(tempBlob, content, assetKind, coords);
     }
   }
 
@@ -223,7 +210,6 @@ public class ConanProxyFacet
   protected Content doSaveMetadata(final TempBlob metadataContent,
                                    final Payload payload,
                                    final AssetKind assetKind,
-                                   final AttributesMap attributesMap,
                                    final ConanCoords coords) throws IOException
   {
     HashCode hash = null;
@@ -237,9 +223,6 @@ public class ConanProxyFacet
       asset = tx.createAsset(bucket, component);
       asset.name(assetPath);
       asset.formatAttributes().set(P_ASSET_KIND, assetKind.name());
-      for (Entry<String, Object> entry : attributesMap) {
-        asset.formatAttributes().set(entry.getKey(), entry.getValue());
-      }
       hash = hashVerifier.lookupHashFromAsset(tx, bucket, assetPath);
     }
     return saveAsset(tx, asset, metadataContent, payload, hash);

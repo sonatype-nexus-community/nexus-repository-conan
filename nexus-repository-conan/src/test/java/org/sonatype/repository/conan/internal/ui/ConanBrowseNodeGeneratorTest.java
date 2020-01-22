@@ -46,7 +46,7 @@ public class ConanBrowseNodeGeneratorTest
   @Test
   public void canComputePackagePath() {
     Asset asset = createAsset(
-        "v1/conans/jsonformoderncpp/2.1.1/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/download_urls");
+        "conans/jsonformoderncpp/2.1.1/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/download_urls");
 
     List<BrowsePaths> assetPath = underTest.computeAssetPaths(asset, component);
 
@@ -63,7 +63,7 @@ public class ConanBrowseNodeGeneratorTest
   @Test
   public void canComputePackageName() {
     Asset asset = createAsset(
-        "v1/conans/jsonformoderncpp/2.1.1/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9");
+        "conans/jsonformoderncpp/2.1.1/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9");
 
     List<BrowsePaths> assetPath = underTest.computeAssetPaths(asset, component);
 
@@ -79,7 +79,7 @@ public class ConanBrowseNodeGeneratorTest
   @Test
   public void canComputeNonPackagePath() {
     Asset asset = createAsset(
-        "/v1/conans/jsonformoderncpp/2.1.1/vthiery/stable/download_urls");
+        "conans/jsonformoderncpp/2.1.1/vthiery/stable/download_urls");
 
     List<BrowsePaths> assetPath = underTest.computeAssetPaths(asset, component);
 

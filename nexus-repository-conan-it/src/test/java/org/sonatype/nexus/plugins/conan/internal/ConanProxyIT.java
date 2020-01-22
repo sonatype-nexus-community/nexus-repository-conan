@@ -24,11 +24,12 @@ import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.storage.ComponentMaintenance;
 import org.sonatype.nexus.testsuite.testsupport.NexusITSupport;
+import org.sonatype.repository.conan.internal.ConanFormat;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -46,9 +47,18 @@ public class ConanProxyIT
 {
   private static final int CONAN_REMOTE_PORT = 57777;
 
-  private static final String DIRECTORY_PACKAGE = "v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
+  private static final String CONAN_API_VERSION_SEPARATED = "v1/";
 
-  private static final String DIRECTORY_DOWNLOAD_URLS = "v1/conans/jsonformoderncpp/3.7.0/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
+  private static final String DIRECTORY_PACKAGE_NON_VERSIONED =
+      "conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
+
+  private static final String DIRECTORY_DOWNLOAD_URLS_NON_VERSIONED =
+      "conans/jsonformoderncpp/3.7.0/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
+
+  private static final String DIRECTORY_PACKAGE = CONAN_API_VERSION_SEPARATED + DIRECTORY_PACKAGE_NON_VERSIONED;
+
+  private static final String DIRECTORY_DOWNLOAD_URLS =
+      CONAN_API_VERSION_SEPARATED + DIRECTORY_DOWNLOAD_URLS_NON_VERSIONED;
 
   private static final String DIRECTORY_INVALID = "this/is/a/bad/path/";
 
@@ -101,18 +111,30 @@ public class ConanProxyIT
 
   private static final String MIME_TEXT = "text/plain";
 
-  private static final String PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES = "v1/conans/jsonformoderncpp/3.7.0/vthiery/stable/download_urls";
+  private static final String PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES_NON_VERSIONED =
+      "conans/jsonformoderncpp/3.7.0/vthiery/stable/download_urls";
+
+  private static final String PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES =
+      CONAN_API_VERSION_SEPARATED + PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES_NON_VERSIONED;
 
   private static final String PATH_TGZ_PACKAGE = DIRECTORY_PACKAGE + FILE_PACKAGE;
 
+  private static final String PATH_TGZ_PACKAGE_NON_VERSIONED = DIRECTORY_PACKAGE_NON_VERSIONED + FILE_PACKAGE;
+
   private static final String PATH_INFO = DIRECTORY_PACKAGE + FILE_INFO;
+
+  private static final String PATH_INFO_NON_VERSIONED = DIRECTORY_PACKAGE_NON_VERSIONED + FILE_INFO;
 
   private static final String PATH_MANIFEST = DIRECTORY_PACKAGE + FILE_MANIFEST;
 
+  private static final String PATH_MANIFEST_NON_VERSIONED = DIRECTORY_PACKAGE_NON_VERSIONED + FILE_MANIFEST;
+
   private static final String PATH_INVALID = DIRECTORY_INVALID + FILE_PACKAGE;
 
-  private static final String PATH_DOWNLOAD_URLS = DIRECTORY_DOWNLOAD_URLS + FILE_DOWNLOAD_URLS;
+  private static final String PATH_DOWNLOAD_URLS_NON_VERSIONED =
+      DIRECTORY_DOWNLOAD_URLS_NON_VERSIONED + FILE_DOWNLOAD_URLS;
 
+  private static final String PATH_DOWNLOAD_URLS = DIRECTORY_DOWNLOAD_URLS + FILE_DOWNLOAD_URLS;
 
   private ConanClient proxyClient;
 
@@ -153,91 +175,106 @@ public class ConanProxyIT
 
     proxyRepo = repos.createConanProxy("conan-test-proxy-online", server.getUrl().toExternalForm());
     proxyClient = conanClient(proxyRepo);
-    proxyClient.get(PATH_DOWNLOAD_URLS);
+    proxyClient.getHttpResponse(PATH_DOWNLOAD_URLS);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    server.stop();
   }
 
   @Test
   public void invalidPathsReturn404() throws Exception {
-    assertThat(status(proxyClient.get(PATH_INVALID)), is(HttpStatus.NOT_FOUND));
+    assertThat(status(proxyClient.getHttpResponse(PATH_INVALID)), is(HttpStatus.NOT_FOUND));
   }
 
   @Test
   public void retrieveDownloadUrls() throws Exception {
-    try(CloseableHttpResponse response = proxyClient.get(PATH_DOWNLOAD_URLS)){
-      assertThat(status(response), is(HttpStatus.OK));
-      HttpEntity entity = response.getEntity();
-      String download_urls = EntityUtils.toString(entity);
-      JsonObject obj = new JsonParser().parse(download_urls).getAsJsonObject();
+    HttpResponse response = proxyClient.getHttpResponse(PATH_DOWNLOAD_URLS);
+    assertThat(status(response), is(HttpStatus.OK));
+    HttpEntity entity = response.getEntity();
+    String download_urls = EntityUtils.toString(entity);
+    JsonObject obj = new JsonParser().parse(download_urls).getAsJsonObject();
 
-      assertThat(obj.get("conaninfo.txt").getAsString(), is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt"));
-      assertThat(obj.get("conan_package.tgz").getAsString(), is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz"));
-      assertThat(obj.get("conanmanifest.txt").getAsString(), is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conanmanifest.txt"));
+    assertThat(obj.get("conaninfo.txt").getAsString(),
+        is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt"));
+    assertThat(obj.get("conan_package.tgz").getAsString(),
+        is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz"));
+    assertThat(obj.get("conanmanifest.txt").getAsString(),
+        is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conanmanifest.txt"));
 
-      final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS);
-      assertThat(asset.format(), is("conan"));
-      assertThat(asset.name(), is(PATH_DOWNLOAD_URLS));
-      assertThat(asset.contentType(), is(MIME_TEXT));
-    }
+    final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS_NON_VERSIONED);
+    assertThat(asset.format(), is(ConanFormat.NAME));
+    assertThat(asset.name(), is(PATH_DOWNLOAD_URLS_NON_VERSIONED));
+    assertThat(asset.contentType(), is(MIME_TEXT));
   }
 
   @Test
   public void retrieveDownloadUrlsFromNonPackageRoute() throws Exception {
-    try(CloseableHttpResponse response = proxyClient.get(PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES)){
-      assertThat(status(response), is(HttpStatus.OK));
+    HttpResponse response = proxyClient.getHttpResponse(PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES);
+    assertThat(status(response), is(HttpStatus.OK));
 
-      HttpEntity entity = response.getEntity();
-      String download_urls = EntityUtils.toString(entity);
-      JsonObject obj = new JsonParser().parse(download_urls).getAsJsonObject();
+    HttpEntity entity = response.getEntity();
+    String download_urls = EntityUtils.toString(entity);
+    JsonObject obj = new JsonParser().parse(download_urls).getAsJsonObject();
 
-      assertThat(obj.get("conanmanifest.txt").getAsString(), is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/conanmanifest.txt"));
-      assertThat(obj.get("conanfile.py").getAsString(), is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/conanfile.py"));
+    assertThat(obj.get("conanmanifest.txt").getAsString(),
+        is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/conanmanifest.txt"));
+    assertThat(obj.get("conanfile.py").getAsString(),
+        is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/conanfile.py"));
 
-      final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES);
-      assertThat(asset.format(), is("conan"));
-      assertThat(asset.name(), is(PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES));
-      assertThat(asset.contentType(), is(MIME_TEXT));
-    }
+    final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES_NON_VERSIONED);
+    assertThat(asset.format(), is(ConanFormat.NAME));
+    assertThat(asset.name(), is(PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES_NON_VERSIONED));
+    assertThat(asset.contentType(), is(MIME_TEXT));
   }
 
   @Test
   public void retrievePackageWhenRemoteOnline() throws Exception {
-    assertThat(status(proxyClient.get(PATH_TGZ_PACKAGE)), is(HttpStatus.OK));
+    HttpResponse response = proxyClient.getHttpResponse(PATH_TGZ_PACKAGE);
+    assertThat(status(response), is(HttpStatus.OK));
 
-    final Asset asset = findAsset(proxyRepo, PATH_TGZ_PACKAGE);
-    assertThat(asset.format(), is("conan"));
-    assertThat(asset.name(), is(PATH_TGZ_PACKAGE));
+    Asset asset = findAsset(proxyRepo, PATH_TGZ_PACKAGE_NON_VERSIONED);
+    assertThat(asset.format(), is(ConanFormat.NAME));
+    assertThat(asset.name(), is(PATH_TGZ_PACKAGE_NON_VERSIONED));
     assertThat(asset.contentType(), is(MIME_GZIP));
   }
 
   @Test
   public void retrieveInfoWhenRemoteOnline() throws Exception {
     // Conan client gets conanmanifest.txt file to examine conanifo.txt file hash
-    CloseableHttpResponse response = proxyClient.get(PATH_MANIFEST);
-    response.close();
+    HttpResponse response = proxyClient.getHttpResponse(PATH_MANIFEST);
+    assertThat(status(response), is(HttpStatus.OK));
     // Conan client gets conanifo.txt file
-    assertThat(status(proxyClient.get(PATH_INFO)), is(HttpStatus.OK));
-    final Asset asset = findAsset(proxyRepo, PATH_INFO);
-    assertThat(asset.format(), is("conan"));
-    assertThat(asset.name(), is(PATH_INFO));
+    assertThat(status(proxyClient.getHttpResponse(PATH_INFO)), is(HttpStatus.OK));
+
+    final Asset asset = findAsset(proxyRepo, PATH_INFO_NON_VERSIONED);
+    assertThat(asset.format(), is(ConanFormat.NAME));
+    assertThat(asset.name(), is(PATH_INFO_NON_VERSIONED));
     assertThat(asset.contentType(), is(MIME_TEXT));
   }
 
   @Test
   public void retrieveManifestWhenRemoteOnline() throws Exception {
-    assertThat(status(proxyClient.get(PATH_MANIFEST)), is(HttpStatus.OK));
+    HttpResponse response = proxyClient.getHttpResponse(PATH_MANIFEST);
 
-    final Asset asset = findAsset(proxyRepo, PATH_MANIFEST);
-    assertThat(asset.format(), is("conan"));
-    assertThat(asset.name(), is(PATH_MANIFEST));
+    assertThat(status(response), is(HttpStatus.OK));
+
+    final Asset asset = findAsset(proxyRepo, PATH_MANIFEST_NON_VERSIONED);
+    assertThat(asset.format(), is(ConanFormat.NAME));
+    assertThat(asset.name(), is(PATH_MANIFEST_NON_VERSIONED));
     assertThat(asset.contentType(), is(MIME_TEXT));
   }
 
   @Test
   public void checkComponentRemovedWhenAssetRemoved() throws IOException {
-    assertThat(status(proxyClient.get(PATH_MANIFEST)), is(HttpStatus.OK));
+    HttpResponse response = proxyClient.getHttpResponse(PATH_MANIFEST);
+    assertThat(status(response), is(HttpStatus.OK));
 
-    Asset asset = findAsset(proxyRepo, PATH_MANIFEST);
-    Component component =  findComponent(proxyRepo, LIBRARY_NAME);
+    String assetPath = PATH_MANIFEST_NON_VERSIONED;
+
+    Asset asset = findAsset(proxyRepo, assetPath);
+    Component component = findComponent(proxyRepo, LIBRARY_NAME);
     assertThat(component.name(), is(equalTo(LIBRARY_NAME)));
     assertThat(component.version(), is(equalTo(LIBRARY_VERSION)));
     assertThat(component.group(), is(equalTo(LIBRARY_VENDOR)));
@@ -245,28 +282,26 @@ public class ConanProxyIT
     ComponentMaintenance maintenanceFacet = proxyRepo.facet(ComponentMaintenance.class);
     maintenanceFacet.deleteAsset(asset.getEntityMetadata().getId());
 
-    asset = findAsset(proxyRepo, PATH_MANIFEST);
+    asset = findAsset(proxyRepo, assetPath);
     assertThat(asset, is(equalTo(null)));
-    component = findComponent(proxyRepo,LIBRARY_NAME);
+    component = findComponent(proxyRepo, LIBRARY_NAME);
     assertThat(component, is(equalTo(null)));
   }
 
   @Test
   public void failRetrieveConaninfoWhenWrongHashInConanmanifest() throws Exception {
     // Conan client gets download_urls.txt file to discover links of all dependency artifacts.
-    CloseableHttpResponse response = proxyClient.get(LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_PATH);
-    response.close();
-    // Conan client gets conanmanifest.txt file to examine conanifo.txt file hash
-    response = proxyClient.get(LIB_WITH_WRONG_CONANINFO_HASH_CONANMANIFEST_PATH);
-    response.close();
+    HttpResponse response =
+        proxyClient.getHttpResponse(LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_PATH);
+    assertThat(status(response), is(HttpStatus.OK));
+
+    response = proxyClient.getHttpResponse(LIB_WITH_WRONG_CONANINFO_HASH_CONANMANIFEST_PATH);
+    assertThat(status(response), is(HttpStatus.OK));
     // Conan client gets conanifo.txt file. Its hash is not equal to hash from conanmanifest.tx file
     // therefore it will be ignored.
-    assertThat(status(proxyClient.get(LIB_WITH_WRONG_CONANINFO_HASH_CONANINFO_PATH)), is(HttpStatus.NOT_FOUND));
-    assertThat(findAsset(proxyRepo, LIB_WITH_WRONG_CONANINFO_HASH_CONANINFO_PATH), is(equalTo(null)));
-  }
 
-  @After
-  public void tearDown() throws Exception {
-    server.stop();
+    assertThat(status(proxyClient.getHttpResponse(LIB_WITH_WRONG_CONANINFO_HASH_CONANINFO_PATH)),
+        is(HttpStatus.NOT_FOUND));
+    assertThat(findAsset(proxyRepo, LIB_WITH_WRONG_CONANINFO_HASH_CONANINFO_PATH), is(equalTo(null)));
   }
 }

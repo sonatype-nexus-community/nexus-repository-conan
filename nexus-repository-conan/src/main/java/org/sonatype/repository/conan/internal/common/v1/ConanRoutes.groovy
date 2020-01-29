@@ -25,7 +25,6 @@ import static org.sonatype.nexus.repository.http.HttpMethods.POST
 import static org.sonatype.nexus.repository.http.HttpMethods.PUT
 import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.and
 import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.or
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.API_VERSION
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PATH

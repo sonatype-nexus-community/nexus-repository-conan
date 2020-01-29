@@ -410,8 +410,7 @@ class ConanRoutes
 
   static ConanCoords getCoords(final Context context) {
     State state = matcherState(context)
-    String path = path(state)
-    return new ConanCoords(path, group(state), project(state), version(state), channel(state), sha(state))
+    return new ConanCoords(path(state), group(state), project(state), version(state), channel(state), sha(state))
   }
 
   static TokenMatcher.State matcherState(final Context context) {

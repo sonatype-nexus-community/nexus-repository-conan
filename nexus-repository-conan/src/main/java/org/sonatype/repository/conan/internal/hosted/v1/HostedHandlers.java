@@ -12,14 +12,11 @@
  */
 package org.sonatype.repository.conan.internal.hosted.v1;
 
-import java.io.IOException;
-
+import javax.annotation.Nullable;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.goodies.common.ComponentSupport;
-import org.sonatype.nexus.repository.http.HttpResponses;
-import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.Headers;
 import org.sonatype.nexus.repository.view.Response;
@@ -41,7 +38,7 @@ import static org.sonatype.repository.conan.internal.metadata.ConanCoords.getPat
 public class HostedHandlers
     extends ComponentSupport
 {
-  private static final String V1_CONANS = "/v1/conans/";
+  private static final String HOSTED_ASSET_PATH_PREFIX = "conans";
 
   private static final String CLIENT_CHECKSUM = "X-Checksum-Sha1";
 
@@ -49,27 +46,14 @@ public class HostedHandlers
     State state = context.getAttributes().require(TokenMatcher.State.class);
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     ConanCoords coord = convertFromState(state);
-    String assetPath = getAssetPath(coord);
+    String assetPath = getHostedAssetPath(coord);
 
     return context.getRepository()
         .facet(ConanHostedFacet.class)
         .uploadDownloadUrl(assetPath, coord, context.getRequest().getPayload(), assetKind);
   };
 
-  public final Handler uploadManifest = context -> upload(context, "conanmanifest.txt");
-
-  public final Handler uploadConanFile = context -> upload(context, "conanfile.py");
-
-  public final Handler uploadConanInfo = context -> upload(context, "conaninfo.txt");
-
-  public final Handler uploadConanPackage = context -> upload(context, "conan_package.tgz");
-
-  public final Handler uploadConanSources = context -> upload(context, "conan_sources.tgz");
-
-  public final Handler uploadConanExport = context -> upload(context, "conan_export.tgz");
-
-  private Response upload(final Context context, final String filename) throws IOException {
-
+  public final Handler uploadContentHandler = context -> {
     /* If the header contains {@link HostedHandlers#CLIENT_CHECKSUM} then this is supposed
     to be used to check against existing content.
     Currently we always assume it is not a mtch by returning a 404
@@ -77,7 +61,7 @@ public class HostedHandlers
      */
     Headers headers = context.getRequest().getHeaders();
     String method = context.getRequest().getAction();
-    
+
     if(headers.contains(CLIENT_CHECKSUM) && method != "PUT") {
       return new Response.Builder()
           .status(Status.failure(NOT_FOUND))
@@ -87,17 +71,18 @@ public class HostedHandlers
     State state = context.getAttributes().require(State.class);
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     ConanCoords coord = convertFromState(state);
-    String assetPath = getAssetPath(coord) + "/" + filename;
+    String assetPath = getHostedAssetPath(coord, assetKind);
 
     return context.getRepository()
         .facet(ConanHostedFacet.class)
         .upload(assetPath, coord, context.getRequest().getPayload(), assetKind);
-  }
+  };
 
   public final Handler downloadUrl = context -> {
     State state = context.getAttributes().require(State.class);
+    AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     ConanCoords coord = convertFromState(state);
-    String path = getAssetPath(coord) + "/download_urls";
+    String path = getHostedAssetPath(coord, assetKind);
 
     return context.getRepository()
         .facet(ConanHostedFacet.class)
@@ -112,14 +97,24 @@ public class HostedHandlers
   public final Handler packageSnapshot = context -> {
     State state = context.getAttributes().require(State.class);
     ConanCoords coord = convertFromState(state);
-    String path = getAssetPath(coord);
+    String path = getHostedAssetPath(coord);
 
     return context.getRepository()
             .facet(ConanHostedFacet.class)
             .getPackageSnapshot(path, context);
   };
 
-  private String getAssetPath(final ConanCoords coord) {
-    return V1_CONANS + getPath(coord);
+  // TODO will be removed
+  public static String getHostedAssetPath(final ConanCoords coord) {
+    return getHostedAssetPath(coord, null);
+  }
+
+  // TODO assetKind will be required
+  public static String getHostedAssetPath(final ConanCoords coord, @Nullable final AssetKind assetKind) {
+    String path = getPath(coord);
+    if (assetKind == null) {
+      return String.format("%s/%s", HOSTED_ASSET_PATH_PREFIX, path);
+    }
+    return String.format("%s/%s/%s", HOSTED_ASSET_PATH_PREFIX, path, assetKind.getFilename());
   }
 }

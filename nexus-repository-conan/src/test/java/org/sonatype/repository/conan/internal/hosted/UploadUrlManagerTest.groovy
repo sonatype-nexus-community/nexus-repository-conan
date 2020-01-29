@@ -35,11 +35,11 @@ class UploadUrlManagerTest
         '}'
     def inputStream = new ByteArrayInputStream(testJson.getBytes())
 
-    def actualResponse = underTest.convertKeys('/v1/conans/group/version/project/exports/', inputStream)
+    def actualResponse = underTest.convertKeys('conans/group/version/project/exports/', inputStream)
 
     String expectedResponse = '{' +
-        '"manifest.txt":"/v1/conans/group/version/project/exports/manifest.txt",' +
-        '"conanfile.py":"/v1/conans/group/version/project/exports/conanfile.py"' +
+        '"manifest.txt":"conans/group/version/project/exports/manifest.txt",' +
+        '"conanfile.py":"conans/group/version/project/exports/conanfile.py"' +
         '}'
 
     assert actualResponse == expectedResponse
@@ -48,16 +48,16 @@ class UploadUrlManagerTest
   @Test
   void whenInputStreamThenConvertsValueToUrlDestination() throws Exception {
     String testJson = '{' +
-        '"manifest.txt":"/v1/conans/group/version/project/exports/manifest.txt",' +
-        '"conanfile.py":"/v1/conans/group/version/project/exports/conanfile.py"' +
+        '"manifest.txt":"conans/group/version/project/exports/manifest.txt",' +
+        '"conanfile.py":"conans/group/version/project/exports/conanfile.py"' +
         '}'
     def inputStream = new ByteArrayInputStream(testJson.getBytes())
 
     def actualResponse = underTest.prefixToValues("http://localhost:9300", inputStream)
 
     String expectedResponse = '{' +
-        '"manifest.txt":"http://localhost:9300/v1/conans/group/version/project/exports/manifest.txt",' +
-        '"conanfile.py":"http://localhost:9300/v1/conans/group/version/project/exports/conanfile.py"' +
+        '"manifest.txt":"http://localhost:9300/conans/group/version/project/exports/manifest.txt",' +
+        '"conanfile.py":"http://localhost:9300/conans/group/version/project/exports/conanfile.py"' +
         '}'
 
     assert actualResponse == expectedResponse

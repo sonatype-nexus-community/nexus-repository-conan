@@ -25,6 +25,7 @@ import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE;
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE_SNAPSHOT;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SOURCES;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 
@@ -38,13 +39,23 @@ public class ConanHostedControllerV1
 
   public void attach(final Router.Builder builder) {
     createRoute(builder, ConanRoutes.uploadUrls(), DOWNLOAD_URL, hostedHandler.uploadUrl);
-    createRoute(builder, ConanRoutes.uploadManifest(), CONAN_MANIFEST, hostedHandler.uploadManifest);
-    createRoute(builder, ConanRoutes.uploadConanfile(), CONAN_FILE, hostedHandler.uploadConanFile);
-    createRoute(builder, ConanRoutes.uploadConanInfo(), CONAN_INFO, hostedHandler.uploadConanInfo);
-    createRoute(builder, ConanRoutes.uploadConanPackageZip(), CONAN_PACKAGE, hostedHandler.uploadConanPackage);
-    createRoute(builder, ConanRoutes.uploadConanSource(), CONAN_SOURCES, hostedHandler.uploadConanSources);
-    createRoute(builder, ConanRoutes.uploadConanExportZip(), CONAN_EXPORT, hostedHandler.uploadConanExport);
+    createRoute(builder, ConanRoutes.uploadDownloadUrls(), DOWNLOAD_URL, hostedHandler.uploadUrl);
+    createRoute(builder, ConanRoutes.uploadManifest(), CONAN_MANIFEST, hostedHandler.uploadContentHandler);
+    createRoute(builder, ConanRoutes.uploadConanfile(), CONAN_FILE, hostedHandler.uploadContentHandler);
+    createRoute(builder, ConanRoutes.uploadConanInfo(), CONAN_INFO, hostedHandler.uploadContentHandler);
+    createRoute(builder, ConanRoutes.uploadConanPackageZip(), CONAN_PACKAGE, hostedHandler.uploadContentHandler);
+    createRoute(builder, ConanRoutes.uploadConanSource(), CONAN_SOURCES, hostedHandler.uploadContentHandler);
+    createRoute(builder, ConanRoutes.uploadConanExportZip(), CONAN_EXPORT, hostedHandler.uploadContentHandler);
 
-    createGetRoutes(builder, hostedHandler.downloadUrl, hostedHandler.download, hostedHandler.packageSnapshot);
+    // GET/FETCH ROUTING
+    createRoute(builder, ConanRoutes.downloadUrlsHosted(), DOWNLOAD_URL, hostedHandler.downloadUrl);
+    createRoute(builder, ConanRoutes.conanManifestHosted(), CONAN_MANIFEST, hostedHandler.download);
+    createRoute(builder, ConanRoutes.conanFileHosted(), CONAN_FILE, hostedHandler.download);
+    createRoute(builder, ConanRoutes.conanInfoHosted(), CONAN_INFO, hostedHandler.download);
+    createRoute(builder, ConanRoutes.conanPackageHosted(), CONAN_PACKAGE, hostedHandler.download);
+    createRoute(builder, ConanRoutes.conanSourceHosted(), CONAN_SOURCES, hostedHandler.download);
+    createRoute(builder, ConanRoutes.conanExportHosted(), CONAN_EXPORT, hostedHandler.download);
+    createRoute(builder, ConanRoutes.packageSnapshotHosted(), CONAN_PACKAGE_SNAPSHOT, hostedHandler.packageSnapshot);
+    // GET/FETCH ROUTING
   }
 }

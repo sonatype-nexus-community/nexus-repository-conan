@@ -82,7 +82,7 @@ public class UploadUrlManager
 
   private Map<String, String> prefixToValues(final String path, final Map<String, String> jsonParse) {
     return jsonParse.entrySet().stream()
-          .collect(Collectors.toMap(Entry::getKey, e -> path + e.getValue()));
+          .collect(Collectors.toMap(Entry::getKey, e -> path + "/" + e.getValue()));
   }
 
   private String writejson(final Map<String, String> jsonResponse) {

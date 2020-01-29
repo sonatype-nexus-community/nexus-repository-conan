@@ -47,8 +47,23 @@ class ConanRoutes
         and(
             new ActionMatcher(POST),
             or(
-                new TokenMatcher("/{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/upload_urls"),
-                new TokenMatcher("/{path:.*}/${DOWNLOAD_FORM}/upload_urls")
+                new TokenMatcher("{other:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/upload_urls"),
+                new TokenMatcher("{other:.*}/${DOWNLOAD_FORM}/upload_urls")
+            )
+        )
+    )
+  }
+
+  /**
+   * Matches on urls ending with download_urls
+   */
+  static Builder uploadDownloadUrls() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(POST),
+            or(
+                new TokenMatcher("{other:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/download_urls"),
+                new TokenMatcher("{other:.*}/${DOWNLOAD_FORM}/download_urls")
             )
         )
     )
@@ -138,8 +153,20 @@ class ConanRoutes
         and(
             new ActionMatcher(GET, HEAD),
             or(
-                new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/download_urls"),
-                new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${DOWNLOAD_FORM}/download_urls")
+                new TokenMatcher("{other:.*}/{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/download_urls"),
+                new TokenMatcher("{other:.*}/{path:.*}/${DOWNLOAD_FORM}/download_urls")
+            )
+        )
+    )
+  }
+
+  static Builder downloadUrlsHosted() {
+    return new Builder().matcher(
+        and(
+            new ActionMatcher(GET, HEAD),
+            or(
+                new TokenMatcher("{other:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/download_urls"),
+                new TokenMatcher("{other:.*}/${DOWNLOAD_FORM}/download_urls")
             )
         )
     )
@@ -174,19 +201,31 @@ class ConanRoutes
         and(
             new ActionMatcher(GET, HEAD),
             or(
-                new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conanmanifest.txt"),
-                new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${STANDARD_FORM}/conanmanifest.txt")
+                new TokenMatcher("{other:.*}/{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conanmanifest.txt"),
+                new TokenMatcher("{other:.*}/{path:.*}/${STANDARD_FORM}/conanmanifest.txt")
+            )
+        )
+    )
+  }
+
+  static Builder conanManifestHosted() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET, HEAD),
+            or(
+                new TokenMatcher("{other:.*}/${STANDARD_FORM}/packages/{sha:.+}/conanmanifest.txt"),
+                new TokenMatcher("{other:.*}/${STANDARD_FORM}/conanmanifest.txt")
             )
         )
     )
   }
 
   private static TokenMatcher conanManifestMatcher() {
-    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/conanmanifest.txt")
+    new TokenMatcher("{other:.*}/${STANDARD_FORM}/conanmanifest.txt")
   }
 
   private static TokenMatcher conanManifestPackagesMatcher() {
-    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conanmanifest.txt")
+    new TokenMatcher("{other:.*}/${STANDARD_FORM}/packages/{sha:.+}/conanmanifest.txt")
   }
 
   /**
@@ -206,17 +245,26 @@ class ConanRoutes
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
-            new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${STANDARD_FORM}/conanfile.py")
+            new TokenMatcher("{other:.*}/{path:.*}/${STANDARD_FORM}/conanfile.py")
+        )
+    )
+  }
+
+  static Builder conanFileHosted() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET, HEAD),
+            new TokenMatcher("{other:.*}/${STANDARD_FORM}/conanfile.py")
         )
     )
   }
 
   private static TokenMatcher conanFileMatcher() {
-    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/conanfile.py")
+    new TokenMatcher("{other:.*}/${STANDARD_FORM}/conanfile.py")
   }
 
   private static TokenMatcher conanFilePackagesMatcher() {
-    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conanfile.py")
+    new TokenMatcher("{other:.*}/${STANDARD_FORM}/packages/{sha:.+}/conanfile.py")
   }
 
   /**
@@ -236,17 +284,26 @@ class ConanRoutes
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
-            new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conaninfo.txt")
+            new TokenMatcher("{other:.*}/{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conaninfo.txt")
+        )
+    )
+  }
+
+  static Builder conanInfoHosted() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET, HEAD),
+            new TokenMatcher("{other:.*}/${STANDARD_FORM}/packages/{sha:.+}/conaninfo.txt")
         )
     )
   }
 
   private static TokenMatcher conanInfoMatcher() {
-    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/conaninfo.txt")
+    new TokenMatcher("{other:.*}/${STANDARD_FORM}/conaninfo.txt")
   }
 
   private static TokenMatcher conanInfoPackagesMatcher() {
-    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conaninfo.txt")
+    new TokenMatcher("{other:.*}/${STANDARD_FORM}/packages/{sha:.+}/conaninfo.txt")
   }
 
   /**
@@ -266,7 +323,16 @@ class ConanRoutes
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
-            new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conan_package.tgz")
+            new TokenMatcher("{other:.*}/{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conan_package.tgz")
+        )
+    )
+  }
+
+  static Builder conanPackageHosted() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET, HEAD),
+            new TokenMatcher("{other:.*}/${STANDARD_FORM}/packages/{sha:.+}/conan_package.tgz")
         )
     )
   }
@@ -275,7 +341,16 @@ class ConanRoutes
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
-            new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${STANDARD_FORM}/conan_sources.tgz")
+            new TokenMatcher("{other:.*}/{path:.*}/${STANDARD_FORM}/conan_sources.tgz")
+        )
+    )
+  }
+
+  static Builder conanSourceHosted() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET, HEAD),
+            new TokenMatcher("{other:.*}/${STANDARD_FORM}/conan_sources.tgz")
         )
     )
   }
@@ -284,7 +359,16 @@ class ConanRoutes
     new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
-            new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${STANDARD_FORM}/conan_export.tgz")
+            new TokenMatcher("{other:.*}/{path:.*}/${STANDARD_FORM}/conan_export.tgz")
+        )
+    )
+  }
+
+  static Builder conanExportHosted() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET, HEAD),
+            new TokenMatcher("{other:.*}/${STANDARD_FORM}/conan_export.tgz")
         )
     )
   }
@@ -293,21 +377,30 @@ class ConanRoutes
     new Builder().matcher(
         and(
             new ActionMatcher(HEAD, GET),
-            new TokenMatcher("/{${API_VERSION}:.+}/{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}")
+            new TokenMatcher("{other:.*}/{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}")
+        )
+    )
+  }
+
+  static Builder packageSnapshotHosted() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(HEAD, GET),
+            new TokenMatcher("{other:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}")
         )
     )
   }
 
   private static TokenMatcher conanPackageMatcher() {
-    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/packages/{sha:.+}/conan_package.tgz")
+    new TokenMatcher("{other:.*}/${STANDARD_FORM}/packages/{sha:.+}/conan_package.tgz")
   }
 
   private static TokenMatcher conanSourceMatcher() {
-    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/conan_sources.tgz")
+    new TokenMatcher("{other:.*}/${STANDARD_FORM}/conan_sources.tgz")
   }
 
   private static TokenMatcher conanExportMatcher() {
-    new TokenMatcher("/{path:.*}/${STANDARD_FORM}/conan_export.tgz")
+    new TokenMatcher("{other:.*}/${STANDARD_FORM}/conan_export.tgz")
   }
 
   static String match(final TokenMatcher.State state, final String name) {

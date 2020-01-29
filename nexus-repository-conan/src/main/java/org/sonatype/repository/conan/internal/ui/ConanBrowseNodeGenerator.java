@@ -24,6 +24,7 @@ import org.sonatype.nexus.repository.browse.ComponentPathBrowseNodeGenerator;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.repository.conan.internal.ConanFormat;
+import org.sonatype.repository.conan.internal.utils.ConanFacetUtils;
 
 import com.google.common.collect.ImmutableList;
 
@@ -37,10 +38,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ConanBrowseNodeGenerator
     extends ComponentPathBrowseNodeGenerator
 {
-  private static final int PACKAGE_SNAPSHOT_PATH_LENGTH = 7;
-
-  private static final String PACKAGES_SEGMENT = "packages";
-
   public ConanBrowseNodeGenerator() {
     super();
   }
@@ -73,8 +70,8 @@ public class ConanBrowseNodeGenerator
     int packageNameIndex;
     int packagesSegmentIndex;
 
-    if (path.contains(PACKAGES_SEGMENT)) {
-      if (split.length == PACKAGE_SNAPSHOT_PATH_LENGTH) {
+    if (path.contains(ConanFacetUtils.PACKAGE_SNAPSHOT_IDENTIFIER)) {
+      if (ConanFacetUtils.isPackageSnapshot(path)) {
         packageNameIndex = split.length - 1;
         packagesSegmentIndex = split.length - 2;
         channelIndex = split.length - 3;

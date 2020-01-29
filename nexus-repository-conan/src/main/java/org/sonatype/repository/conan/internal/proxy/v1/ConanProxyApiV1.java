@@ -27,7 +27,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Singleton
 public class ConanProxyApiV1
 {
-  public static final String CONAN_PROXY_API_VERSION = "v1";
+  private static final String version = "v1";
 
   private PingController pingController;
 
@@ -49,8 +49,8 @@ public class ConanProxyApiV1
   }
 
   public void create(final Router.Builder builder) {
-    pingController.attach(builder, CONAN_PROXY_API_VERSION);
-    userController.attach(builder, CONAN_PROXY_API_VERSION);
+    pingController.attach(builder, version);
+    userController.attach(builder, version);
     conanProxyControllerV1.attach(builder);
   }
 }

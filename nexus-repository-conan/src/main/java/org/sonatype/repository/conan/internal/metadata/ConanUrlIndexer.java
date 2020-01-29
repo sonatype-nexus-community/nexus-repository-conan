@@ -26,13 +26,10 @@ import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.repository.conan.internal.common.v1.ConanRoutes;
-import org.sonatype.repository.conan.internal.proxy.ConanProxyHelper;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static java.util.Collections.emptyMap;
-import static org.sonatype.repository.conan.internal.proxy.v1.ConanProxyApiV1.CONAN_PROXY_API_VERSION;
 
 /**
  * download_url files contain absolute paths to each asset
@@ -57,7 +54,7 @@ public class ConanUrlIndexer
 
     ConanCoords coords = ConanRoutes.getCoords(context);
 
-    String path = ConanProxyHelper.getVersionedPath(CONAN_PROXY_API_VERSION, ConanCoords.getPath(coords));
+    String path = ConanCoords.getPath(coords);
 
     for (Map.Entry<String, URL> entry : downloadUrlContents.entrySet()) {
       remappedContents.put(entry.getKey(), repository.getUrl() + "/" + path + "/" + entry.getKey());

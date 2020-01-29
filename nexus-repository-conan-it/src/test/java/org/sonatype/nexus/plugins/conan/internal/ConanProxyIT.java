@@ -47,18 +47,11 @@ public class ConanProxyIT
 {
   private static final int CONAN_REMOTE_PORT = 57777;
 
-  private static final String CONAN_API_VERSION_SEPARATED = "v1/";
-
-  private static final String DIRECTORY_PACKAGE_NON_VERSIONED =
+  private static final String DIRECTORY_PACKAGE =
       "conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
 
-  private static final String DIRECTORY_DOWNLOAD_URLS_NON_VERSIONED =
-      "conans/jsonformoderncpp/3.7.0/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
-
-  private static final String DIRECTORY_PACKAGE = CONAN_API_VERSION_SEPARATED + DIRECTORY_PACKAGE_NON_VERSIONED;
-
   private static final String DIRECTORY_DOWNLOAD_URLS =
-      CONAN_API_VERSION_SEPARATED + DIRECTORY_DOWNLOAD_URLS_NON_VERSIONED;
+      "conans/jsonformoderncpp/3.7.0/vthiery/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
 
   private static final String DIRECTORY_INVALID = "this/is/a/bad/path/";
 
@@ -111,28 +104,16 @@ public class ConanProxyIT
 
   private static final String MIME_TEXT = "text/plain";
 
-  private static final String PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES_NON_VERSIONED =
-      "conans/jsonformoderncpp/3.7.0/vthiery/stable/download_urls";
-
   private static final String PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES =
-      CONAN_API_VERSION_SEPARATED + PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES_NON_VERSIONED;
+      "conans/jsonformoderncpp/3.7.0/vthiery/stable/download_urls";
 
   private static final String PATH_TGZ_PACKAGE = DIRECTORY_PACKAGE + FILE_PACKAGE;
 
-  private static final String PATH_TGZ_PACKAGE_NON_VERSIONED = DIRECTORY_PACKAGE_NON_VERSIONED + FILE_PACKAGE;
-
   private static final String PATH_INFO = DIRECTORY_PACKAGE + FILE_INFO;
-
-  private static final String PATH_INFO_NON_VERSIONED = DIRECTORY_PACKAGE_NON_VERSIONED + FILE_INFO;
 
   private static final String PATH_MANIFEST = DIRECTORY_PACKAGE + FILE_MANIFEST;
 
-  private static final String PATH_MANIFEST_NON_VERSIONED = DIRECTORY_PACKAGE_NON_VERSIONED + FILE_MANIFEST;
-
   private static final String PATH_INVALID = DIRECTORY_INVALID + FILE_PACKAGE;
-
-  private static final String PATH_DOWNLOAD_URLS_NON_VERSIONED =
-      DIRECTORY_DOWNLOAD_URLS_NON_VERSIONED + FILE_DOWNLOAD_URLS;
 
   private static final String PATH_DOWNLOAD_URLS = DIRECTORY_DOWNLOAD_URLS + FILE_DOWNLOAD_URLS;
 
@@ -197,15 +178,15 @@ public class ConanProxyIT
     JsonObject obj = new JsonParser().parse(download_urls).getAsJsonObject();
 
     assertThat(obj.get("conaninfo.txt").getAsString(),
-        is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt"));
+        is("http://localhost:10000/repository/conan-test-proxy-online/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt"));
     assertThat(obj.get("conan_package.tgz").getAsString(),
-        is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz"));
+        is("http://localhost:10000/repository/conan-test-proxy-online/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz"));
     assertThat(obj.get("conanmanifest.txt").getAsString(),
-        is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conanmanifest.txt"));
+        is("http://localhost:10000/repository/conan-test-proxy-online/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conanmanifest.txt"));
 
-    final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS_NON_VERSIONED);
+    final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS);
     assertThat(asset.format(), is(ConanFormat.NAME));
-    assertThat(asset.name(), is(PATH_DOWNLOAD_URLS_NON_VERSIONED));
+    assertThat(asset.name(), is(PATH_DOWNLOAD_URLS));
     assertThat(asset.contentType(), is(MIME_TEXT));
   }
 
@@ -219,13 +200,13 @@ public class ConanProxyIT
     JsonObject obj = new JsonParser().parse(download_urls).getAsJsonObject();
 
     assertThat(obj.get("conanmanifest.txt").getAsString(),
-        is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/conanmanifest.txt"));
+        is("http://localhost:10000/repository/conan-test-proxy-online/conans/vthiery/jsonformoderncpp/3.7.0/stable/conanmanifest.txt"));
     assertThat(obj.get("conanfile.py").getAsString(),
-        is("http://localhost:10000/repository/conan-test-proxy-online/v1/conans/vthiery/jsonformoderncpp/3.7.0/stable/conanfile.py"));
+        is("http://localhost:10000/repository/conan-test-proxy-online/conans/vthiery/jsonformoderncpp/3.7.0/stable/conanfile.py"));
 
-    final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES_NON_VERSIONED);
+    final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES);
     assertThat(asset.format(), is(ConanFormat.NAME));
-    assertThat(asset.name(), is(PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES_NON_VERSIONED));
+    assertThat(asset.name(), is(PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES));
     assertThat(asset.contentType(), is(MIME_TEXT));
   }
 
@@ -234,9 +215,9 @@ public class ConanProxyIT
     HttpResponse response = proxyClient.getHttpResponse(PATH_TGZ_PACKAGE);
     assertThat(status(response), is(HttpStatus.OK));
 
-    Asset asset = findAsset(proxyRepo, PATH_TGZ_PACKAGE_NON_VERSIONED);
+    Asset asset = findAsset(proxyRepo, PATH_TGZ_PACKAGE);
     assertThat(asset.format(), is(ConanFormat.NAME));
-    assertThat(asset.name(), is(PATH_TGZ_PACKAGE_NON_VERSIONED));
+    assertThat(asset.name(), is(PATH_TGZ_PACKAGE));
     assertThat(asset.contentType(), is(MIME_GZIP));
   }
 
@@ -248,9 +229,9 @@ public class ConanProxyIT
     // Conan client gets conanifo.txt file
     assertThat(status(proxyClient.getHttpResponse(PATH_INFO)), is(HttpStatus.OK));
 
-    final Asset asset = findAsset(proxyRepo, PATH_INFO_NON_VERSIONED);
+    final Asset asset = findAsset(proxyRepo, PATH_INFO);
     assertThat(asset.format(), is(ConanFormat.NAME));
-    assertThat(asset.name(), is(PATH_INFO_NON_VERSIONED));
+    assertThat(asset.name(), is(PATH_INFO));
     assertThat(asset.contentType(), is(MIME_TEXT));
   }
 
@@ -260,9 +241,9 @@ public class ConanProxyIT
 
     assertThat(status(response), is(HttpStatus.OK));
 
-    final Asset asset = findAsset(proxyRepo, PATH_MANIFEST_NON_VERSIONED);
+    final Asset asset = findAsset(proxyRepo, PATH_MANIFEST);
     assertThat(asset.format(), is(ConanFormat.NAME));
-    assertThat(asset.name(), is(PATH_MANIFEST_NON_VERSIONED));
+    assertThat(asset.name(), is(PATH_MANIFEST));
     assertThat(asset.contentType(), is(MIME_TEXT));
   }
 
@@ -271,7 +252,7 @@ public class ConanProxyIT
     HttpResponse response = proxyClient.getHttpResponse(PATH_MANIFEST);
     assertThat(status(response), is(HttpStatus.OK));
 
-    String assetPath = PATH_MANIFEST_NON_VERSIONED;
+    String assetPath = PATH_MANIFEST;
 
     Asset asset = findAsset(proxyRepo, assetPath);
     Component component = findComponent(proxyRepo, LIBRARY_NAME);

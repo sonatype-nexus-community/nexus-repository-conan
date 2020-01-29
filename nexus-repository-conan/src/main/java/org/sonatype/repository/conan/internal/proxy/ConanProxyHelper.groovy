@@ -61,8 +61,4 @@ class ConanProxyHelper
     Content.extractFromAsset(asset, HASH_ALGORITHMS, content.getAttributes())
     return content
   }
-
-  static String getVersionedPath(final String version, final String path) {
-    return "${version}/${path}"
-  }
 }

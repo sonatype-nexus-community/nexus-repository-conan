@@ -23,10 +23,8 @@ import org.sonatype.nexus.repository.Type
 import org.sonatype.nexus.repository.proxy.ProxyHandler
 import org.sonatype.nexus.repository.types.ProxyType
 import org.sonatype.nexus.repository.view.ConfigurableViewFacet
-import org.sonatype.nexus.repository.view.Route
 import org.sonatype.nexus.repository.view.Router
 import org.sonatype.nexus.repository.view.ViewFacet
-import org.sonatype.nexus.repository.view.handlers.BrowseUnsupportedHandler
 import org.sonatype.nexus.repository.view.handlers.HighAvailabilitySupportChecker
 import org.sonatype.repository.conan.internal.ConanFormat
 import org.sonatype.repository.conan.internal.ConanRecipeSupport
@@ -91,12 +89,9 @@ class ConanProxyRecipe
   ViewFacet configure(ConfigurableViewFacet facet) {
     Router.Builder builder = new Router.Builder()
 
-    conanApiV1.create(builder);
+    addBrowseUnsupportedRoute(builder)
 
-    builder.route(new Route.Builder()
-        .matcher(BrowseUnsupportedHandler.MATCHER)
-        .handler(browseUnsupportedHandler)
-        .create())
+    conanApiV1.create(builder);
 
     builder.defaultHandlers(notFound())
     facet.configure(builder.create())

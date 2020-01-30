@@ -30,7 +30,6 @@ import org.sonatype.nexus.repository.storage.SingleAssetComponentMaintenance
 import org.sonatype.nexus.repository.storage.StorageFacet
 import org.sonatype.nexus.repository.storage.UnitOfWorkHandler
 import org.sonatype.nexus.repository.view.ConfigurableViewFacet
-import org.sonatype.nexus.repository.view.handlers.BrowseUnsupportedHandler
 import org.sonatype.nexus.repository.view.handlers.ConditionalRequestHandler
 import org.sonatype.nexus.repository.view.handlers.ContentHeadersHandler
 import org.sonatype.nexus.repository.view.handlers.ExceptionHandler
@@ -81,9 +80,6 @@ abstract class ConanRecipeSupport
 
   @Inject
   UnitOfWorkHandler unitOfWorkHandler
-
-  @Inject
-  BrowseUnsupportedHandler browseUnsupportedHandler
 
   @Inject
   HandlerContributor handlerContributor

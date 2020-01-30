@@ -86,12 +86,9 @@ class ConanHostedRecipe
   ViewFacet configure(final ConfigurableViewFacet facet) {
     Router.Builder builder = new Router.Builder()
 
-    apiV1.create(builder)
+    addBrowseUnsupportedRoute(builder)
 
-    builder.route(new Route.Builder()
-        .matcher(BrowseUnsupportedHandler.MATCHER)
-        .handler(browseUnsupportedHandler)
-        .create())
+    apiV1.create(builder)
 
     builder.defaultHandlers(notFound())
     facet.configure(builder.create())

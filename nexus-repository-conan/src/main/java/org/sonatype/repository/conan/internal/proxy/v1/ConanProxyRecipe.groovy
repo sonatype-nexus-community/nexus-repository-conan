@@ -91,12 +91,9 @@ class ConanProxyRecipe
   ViewFacet configure(ConfigurableViewFacet facet) {
     Router.Builder builder = new Router.Builder()
 
-    conanApiV1.create(builder);
+    addBrowseUnsupportedRoute(builder)
 
-    builder.route(new Route.Builder()
-        .matcher(BrowseUnsupportedHandler.MATCHER)
-        .handler(browseUnsupportedHandler)
-        .create())
+    conanApiV1.create(builder);
 
     builder.defaultHandlers(notFound())
     facet.configure(builder.create())

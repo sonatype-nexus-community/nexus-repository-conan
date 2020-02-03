@@ -58,7 +58,7 @@ If everything checks out, the bundle for Conan should be available in the `targe
 
 ## Compatibility with Nexus Repository Manager 3 Versions
 
-The table below outlines what version of Nexus Repository Manager the plugin was built against
+The table below outlines what version of Nexus Repository Manager the plugin was built against:
 
 | Plugin Version    | Nexus Repository Manager Version |
 |-------------------|----------------------------------|
@@ -73,7 +73,7 @@ In Nexus Repository Manager 3.22+ Conan proxy format is already included. So the
 But if you want to reinstall the plugin with your improvements then following instructions will be useful.
 Note: Using an unofficial version of the plugin is not supported by the Sonatype Support team.
 
-### Permanent ReInstall
+### Permanent Reinstall
 
 If you are trying to use the Conan plugin permanently, it likely makes more sense to do the following:
 
@@ -95,7 +95,7 @@ If you are trying to use the Conan plugin permanently, it likely makes more sens
     </features>
    ```
 
-For older versions  there are a range of options for installing the Conan plugin. You'll need to build it first, and
+For older versions there are a range of options for installing the Conan plugin. You'll need to build it first, and
 then install the plugin with the options shown below:
 
 ### Easiest Install

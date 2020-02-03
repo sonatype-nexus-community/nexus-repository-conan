@@ -69,7 +69,7 @@ The table below outlines what version of Nexus Repository Manager the plugin was
 
 ## Installing the plugin
 
-In Nexus Repository Manager 3.22+ Conan proxy format is already included. So there is no need to install it.
+In Nexus Repository Manager 3.22+ Conan proxy is already included. So there is no need to install it.
 But if you want to reinstall the plugin with your improvements then following instructions will be useful.
 Note: Using an unofficial version of the plugin is not supported by the Sonatype Support team.
 

@@ -75,11 +75,10 @@ Note: Using an unofficial version of the plugin is not supported by the Sonatype
 
 ### Permanent Reinstall
 
-If you are trying to use the Conan plugin permanently, it likely makes more sense to do the following:
-
-* Copy the bundle into `<nexus_dir>/system/org/sonatype/nexus/plugins/nexus-repository-conan/1.0.0/nexus-repository-conan-1.0.0.jar`
-* If you are using OSS edition, make these mods in: `<nexus_dir>/system/com/sonatype/nexus/assemblies/nexus-oss-feature/3.x.y/nexus-oss-feature-3.x.y-features.xml`
-* If you are using PRO edition, make these mods in: `<nexus_dir>/system/com/sonatype/nexus/assemblies/nexus-pro-feature/3.x.y/nexus-pro-feature-3.x.y-features.xml`
+* Copy the bundle into: `<nexus_dir>/system/org/sonatype/nexus/plugins/nexus-repository-conan/1.0.0/nexus-repository-conan-1.0.0.jar`
+* Modify xml to introduce the plugin:
+  * OSS edition: `<nexus_dir>/system/com/sonatype/nexus/assemblies/nexus-oss-feature/3.x.y/nexus-oss-feature-3.x.y-features.xml`
+  * PRO edition: `<nexus_dir>/system/com/sonatype/nexus/assemblies/nexus-pro-feature/3.x.y/nexus-pro-feature-3.x.y-features.xml`
    ```
          <feature version="3.x.y.xy" prerequisite="false" dependency="false">nexus-repository-rubygems</feature>
          <feature version="1.0.0" prerequisite="false" dependency="false">nexus-repository-conan</feature>

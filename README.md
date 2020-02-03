@@ -54,7 +54,7 @@ If everything checks out, the bundle for Conan should be available in the `targe
 
 ## Using Conan With Nexus Repository Manager 3
 
-[We have detailed instructions on how to get started here!](https://help.sonatype.com/nxrm3master/formats/conan-repositories)
+[We have detailed instructions on how to get started here!](https://help.sonatype.com/repomanager3/formats/conan-repositories)
 
 ## Compatibility with Nexus Repository Manager 3 Versions
 

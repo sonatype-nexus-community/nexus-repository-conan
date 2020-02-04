@@ -23,10 +23,11 @@
    * [Building](#building)
 * [Using Conan with Nexus Repository Manager 3](#using-conan-with-nexus-repository-manager-3)
 * [Installing the plugin](#installing-the-plugin)
+   * [Permanent Install](#permanent-reinstall)
+* [Installing the plugin in old NXRM versions](#installing-the-plugin-in-old-versions)
    * [Easiest Install](#easiest-install)
    * [Temporary Install](#temporary-install)
-   * [(more) Permanent Install](#more-permanent-install)
-   * [(most) Permament Install](#most-permanent-install)
+   * [Permament Install](#permanent-install)
 * [The Fine Print](#the-fine-print)
 * [Getting Help](#getting-help)
 
@@ -97,6 +98,8 @@ Note: Using an unofficial version of the plugin is not supported by the Sonatype
        </feature>
     </features>
    ```
+
+### Installing the plugin in old versions
 
 For older versions there are a range of options for installing the Conan plugin. You'll need to build it first, and
 then install the plugin with the options shown below:

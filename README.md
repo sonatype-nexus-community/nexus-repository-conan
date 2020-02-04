@@ -78,13 +78,16 @@ Note: Using an unofficial version of the plugin is not supported by the Sonatype
 * Copy the bundle into: `<nexus_dir>/system/org/sonatype/nexus/plugins/nexus-repository-conan/1.0.0/nexus-repository-conan-1.0.0.jar`
 * Modify xml to introduce the plugin:
   * OSS edition: `<nexus_dir>/system/com/sonatype/nexus/assemblies/nexus-oss-feature/3.x.y/nexus-oss-feature-3.x.y-features.xml`
+
   * PRO edition: `<nexus_dir>/system/com/sonatype/nexus/assemblies/nexus-pro-feature/3.x.y/nexus-pro-feature-3.x.y-features.xml`
+
    ```
          <feature version="3.x.y.xy" prerequisite="false" dependency="false">nexus-repository-rubygems</feature>
          <feature version="1.0.0" prerequisite="false" dependency="false">nexus-repository-conan</feature>
          <feature version="3.x.y.xy" prerequisite="false" dependency="false">nexus-repository-yum</feature>
      </features>
    ```
+
    And
    ```
        <feature name="nexus-repository-conan" description="org.sonatype.nexus.plugins:nexus-repository-conan" version="1.0.0">
@@ -117,7 +120,7 @@ good installation path if you are just testing or doing development on the plugi
 
   More details here: https://help.sonatype.com/display/NXRM3/Bundle+Development+Overview
 
-* Run Nexus' console:
+* Run NXRM' console:
   ```
   # sudo su - nexus
   $ cd <nexus_dir>/bin

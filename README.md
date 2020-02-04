@@ -63,8 +63,8 @@ The table below outlines what version of Nexus Repository Manager the plugin was
 | Plugin Version    | Nexus Repository Manager Version |
 |-------------------|----------------------------------|
 | v0.0.1            | <3.11.0                          |
-| v0.0.2+           | 3.11.0+                          |
-| v1.0.0+ In product| 3.22.0+                          |
+| v0.0.2 - v0.0.6   | >=3.11.0                         |
+| v1.0.0 In product | >=3.22.0                         |
 
 
 ## Installing the plugin

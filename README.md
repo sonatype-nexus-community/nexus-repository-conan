@@ -115,7 +115,7 @@ good installation path if you are just testing or doing development on the plugi
 
 * Enable Nexus console: edit `<nexus_dir>/bin/nexus.vmoptions` and change `karaf.startLocalConsole`  to `true`.
 
-  More details here: https://help.sonatype.com/display/NXRM3/Bundle+Development#BundleDevelopment-InstallingBundles
+  More details here: https://help.sonatype.com/display/NXRM3/Bundle+Development+Overview
 
 * Run Nexus' console:
   ```

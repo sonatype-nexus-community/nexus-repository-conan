@@ -23,7 +23,7 @@
    * [Building](#building)
 * [Using Conan with Nexus Repository Manager 3](#using-conan-with-nexus-repository-manager-3)
 * [Installing the plugin](#installing-the-plugin)
-   * [Permanent Install](#permanent-reinstall)
+   * [Permanent Renstall](#permanent-reinstall)
 * [Installing the plugin in old NXRM versions](#installing-the-plugin-in-old-versions)
    * [Easiest Install](#easiest-install)
    * [Temporary Install](#temporary-install)
@@ -54,7 +54,7 @@ To build the project and generate the bundle use Maven
 
 If everything checks out, the bundle for Conan should be available in the `target` folder
 
-## Using Conan With Nexus Repository Manager 3
+## Using Conan with Nexus Repository Manager 3
 
 [We have detailed instructions on how to get started here!](https://help.sonatype.com/repomanager3/formats/conan-repositories)
 
@@ -102,7 +102,7 @@ Note: Using an unofficial version of the plugin is not supported by the Sonatype
 ### Installing the plugin in old versions
 
 For older versions there are a range of options for installing the Conan plugin. You'll need to build it first, and
-then install the plugin with the options shown below:
+then install the plugin with one of the options shown below:
 
 ### Easiest Install
 	
@@ -120,11 +120,11 @@ You should see `conan (hosted)` and `conan (proxy)` in the available Repository 
 Installations done via the Karaf console will be wiped out with every restart of Nexus Repository. This is a
 good installation path if you are just testing or doing development on the plugin.
 
-* Enable Nexus console: edit `<nexus_dir>/bin/nexus.vmoptions` and change `karaf.startLocalConsole`  to `true`.
+* Enable NXRM's console: edit `<nexus_dir>/bin/nexus.vmoptions` and change `karaf.startLocalConsole`  to `true`.
 
   More details here: https://help.sonatype.com/display/NXRM3/Bundle+Development+Overview
 
-* Run NXRM' console:
+* Run NXRM's console:
   ```
   # sudo su - nexus
   $ cd <nexus_dir>/bin

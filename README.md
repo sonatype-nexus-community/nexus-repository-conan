@@ -23,7 +23,7 @@
    * [Building](#building)
 * [Using Conan with Nexus Repository Manager 3](#using-conan-with-nexus-repository-manager-3)
 * [Installing the plugin](#installing-the-plugin)
-   * [Permanent Renstall](#permanent-reinstall)
+   * [Permanent Reinstall](#permanent-reinstall)
 * [Installing the plugin in old NXRM versions](#installing-the-plugin-in-old-versions)
    * [Easiest Install](#easiest-install)
    * [Temporary Install](#temporary-install)

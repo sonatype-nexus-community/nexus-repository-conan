@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -101,6 +102,10 @@ public class ConanUpgrade_1_1
             .flatMap(repositoryName -> {
               OIndex<?> bucketIdx = db.getMetadata().getIndexManager().getIndex(I_REPOSITORY_NAME);
               OIdentifiable bucket = (OIdentifiable) bucketIdx.get(repositoryName);
+              if (bucket == null) {
+                log.debug("Unable to find bucket for {}", repositoryName);
+                return Stream.empty();
+              }
               List<ODocument> conanManifests = db.query(new OSQLSynchQuery<ODocument>(
                       "select from asset where bucket = ? and attributes.conan.asset_kind = 'CONAN_MANIFEST'"),
                   bucket.getIdentity());
@@ -126,6 +131,10 @@ public class ConanUpgrade_1_1
             .flatMap(repositoryName -> {
               OIndex<?> bucketIdx = db.getMetadata().getIndexManager().getIndex(I_REPOSITORY_NAME);
               OIdentifiable bucket = (OIdentifiable) bucketIdx.get(repositoryName);
+              if (bucket == null) {
+                log.debug("Unable to find bucket for {}", repositoryName);
+                return Stream.empty();
+              }
               List<ODocument> assets =
                   db.query(new OSQLSynchQuery<ODocument>("select from asset where bucket = ?"), bucket.getIdentity());
               return assets.stream();

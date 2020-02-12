@@ -22,6 +22,7 @@ import org.sonatype.nexus.orient.testsupport.DatabaseInstanceRule
 import org.sonatype.repository.conan.internal.AssetKind
 import org.sonatype.repository.conan.internal.ConanFormat
 
+import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.orientechnologies.orient.core.collate.OCaseInsensitiveCollate
 import com.orientechnologies.orient.core.db.record.OIdentifiable
@@ -68,7 +69,7 @@ class ConanUpgrade_1_1_Test
       .property(P_NAME)
       .build()
 
-  static final List<String> ACTUAL_NAMES = Collections.unmodifiableList(Arrays.asList(
+  static final List<String> ACTUAL_NAMES = ImmutableList.of(
       // ZLIB proxy base on v1/api-refactor testing
       "v1/conans/zlib/1.2.11/conan/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55",
       "v1/conans/conan/zlib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conan_package.tgz",
@@ -118,9 +119,9 @@ class ConanUpgrade_1_1_Test
       "/v1/conans/v1/conans/conan/react/1.2.11/stable/conanmanifest.txt",
       "/v1/conans/v1/conans/react/1.2.11/conan/stable/download_urls"
       // react hosted base on v1/api-refactor testing
-  ))
+  )
 
-  static final List<String> EXPECTED_NAMES = Collections.unmodifiableList(Arrays.asList(
+  static final List<String> EXPECTED_NAMES = ImmutableList.of(
       // ZLIB proxy v1/api-refactor testing
       "conans/zlib/1.2.11/conan/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55",
       "conans/conan/zlib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conan_package.tgz",
@@ -168,7 +169,7 @@ class ConanUpgrade_1_1_Test
       "conans/conan/react/1.2.11/stable/conanmanifest.txt",
       "conans/react/1.2.11/conan/stable/download_urls"
       // react hosted base on v1/api-refactor testing
-  ))
+  )
 
   private static final String P_NAME = "name"
 

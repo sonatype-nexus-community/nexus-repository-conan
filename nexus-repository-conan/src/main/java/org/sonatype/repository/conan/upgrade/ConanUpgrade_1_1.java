@@ -98,18 +98,21 @@ public class ConanUpgrade_1_1
 
   private void removeAttributesFromConanManifest(final List<String> repositoryNames) {
     DatabaseUpgradeSupport.withDatabaseAndClass(componentDatabaseInstance, ASSET_CLASS_NAME,
-        (db, type) -> findAssets(db, repositoryNames,
-            "select from asset where bucket = ? and attributes.conan.asset_kind = 'CONAN_MANIFEST'")
-            .forEach(oDocument -> {
+        (db, type) -> {
+          String SQL = String.format("select from asset where bucket = ? and attributes.conan.asset_kind = '%s'",
+              AssetKind.CONAN_MANIFEST.name());
+          findAssets(db, repositoryNames, SQL)
+              .forEach(oDocument -> {
 
-              Map<String, Object> attributes = oDocument.field(P_ATTRIBUTES);
-              // remove all attributes, except asset_kind from conan "bucket"
-              attributes
-                  .put(ConanFormat.NAME, Collections.singletonMap(P_ASSET_KIND, AssetKind.CONAN_MANIFEST.name()));
-              oDocument.field(P_ATTRIBUTES, attributes);
+                Map<String, Object> attributes = oDocument.field(P_ATTRIBUTES);
+                // remove all attributes, except asset_kind from conan "bucket"
+                attributes
+                    .put(ConanFormat.NAME, Collections.singletonMap(P_ASSET_KIND, AssetKind.CONAN_MANIFEST.name()));
+                oDocument.field(P_ATTRIBUTES, attributes);
 
-              oDocument.save();
-            })
+                oDocument.save();
+              });
+        }
     );
   }
 

@@ -47,7 +47,7 @@ import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_K
 @Named
 @Singleton
 @Upgrades(model = ConanModel.NAME, from = "1.0", to = "1.1")
-@DependsOn(model = DatabaseInstanceNames.COMPONENT, version = "1.14")
+@DependsOn(model = DatabaseInstanceNames.COMPONENT, version = "1.14", checkpoint = true)
 @DependsOn(model = DatabaseInstanceNames.CONFIG, version = "1.8")
 public class ConanUpgrade_1_1
     extends DatabaseUpgradeSupport

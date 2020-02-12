@@ -47,19 +47,20 @@ import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_K
 @Named
 @Singleton
 @Upgrades(model = ConanModel.NAME, from = "1.0", to = "1.1")
-@DependsOn(model = DatabaseInstanceNames.COMPONENT, version = "1.14", checkpoint = true)
-@DependsOn(model = DatabaseInstanceNames.CONFIG, version = "1.8", checkpoint = true)
+@DependsOn(model = DatabaseInstanceNames.COMPONENT, version = "1.14")
+@DependsOn(model = DatabaseInstanceNames.CONFIG, version = "1.8")
 public class ConanUpgrade_1_1
     extends DatabaseUpgradeSupport
 {
   private static final String P_REPOSITORY_NAME = "repository_name";
 
-  private static final String I_REPOSITORY_NAME = new OIndexNameBuilder()
-      .type("bucket")
-      .property(P_REPOSITORY_NAME)
-      .build();
+  private static final String P_ASSET_NAME = "name";
+
+  private static final String P_ATTRIBUTES = "attributes";
 
   private static final String ASSET_CLASS_NAME = "asset";
+
+  private static final String REPOSITORY_CLASS_NAME = "repository";
 
   private final Provider<DatabaseInstance> configDatabaseInstance;
 
@@ -76,7 +77,7 @@ public class ConanUpgrade_1_1
 
   @Override
   public void apply() {
-    if (hasSchemaClass(configDatabaseInstance, "repository") &&
+    if (hasSchemaClass(configDatabaseInstance, REPOSITORY_CLASS_NAME) &&
         hasSchemaClass(componentDatabaseInstance, ASSET_CLASS_NAME)) {
       List<String> repositoryNames = findConanRepositoryNames();
       updateAssetPath(repositoryNames);
@@ -97,27 +98,15 @@ public class ConanUpgrade_1_1
 
   private void removeAttributesFromConanManifest(final List<String> repositoryNames) {
     DatabaseUpgradeSupport.withDatabaseAndClass(componentDatabaseInstance, ASSET_CLASS_NAME,
-        (db, type) -> repositoryNames
-            .stream()
-            .flatMap(repositoryName -> {
-              OIndex<?> bucketIdx = db.getMetadata().getIndexManager().getIndex(I_REPOSITORY_NAME);
-              OIdentifiable bucket = (OIdentifiable) bucketIdx.get(repositoryName);
-              if (bucket == null) {
-                log.debug("Unable to find bucket for {}", repositoryName);
-                return Stream.empty();
-              }
-              List<ODocument> conanManifests = db.query(new OSQLSynchQuery<ODocument>(
-                      "select from asset where bucket = ? and attributes.conan.asset_kind = 'CONAN_MANIFEST'"),
-                  bucket.getIdentity());
-              return conanManifests.stream();
-            })
+        (db, type) -> findAssets(db, repositoryNames,
+            "select from asset where bucket = ? and attributes.conan.asset_kind = 'CONAN_MANIFEST'")
             .forEach(oDocument -> {
 
-              Map<String, Object> attributes = oDocument.field("attributes");
+              Map<String, Object> attributes = oDocument.field(P_ATTRIBUTES);
               // remove all attributes, except asset_kind from conan "bucket"
               attributes
                   .put(ConanFormat.NAME, Collections.singletonMap(P_ASSET_KIND, AssetKind.CONAN_MANIFEST.name()));
-              oDocument.field("attributes", attributes);
+              oDocument.field(P_ATTRIBUTES, attributes);
 
               oDocument.save();
             })
@@ -126,41 +115,57 @@ public class ConanUpgrade_1_1
 
   private void updateAssetPath(final List<String> repositoryNames) {
     DatabaseUpgradeSupport.withDatabaseAndClass(componentDatabaseInstance, ASSET_CLASS_NAME,
-        (db, type) -> repositoryNames
-            .stream()
-            .flatMap(repositoryName -> {
-              OIndex<?> bucketIdx = db.getMetadata().getIndexManager().getIndex(I_REPOSITORY_NAME);
-              OIdentifiable bucket = (OIdentifiable) bucketIdx.get(repositoryName);
-              if (bucket == null) {
-                log.debug("Unable to find bucket for {}", repositoryName);
-                return Stream.empty();
-              }
-              List<ODocument> assets =
-                  db.query(new OSQLSynchQuery<ODocument>("select from asset where bucket = ?"), bucket.getIdentity());
-              return assets.stream();
-            })
+        (db, type) -> findAssets(db, repositoryNames, "select from asset where bucket = ?")
             .forEach(oDocument -> {
-              String name = oDocument.field("name");
+              String name = oDocument.field(P_ASSET_NAME);
               String nextName = null;
 
-              if (name.startsWith("/v1/conans/v1/conans/")) { // broken HOSTED
-                nextName = "conans/" + name.substring(21);
+              String strategy1 = "/v1/conans/v1/conans/";
+              String strategy2 = "v1/conans/";
+              String strategy3 = "/v1/conans/";
+              String conans = "conans/";
+
+              if (name.startsWith(strategy1)) { // broken based on refactor-v1-api HOSTED
+                nextName = conans + name.substring(strategy1.length());
               }
-              else if (name.startsWith("v1/conans/")) { // broken PROXY
-                nextName = "conans/" + name.substring(10);
+              else if (name.startsWith(strategy2)) { // based on refactor-v1-api PROXY
+                nextName = conans + name.substring(strategy2.length());
               }
-              else if (name.startsWith("/v1/conans/")) { // broken HOSTED
-                nextName = "conans/" + name.substring(11);
+              else if (name.startsWith(strategy3)) { // latest(master) HOSTED
+                nextName = conans + name.substring(strategy3.length());
               }
-              else if (!name.startsWith("conans/")) { // latest master changes. PROXY
-                nextName = "conans/" + name;
+              else if (!name.startsWith(conans)) { // latest(master) PROXY
+                nextName = conans + name;
               }
 
               if (nextName != null) {
-                oDocument.field("name", nextName);
+                oDocument.field(P_ASSET_NAME, nextName);
                 oDocument.save();
               }
             })
     );
+  }
+
+  private Stream<ODocument> findAssets(
+      final ODatabaseDocumentTx db,
+      final List<String> repositoryNames,
+      final String SQL)
+  {
+    return repositoryNames
+        .stream()
+        .flatMap(repositoryName -> {
+          OIndex<?> bucketIdx = db.getMetadata().getIndexManager().getIndex(new OIndexNameBuilder()
+              .type("bucket")
+              .property(P_REPOSITORY_NAME)
+              .build());
+          OIdentifiable bucket = (OIdentifiable) bucketIdx.get(repositoryName);
+          if (bucket == null) {
+            log.debug("Unable to find bucket for {}", repositoryName);
+            return Stream.empty();
+          }
+          List<ODocument> assets =
+              db.query(new OSQLSynchQuery<ODocument>(SQL), bucket.getIdentity());
+          return assets.stream();
+        });
   }
 }

@@ -30,6 +30,7 @@ import org.sonatype.nexus.orient.DatabaseInstanceNames;
 import org.sonatype.nexus.orient.DatabaseUpgradeSupport;
 import org.sonatype.nexus.orient.OIndexNameBuilder;
 import org.sonatype.repository.conan.internal.AssetKind;
+import org.sonatype.repository.conan.internal.ConanFormat;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -107,9 +108,9 @@ public class ConanUpgrade_1_1
           conanManifests
               .forEach(oDocument -> {
 
-                Map<String, Object> attributes = new HashMap<>(oDocument.field("attributes"));
-                Map<String, Object> conanNext = Collections.singletonMap(P_ASSET_KIND, AssetKind.CONAN_MANIFEST.name());
-                attributes.put("conan", conanNext);
+                Map<String, Object> attributes = oDocument.field("attributes");
+                // remove all attributes, except asset_kind from conan "bucket"
+                attributes.put(ConanFormat.NAME, Collections.singletonMap(P_ASSET_KIND, AssetKind.CONAN_MANIFEST.name()));
                 oDocument.field("attributes", attributes);
 
                 oDocument.save();

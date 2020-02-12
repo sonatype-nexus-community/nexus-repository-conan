@@ -13,7 +13,6 @@
 package org.sonatype.repository.conan.upgrade;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -97,25 +96,27 @@ public class ConanUpgrade_1_1
 
   private void removeAttributesFromConanManifest(final List<String> repositoryNames) {
     DatabaseUpgradeSupport.withDatabaseAndClass(componentDatabaseInstance, ASSET_CLASS_NAME,
-        (db, type) -> repositoryNames.forEach(repositoryName -> {
-          OIndex<?> bucketIdx = db.getMetadata().getIndexManager().getIndex(I_REPOSITORY_NAME);
-          OIdentifiable bucket = (OIdentifiable) bucketIdx.get(repositoryName);
+        (db, type) -> repositoryNames
+            .stream()
+            .flatMap(repositoryName -> {
+              OIndex<?> bucketIdx = db.getMetadata().getIndexManager().getIndex(I_REPOSITORY_NAME);
+              OIdentifiable bucket = (OIdentifiable) bucketIdx.get(repositoryName);
+              List<ODocument> conanManifests = db.query(new OSQLSynchQuery<ODocument>(
+                      "select from asset where bucket = ? and attributes.conan.asset_kind = 'CONAN_MANIFEST'"),
+                  bucket.getIdentity());
+              return conanManifests.stream();
+            })
+            .forEach(oDocument -> {
 
-          List<ODocument> conanManifests = db.query(new OSQLSynchQuery<ODocument>(
-                  "select from asset where bucket = ? and attributes.conan.asset_kind = 'CONAN_MANIFEST'"),
-              bucket.getIdentity());
+              Map<String, Object> attributes = oDocument.field("attributes");
+              // remove all attributes, except asset_kind from conan "bucket"
+              attributes
+                  .put(ConanFormat.NAME, Collections.singletonMap(P_ASSET_KIND, AssetKind.CONAN_MANIFEST.name()));
+              oDocument.field("attributes", attributes);
 
-          conanManifests
-              .forEach(oDocument -> {
-
-                Map<String, Object> attributes = oDocument.field("attributes");
-                // remove all attributes, except asset_kind from conan "bucket"
-                attributes.put(ConanFormat.NAME, Collections.singletonMap(P_ASSET_KIND, AssetKind.CONAN_MANIFEST.name()));
-                oDocument.field("attributes", attributes);
-
-                oDocument.save();
-              });
-        }));
+              oDocument.save();
+            })
+    );
   }
 
   private void updateAssetPath(final List<String> repositoryNames) {

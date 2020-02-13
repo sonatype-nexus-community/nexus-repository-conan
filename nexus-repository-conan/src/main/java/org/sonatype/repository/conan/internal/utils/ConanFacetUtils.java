@@ -39,6 +39,14 @@ public class ConanFacetUtils
 {
   public static final List<HashAlgorithm> HASH_ALGORITHMS = ImmutableList.of(SHA1, SHA256);
 
+  public static final String PACKAGE_SNAPSHOT_IDENTIFIER = "packages";
+
+  public static boolean isPackageSnapshot(String path) {
+    String[] args = path.split("/");
+    String expectPackage = args[args.length - 2];
+    return PACKAGE_SNAPSHOT_IDENTIFIER.equals(expectPackage);
+  }
+
   /**
    * Find a component by its name and tag (version)
    *

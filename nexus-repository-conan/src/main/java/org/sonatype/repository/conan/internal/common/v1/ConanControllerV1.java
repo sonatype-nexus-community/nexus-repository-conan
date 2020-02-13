@@ -111,15 +111,4 @@ public class ConanControllerV1
         .handler(handler)
         .create());
   }
-
-  protected void createGetRoutes(final Router.Builder builder, final Handler urlHandler, final Handler fetchHandler, Handler packageHandler) {
-    createRoute(builder, ConanRoutes.downloadUrls(), DOWNLOAD_URL, urlHandler);
-    createRoute(builder, ConanRoutes.conanManifest(), CONAN_MANIFEST, fetchHandler);
-    createRoute(builder, ConanRoutes.conanFile(), CONAN_FILE, fetchHandler);
-    createRoute(builder, ConanRoutes.conanInfo(), CONAN_INFO, fetchHandler);
-    createRoute(builder, ConanRoutes.conanPackage(), CONAN_PACKAGE, fetchHandler);
-    createRoute(builder, ConanRoutes.conanSource(), CONAN_SOURCES, fetchHandler);
-    createRoute(builder, ConanRoutes.conanExport(), CONAN_EXPORT, fetchHandler);
-    createRoute(builder, ConanRoutes.packageSnapshot(), CONAN_PACKAGE_SNAPSHOT, packageHandler);
-  }
 }

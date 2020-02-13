@@ -40,6 +40,7 @@ import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.Response;
+import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.payloads.StreamPayload;
 import org.sonatype.nexus.repository.view.payloads.StreamPayload.InputStreamSupplier;
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
@@ -59,6 +60,7 @@ import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_K
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 import static org.sonatype.nexus.repository.view.ContentTypes.APPLICATION_JSON;
 import static org.sonatype.nexus.repository.view.Status.success;
+import static org.sonatype.repository.conan.internal.metadata.ConanCoords.convertFromState;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE;
@@ -272,7 +274,12 @@ public class ConanHostedFacet
   public Response get(final Context context) {
     log.debug("Request {}", context.getRequest().getPath());
 
-    Content content = doGet(context.getRequest().getPath());
+    TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
+    ConanCoords coord = convertFromState(state);
+    AssetKind assetKind = context.getAttributes().require(AssetKind.class);
+    String assetPath = HostedHandlers.getHostedAssetPath(coord, assetKind);
+
+    Content content = doGet(assetPath);
     if (content == null) {
       return HttpResponses.notFound();
     }

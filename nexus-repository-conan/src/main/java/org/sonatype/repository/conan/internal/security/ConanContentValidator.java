@@ -26,6 +26,7 @@ import org.sonatype.nexus.repository.storage.ContentValidator;
 import org.sonatype.nexus.repository.storage.DefaultContentValidator;
 import org.sonatype.nexus.repository.view.ContentTypes;
 import org.sonatype.repository.conan.internal.ConanFormat;
+import org.sonatype.repository.conan.internal.utils.ConanFacetUtils;
 
 import com.google.common.base.Supplier;
 
@@ -39,6 +40,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ConanContentValidator
     implements ContentValidator
 {
+
   private static final String X_PYTHON = "text/x-python";
 
   private final DefaultContentValidator defaultContentValidator;
@@ -63,16 +65,12 @@ public class ConanContentValidator
       else if (contentName.endsWith("/conanfile.py")) {
         return X_PYTHON;
       }
-      else if (isPackageSnapshot(contentName)) {
+      else if (ConanFacetUtils.isPackageSnapshot(contentName)) {
         return ContentTypes.APPLICATION_JSON;
       }
     }
     return defaultContentValidator.determineContentType(
         strictContentTypeValidation, contentSupplier, mimeRulesSource, contentName, declaredContentType
     );
-  }
-
-  private boolean isPackageSnapshot(final String contentName) {
-    return contentName.split("/").length == 8 && "packages".equals(contentName.split("/")[6]);
   }
 }

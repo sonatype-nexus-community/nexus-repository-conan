@@ -179,6 +179,19 @@ class ConanRoutes
     return new TokenMatcher("/{prefix:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/download_urls")
   }
 
+  static Builder digest() {
+    return new Builder().matcher(
+        and(
+            new ActionMatcher(GET, HEAD),
+            digestPackagesMatcher()
+        )
+    )
+  }
+
+  private static TokenMatcher digestPackagesMatcher() {
+    return new TokenMatcher("/{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/digest")
+  }
+
   /**
    * Matches on the manifest files
    * @return matcher for initial and package conanmanifest.txt

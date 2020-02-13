@@ -42,6 +42,9 @@ public class HostedHandlers
 
   private static final String CLIENT_CHECKSUM = "X-Checksum-Sha1";
 
+  /**
+   * Upload handler for asset which has asset kind is DOWNLOAD_URL
+   */
   public final Handler uploadUrl = context -> {
     State state = context.getAttributes().require(TokenMatcher.State.class);
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
@@ -53,6 +56,9 @@ public class HostedHandlers
         .uploadDownloadUrl(assetPath, coord, context.getRequest().getPayload(), assetKind);
   };
 
+  /**
+   * Upload handler for all asset except asset kind is DOWNLOAD_URL
+   */
   public final Handler uploadContentHandler = context -> {
     /* If the header contains {@link HostedHandlers#CLIENT_CHECKSUM} then this is supposed
     to be used to check against existing content.
@@ -104,12 +110,12 @@ public class HostedHandlers
             .getPackageSnapshot(path, context);
   };
 
-  // TODO will be removed
+  // TODO will be removed in technical debt task. Original issue NEXUS-21949
   public static String getHostedAssetPath(final ConanCoords coord) {
     return getHostedAssetPath(coord, null);
   }
 
-  // TODO assetKind will be required
+  // TODO assetKind will be required after technical debt task. Original issue NEXUS-21949
   public static String getHostedAssetPath(final ConanCoords coord, @Nullable final AssetKind assetKind) {
     String path = getPath(coord);
     if (assetKind == null) {

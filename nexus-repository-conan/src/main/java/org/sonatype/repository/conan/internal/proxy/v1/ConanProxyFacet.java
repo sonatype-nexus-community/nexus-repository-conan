@@ -98,7 +98,9 @@ public class ConanProxyFacet
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     Content content = getAsset(buildAssetPath(context));
 
-    if (content != null && (assetKind.equals(DOWNLOAD_URL) || assetKind.equals(DIGEST))) {
+    if (content != null &&
+        (assetKind.equals(DOWNLOAD_URL) ||
+            assetKind.equals(DIGEST))) {
       return new Content(
           new StringPayload(
               conanUrlIndexer.updateAbsoluteUrls(context, content, getRepository()),
@@ -156,14 +158,14 @@ public class ConanProxyFacet
         case DOWNLOAD_URL:
         case DIGEST:
           Content saveMetadata = doSaveMetadata(tempBlob, content, assetKind, coords);
-
           return new Content(
               new StringPayload(
                   conanUrlIndexer.updateAbsoluteUrls(context, saveMetadata, getRepository()),
                   ContentTypes.APPLICATION_JSON)
           );
+        default:
+          return doSaveMetadata(tempBlob, content, assetKind, coords);
       }
-      return doSaveMetadata(tempBlob, content, assetKind, coords);
     }
   }
 
@@ -286,7 +288,8 @@ public class ConanProxyFacet
 
     if (DOWNLOAD_URL.equals(assetKind) ||
         CONAN_PACKAGE_SNAPSHOT.equals(assetKind) ||
-        DIGEST.equals(assetKind)) {
+        DIGEST.equals(assetKind)
+    ) {
       return context.getRequest().getPath();
     }
 

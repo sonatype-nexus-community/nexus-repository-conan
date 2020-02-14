@@ -61,6 +61,8 @@ public class ConanProxyIT
 
   private static final String FILE_DOWNLOAD_URLS = "download_urls";
 
+  private static final String FILE_DIGEST = "digest";
+
   private static final String FILE_DOWNLOAD_URLS_NON_PACKAGE = "download_urls_non_package";
 
   private static final String NAME_PACKAGE = "conan_package";
@@ -82,10 +84,10 @@ public class ConanProxyIT
   private static final String LIBRARY_VERSION = "3.7.0";
 
   private static final String LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_DIRECTORY =
-      "v1/conans/lib/1.0.0/some_vendor/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
+      "conans/lib/1.0.0/some_vendor/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
 
   private static final String LIB_WITH_WRONG_CONANINFO_HASH_PACKAGE_DIRECTORY =
-      "v1/conans/some_vendor/lib/1.0.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
+      "conans/some_vendor/lib/1.0.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";
 
   private static final String LIB_WITH_WRONG_CONANINFO_HASH_CONANMANIFEST_FILE_NAME = "conanmanifest_wrong_hash.txt";
 
@@ -104,6 +106,10 @@ public class ConanProxyIT
 
   private static final String MIME_TEXT = "text/plain";
 
+  private static final String NXRM_CONAN_PROXY_REPO_NAME = "conan-test-proxy-online";
+
+  private static final String NXRM_CONAN_PROXY_REPO_PATH = "http://localhost:10000/repository/conan-test-proxy-online/";
+
   private static final String PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES =
       "conans/jsonformoderncpp/3.7.0/vthiery/stable/download_urls";
 
@@ -116,6 +122,8 @@ public class ConanProxyIT
   private static final String PATH_INVALID = DIRECTORY_INVALID + FILE_PACKAGE;
 
   private static final String PATH_DOWNLOAD_URLS = DIRECTORY_DOWNLOAD_URLS + FILE_DOWNLOAD_URLS;
+
+  private static final String PATH_DIGEST = DIRECTORY_DOWNLOAD_URLS + FILE_DIGEST;
 
   private ConanClient proxyClient;
 
@@ -138,6 +146,8 @@ public class ConanProxyIT
     server = Server.withPort(CONAN_REMOTE_PORT)
         .serve("/" + PATH_DOWNLOAD_URLS)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_DOWNLOAD_URLS)))
+        .serve("/" + PATH_DIGEST)
+        .withBehaviours(Behaviours.file(testData.resolveFile(FILE_DIGEST)))
         .serve("/" + PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_DOWNLOAD_URLS_NON_PACKAGE)))
         .serve("/" + LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_PATH)
@@ -154,7 +164,7 @@ public class ConanProxyIT
         .withBehaviours(Behaviours.file(testData.resolveFile(LIB_WITH_WRONG_CONANINFO_HASH_CONANMANIFEST_FILE_NAME)))
         .start();
 
-    proxyRepo = repos.createConanProxy("conan-test-proxy-online", server.getUrl().toExternalForm());
+    proxyRepo = repos.createConanProxy(NXRM_CONAN_PROXY_REPO_NAME, server.getUrl().toExternalForm());
     proxyClient = conanClient(proxyRepo);
     proxyClient.getHttpResponse(PATH_DOWNLOAD_URLS);
   }
@@ -177,16 +187,28 @@ public class ConanProxyIT
     String download_urls = EntityUtils.toString(entity);
     JsonObject obj = new JsonParser().parse(download_urls).getAsJsonObject();
 
-    assertThat(obj.get("conaninfo.txt").getAsString(),
-        is("http://localhost:10000/repository/conan-test-proxy-online/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conaninfo.txt"));
-    assertThat(obj.get("conan_package.tgz").getAsString(),
-        is("http://localhost:10000/repository/conan-test-proxy-online/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz"));
-    assertThat(obj.get("conanmanifest.txt").getAsString(),
-        is("http://localhost:10000/repository/conan-test-proxy-online/conans/vthiery/jsonformoderncpp/3.7.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conanmanifest.txt"));
+    assertThat(obj.get(FILE_INFO).getAsString(), is(NXRM_CONAN_PROXY_REPO_PATH + PATH_INFO));
+    assertThat(obj.get(FILE_PACKAGE).getAsString(), is(NXRM_CONAN_PROXY_REPO_PATH + PATH_TGZ_PACKAGE));
+    assertThat(obj.get(FILE_MANIFEST).getAsString(), is(NXRM_CONAN_PROXY_REPO_PATH + PATH_MANIFEST));
 
     final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS);
     assertThat(asset.format(), is(ConanFormat.NAME));
     assertThat(asset.name(), is(PATH_DOWNLOAD_URLS));
+    assertThat(asset.contentType(), is(MIME_TEXT));
+  }
+
+  @Test
+  public void retrieveDigest() throws Exception {
+    HttpResponse response = proxyClient.getHttpResponse(PATH_DIGEST);
+    assertThat(status(response), is(HttpStatus.OK));
+    HttpEntity entity = response.getEntity();
+    String digest = EntityUtils.toString(entity);
+    JsonObject obj = new JsonParser().parse(digest).getAsJsonObject();
+    assertThat(obj.get(FILE_MANIFEST).getAsString(), is(NXRM_CONAN_PROXY_REPO_PATH + PATH_MANIFEST));
+
+    final Asset asset = findAsset(proxyRepo, PATH_DIGEST);
+    assertThat(asset.format(), is(ConanFormat.NAME));
+    assertThat(asset.name(), is(PATH_DIGEST));
     assertThat(asset.contentType(), is(MIME_TEXT));
   }
 
@@ -199,7 +221,7 @@ public class ConanProxyIT
     String download_urls = EntityUtils.toString(entity);
     JsonObject obj = new JsonParser().parse(download_urls).getAsJsonObject();
 
-    assertThat(obj.get("conanmanifest.txt").getAsString(),
+    assertThat(obj.get(FILE_MANIFEST).getAsString(),
         is("http://localhost:10000/repository/conan-test-proxy-online/conans/vthiery/jsonformoderncpp/3.7.0/stable/conanmanifest.txt"));
     assertThat(obj.get("conanfile.py").getAsString(),
         is("http://localhost:10000/repository/conan-test-proxy-online/conans/vthiery/jsonformoderncpp/3.7.0/stable/conanfile.py"));

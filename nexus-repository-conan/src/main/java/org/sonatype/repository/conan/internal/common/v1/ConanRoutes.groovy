@@ -189,7 +189,7 @@ class ConanRoutes
   }
 
   private static TokenMatcher digestPackagesMatcher() {
-    return new TokenMatcher("/{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/digest")
+    return new TokenMatcher("{api_prefix:.*}/{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/digest")
   }
 
   /**

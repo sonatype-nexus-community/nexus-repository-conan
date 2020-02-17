@@ -154,18 +154,16 @@ public class ConanProxyFacet
   {
     StorageFacet storageFacet = facet(StorageFacet.class);
     try (TempBlob tempBlob = storageFacet.createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
-      switch (assetKind) {
-        case DOWNLOAD_URL:
-        case DIGEST:
-          Content saveMetadata = doSaveMetadata(tempBlob, content, assetKind, coords);
-          return new Content(
-              new StringPayload(
-                  conanUrlIndexer.updateAbsoluteUrls(context, saveMetadata, getRepository()),
-                  ContentTypes.APPLICATION_JSON)
-          );
-        default:
-          return doSaveMetadata(tempBlob, content, assetKind, coords);
+
+      if (assetKind == DOWNLOAD_URL || assetKind == DIGEST) {
+        Content saveMetadata = doSaveMetadata(tempBlob, content, assetKind, coords);
+        return new Content(
+            new StringPayload(
+                conanUrlIndexer.updateAbsoluteUrls(context, saveMetadata, getRepository()),
+                ContentTypes.APPLICATION_JSON)
+        );
       }
+      return doSaveMetadata(tempBlob, content, assetKind, coords);
     }
   }
 

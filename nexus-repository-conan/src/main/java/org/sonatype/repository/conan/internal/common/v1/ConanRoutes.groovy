@@ -179,13 +179,20 @@ class ConanRoutes
     return new TokenMatcher("/{prefix:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/download_urls")
   }
 
-  static Builder digest() {
+  static Builder digestProxy() {
     return new Builder().matcher(
         and(
             new ActionMatcher(GET, HEAD),
-            digestPackagesMatcher()
+            or(
+                digestPackagesMatcher(),
+                digestMatcher()
+            )
         )
     )
+  }
+
+  private static TokenMatcher digestMatcher() {
+    return new TokenMatcher("{api_prefix:.*}/{path:.*}/${DOWNLOAD_FORM}/digest")
   }
 
   private static TokenMatcher digestPackagesMatcher() {

@@ -28,6 +28,7 @@ import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE_SNAPSHOT;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SOURCES;
+import static org.sonatype.repository.conan.internal.AssetKind.DIGEST;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 
 @Named
@@ -40,6 +41,7 @@ public class ConanProxyControllerV1
 
   public void attach(final Router.Builder builder) {
     createRoute(builder, ConanRoutes.downloadUrlsProxy(), DOWNLOAD_URL, proxyHandler);
+    createRoute(builder, ConanRoutes.digestProxy(), DIGEST, proxyHandler);
     createRoute(builder, ConanRoutes.conanManifestProxy(), CONAN_MANIFEST, proxyHandler);
     createRoute(builder, ConanRoutes.conanFileProxy(), CONAN_FILE, proxyHandler);
     createRoute(builder, ConanRoutes.conanInfoProxy(), CONAN_INFO, proxyHandler);

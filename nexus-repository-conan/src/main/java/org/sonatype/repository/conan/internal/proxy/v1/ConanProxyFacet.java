@@ -57,6 +57,7 @@ import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_K
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE_SNAPSHOT;
+import static org.sonatype.repository.conan.internal.AssetKind.DIGEST;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 import static org.sonatype.repository.conan.internal.common.v1.ConanRoutes.getCoords;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
@@ -97,7 +98,9 @@ public class ConanProxyFacet
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
     Content content = getAsset(buildAssetPath(context));
 
-    if (content != null && assetKind.equals(DOWNLOAD_URL)) {
+    if (content != null &&
+        (assetKind.equals(DOWNLOAD_URL) ||
+            assetKind.equals(DIGEST))) {
       return new Content(
           new StringPayload(
               conanUrlIndexer.updateAbsoluteUrls(context, content, getRepository()),
@@ -151,15 +154,14 @@ public class ConanProxyFacet
   {
     StorageFacet storageFacet = facet(StorageFacet.class);
     try (TempBlob tempBlob = storageFacet.createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
-      switch (assetKind) {
-        case DOWNLOAD_URL:
-          Content saveMetadata = doSaveMetadata(tempBlob, content, assetKind, coords);
 
-          return new Content(
-              new StringPayload(
-                  conanUrlIndexer.updateAbsoluteUrls(context, saveMetadata, getRepository()),
-                  ContentTypes.APPLICATION_JSON)
-          );
+      if (assetKind == DOWNLOAD_URL || assetKind == DIGEST) {
+        Content saveMetadata = doSaveMetadata(tempBlob, content, assetKind, coords);
+        return new Content(
+            new StringPayload(
+                conanUrlIndexer.updateAbsoluteUrls(context, saveMetadata, getRepository()),
+                ContentTypes.APPLICATION_JSON)
+        );
       }
       return doSaveMetadata(tempBlob, content, assetKind, coords);
     }
@@ -283,7 +285,9 @@ public class ConanProxyFacet
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
 
     if (DOWNLOAD_URL.equals(assetKind) ||
-        CONAN_PACKAGE_SNAPSHOT.equals(assetKind)) {
+        CONAN_PACKAGE_SNAPSHOT.equals(assetKind) ||
+        DIGEST.equals(assetKind)
+    ) {
       return context.getRequest().getPath();
     }
 

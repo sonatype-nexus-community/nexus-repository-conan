@@ -21,6 +21,7 @@ import static org.sonatype.nexus.repository.cache.CacheControllerHolder.METADATA
  */
 enum AssetKind {
   DOWNLOAD_URL(METADATA, "download_urls"),
+  DIGEST(METADATA, "digest"),
   CONAN_MANIFEST(METADATA, "conanmanifest.txt"),
   CONAN_FILE(METADATA, "conanfile.py"),
   CONAN_INFO(METADATA, "conaninfo.txt"),

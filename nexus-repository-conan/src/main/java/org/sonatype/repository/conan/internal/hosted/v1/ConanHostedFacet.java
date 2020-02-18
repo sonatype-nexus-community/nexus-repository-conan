@@ -46,7 +46,6 @@ import org.sonatype.nexus.repository.view.payloads.StreamPayload.InputStreamSupp
 import org.sonatype.nexus.transaction.UnitOfWork;
 import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.hosted.ConanHostedHelper;
-import org.sonatype.repository.conan.internal.hosted.UploadUrlManager;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.sonatype.repository.conan.internal.utils.ConanFacetUtils;
 
@@ -61,6 +60,9 @@ import static org.sonatype.nexus.repository.http.HttpStatus.OK;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
 import static org.sonatype.nexus.repository.view.Status.success;
+import static org.sonatype.repository.conan.internal.hosted.v1.ConanHostedMetadataHelper.generateAssetPackagesDownloadUrls;
+import static org.sonatype.repository.conan.internal.hosted.v1.ConanHostedMetadataHelper.generateDownloadUrlsAsJson;
+import static org.sonatype.repository.conan.internal.hosted.v1.ConanHostedMetadataHelper.generatePackagesDownloadUrlsAsJson;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE;
@@ -175,13 +177,13 @@ public class ConanHostedFacet
   public String getDownloadUrl(final ConanCoords coords) throws JsonProcessingException {
     String repositoryUrl = getRepository().getUrl();
     if (StringUtils.isEmpty(coords.getSha())) {
-      return UploadUrlManager.generateDownloadUrlsAsJson(coords, repositoryUrl);
+      return generateDownloadUrlsAsJson(coords, repositoryUrl);
     }
-    return UploadUrlManager.generatePackagesDownloadUrlsAsJson(coords, repositoryUrl);
+    return generatePackagesDownloadUrlsAsJson(coords, repositoryUrl);
   }
 
   public String getPackageSnapshot(final ConanCoords coords) throws JsonProcessingException {
-    Map<String, String> downloadUrls = UploadUrlManager.generateAssetPackagesDownloadUrls(coords);
+    Map<String, String> downloadUrls = generateAssetPackagesDownloadUrls(coords);
 
     Map<String, String> packageSnapshot = downloadUrls
         .entrySet()

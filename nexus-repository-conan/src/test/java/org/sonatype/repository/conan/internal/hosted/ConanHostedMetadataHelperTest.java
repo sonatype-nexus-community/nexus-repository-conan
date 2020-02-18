@@ -3,6 +3,7 @@ package org.sonatype.repository.conan.internal.hosted;
 import java.util.Map;
 
 import org.sonatype.goodies.testsupport.TestSupport;
+import org.sonatype.repository.conan.internal.hosted.v1.ConanHostedMetadataHelper;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +22,7 @@ import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SOURCES;
 /**
  * @author Maksim Lukaretskiy
  */
-public class UploadUrlManagerTest
+public class ConanHostedMetadataHelperTest
     extends TestSupport
 {
   private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -50,7 +51,7 @@ public class UploadUrlManagerTest
         CONAN_MANIFEST.getFilename(), String.format("%s/%s", assetPath, CONAN_MANIFEST.getFilename())
     );
     ConanCoords conanCoords = new ConanCoords(path, group, project, version, channel, sha);
-    Map<String, String> actual = UploadUrlManager.generateAssetPackagesDownloadUrls(conanCoords);
+    Map<String, String> actual = ConanHostedMetadataHelper.generateAssetPackagesDownloadUrls(conanCoords);
 
     assertThat(actual, is(expected));
   }
@@ -70,7 +71,7 @@ public class UploadUrlManagerTest
     ));
 
     ConanCoords conanCoords = new ConanCoords(path, group, project, version, channel, sha);
-    String actual = UploadUrlManager.generatePackagesDownloadUrlsAsJson(conanCoords, repositoryURL);
+    String actual = ConanHostedMetadataHelper.generatePackagesDownloadUrlsAsJson(conanCoords, repositoryURL);
 
     assertThat(actual, is(expected));
   }
@@ -91,7 +92,7 @@ public class UploadUrlManagerTest
     ));
 
     ConanCoords conanCoords = new ConanCoords(path, group, project, version, channel, null);
-    String actual = UploadUrlManager.generateDownloadUrlsAsJson(conanCoords, repositoryURL);
+    String actual = ConanHostedMetadataHelper.generateDownloadUrlsAsJson(conanCoords, repositoryURL);
 
     assertThat(actual, is(expected));
   }

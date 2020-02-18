@@ -82,7 +82,7 @@ public class ConanProxyIT
 
   private static final String LIBRARY_VENDOR = "vthiery";
 
-  private static final String LIBRARY_VERSION = "3.7.0";
+  private static final String LIBRARY_VERSION = "3.7.0-stable";
 
   private static final String LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_DIRECTORY =
       "conans/lib/1.0.0/some_vendor/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/";

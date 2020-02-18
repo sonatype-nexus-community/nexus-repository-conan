@@ -185,7 +185,9 @@ public class ConanProxyFacet
       component = tx.createComponent(bucket, getRepository().getFormat())
           .group(coords.getGroup())
           .name(coords.getProject())
-          .version(coords.getVersion());
+          .version(String.format("%s-%s", coords.getVersion(), coords.getChannel()));
+      component.formatAttributes().set("baseVersion", coords.getVersion());
+      component.formatAttributes().set("channel", coords.getChannel());
     }
     tx.saveComponent(component);
     return component;

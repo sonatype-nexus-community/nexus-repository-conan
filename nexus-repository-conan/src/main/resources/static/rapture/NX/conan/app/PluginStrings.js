@@ -29,7 +29,9 @@ Ext.define('NX.conan.app.PluginStrings', {
     SearchConan_Group: 'Conan Repositories',
     SearchConan_License_FieldLabel: 'License',
     SearchConan_Text: 'Conan',
-    SearchConan_Description: 'Search for components in Conan repositories'
+    SearchConan_Description: 'Search for components in Conan repositories',
+    SearchConan_BaseVersion_FieldLabel: 'Base Version',
+    SearchConan_Channel_FieldLabel: 'Channel'
   }
 }, function(self) {
   NX.I18n.register(self);

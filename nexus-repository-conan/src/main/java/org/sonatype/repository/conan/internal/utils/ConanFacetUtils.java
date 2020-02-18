@@ -72,7 +72,7 @@ public class ConanFacetUtils
         Query.builder()
             .where(P_GROUP).eq(coords.getGroup())
             .and(P_NAME).eq(coords.getProject())
-            .and(P_VERSION).eq(coords.getVersion())
+            .and(P_VERSION).eq(String.format("%s-%s", coords.getVersion(), coords.getChannel()))
             .build(),
         singletonList(repository)
     );

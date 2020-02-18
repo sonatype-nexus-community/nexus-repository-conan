@@ -3,7 +3,6 @@ package org.sonatype.repository.conan.internal.hosted;
 import java.util.Map;
 
 import org.sonatype.goodies.testsupport.TestSupport;
-import org.sonatype.repository.conan.internal.hosted.v1.ConanHostedMetadataHelper;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

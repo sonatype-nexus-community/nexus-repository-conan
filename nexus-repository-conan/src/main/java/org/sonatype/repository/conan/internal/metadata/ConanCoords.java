@@ -14,15 +14,7 @@ package org.sonatype.repository.conan.internal.metadata;
 
 import javax.annotation.Nullable;
 
-import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
-
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST;
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP;
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PATH;
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT;
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE;
-import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION;
 
 /**
  * Each project consists of these element. They are grouped here for easier access throughout the code base
@@ -43,13 +35,15 @@ public class ConanCoords
 
   final private String sha;
 
-  public ConanCoords(@Nullable final String path,
-                     final String group,
-                     final String project,
-                     final String version,
-                     final String channel,
-                     @Nullable final String sha) {
-    this.path = path;
+  public ConanCoords(
+      final String path,
+      final String group,
+      final String project,
+      final String version,
+      final String channel,
+      @Nullable final String sha)
+  {
+    this.path = checkNotNull(path);
     this.group = checkNotNull(group);
     this.project = checkNotNull(project);
     this.version = checkNotNull(version);
@@ -77,40 +71,5 @@ public class ConanCoords
 
   public String getSha() {
     return sha;
-  }
-
-  public static ConanCoords convertFromState(TokenMatcher.State state) {
-    return new ConanCoords(
-        state.getTokens().getOrDefault(PATH, null),
-        state.getTokens().get(GROUP),
-        state.getTokens().get(PROJECT),
-        state.getTokens().get(VERSION),
-        state.getTokens().get(STATE),
-        state.getTokens().getOrDefault(DIGEST, null)
-    );
-  }
-
-  public static String getPath(ConanCoords coord) {
-    return String.format("%s%s/%s/%s/%s%s",
-        coord.getPath() == null ? "" : coord.getPath() + "/",
-        coord.getGroup(),
-        coord.getProject(),
-        coord.getVersion(),
-        coord.getChannel(),
-        coord.getSha() == null ? "" : "/packages/" + coord.getSha());
-  }
-
-  /**
-  * Gets the path in this format: https://github.com/conan-io/conan/blob/14f84411ddf5106b86be4464ccd76aea865ecd45/conans/model/rest_routes.py#L30
-   */
-  public static String getRecipePathWithPackages(ConanCoords coord, final String filename) {
-    return String.format("%s%s/%s/%s/%s%s%s",
-        coord.getPath() == null ? "" : coord.getPath() + "/",
-        coord.getProject(),
-        coord.getVersion(),
-        coord.getGroup(),
-        coord.getChannel(),
-        coord.getSha() == null ? "" : "/packages/" + coord.getSha(),
-        filename == null ? "" : "/" + filename);
   }
 }

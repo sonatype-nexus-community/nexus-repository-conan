@@ -36,18 +36,15 @@ public class ConanHostedApiV1
 
   private ConanHostedControllerV1 conanHostedControllerV1;
 
-  private HostedHandlers hostedHandlers;
-
   @Inject
-  public ConanHostedApiV1(final PingController pingController,
-                          final UserController userController,
-                          final ConanHostedControllerV1 conanHostedControllerV1,
-                          final HostedHandlers hostedHandlers)
+  public ConanHostedApiV1(
+      final PingController pingController,
+      final UserController userController,
+      final ConanHostedControllerV1 conanHostedControllerV1)
   {
     this.pingController = checkNotNull(pingController);
     this.userController = checkNotNull(userController);
     this.conanHostedControllerV1 = checkNotNull(conanHostedControllerV1);
-    this.hostedHandlers = checkNotNull(hostedHandlers);
   }
 
   public void create(final Router.Builder builder) {

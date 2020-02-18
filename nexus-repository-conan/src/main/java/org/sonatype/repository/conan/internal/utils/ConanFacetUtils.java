@@ -18,9 +18,12 @@ import javax.annotation.Nullable;
 
 import org.sonatype.nexus.common.hash.HashAlgorithm;
 import org.sonatype.nexus.repository.Repository;
+import org.sonatype.nexus.repository.storage.Asset;
+import org.sonatype.nexus.repository.storage.Bucket;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.storage.Query;
 import org.sonatype.nexus.repository.storage.StorageTx;
+import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import com.google.common.collect.ImmutableList;
@@ -45,6 +48,18 @@ public class ConanFacetUtils
     String[] args = path.split("/");
     String expectPackage = args[args.length - 2];
     return PACKAGE_SNAPSHOT_IDENTIFIER.equals(expectPackage);
+  }
+
+  public static boolean isDigest(String path) {
+    return path.endsWith(AssetKind.DIGEST.getFilename());
+  }
+
+  public static boolean isDownloadUrls(String path) {
+    return path.endsWith(AssetKind.DOWNLOAD_URL.getFilename());
+  }
+
+  public static Asset findAsset(final StorageTx tx, final Bucket bucket, final String assetName) {
+    return tx.findAssetWithProperty(P_NAME, assetName, bucket);
   }
 
   /**

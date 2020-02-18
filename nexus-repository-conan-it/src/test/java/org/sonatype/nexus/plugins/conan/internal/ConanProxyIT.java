@@ -106,6 +106,8 @@ public class ConanProxyIT
 
   private static final String MIME_TEXT = "text/plain";
 
+  private static final String APPLICATION_JSON = "application/json";
+
   private static final String NXRM_CONAN_PROXY_REPO_NAME = "conan-test-proxy-online";
 
   private static final String NXRM_CONAN_PROXY_REPO_PATH = "http://localhost:10000/repository/conan-test-proxy-online/";
@@ -209,7 +211,7 @@ public class ConanProxyIT
     final Asset asset = findAsset(proxyRepo, PATH_DIGEST);
     assertThat(asset.format(), is(ConanFormat.NAME));
     assertThat(asset.name(), is(PATH_DIGEST));
-    assertThat(asset.contentType(), is(MIME_TEXT));
+    assertThat(asset.contentType(), is(APPLICATION_JSON));
   }
 
   @Test

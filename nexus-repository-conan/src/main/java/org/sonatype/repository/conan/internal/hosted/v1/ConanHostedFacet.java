@@ -12,15 +12,15 @@
  */
 package org.sonatype.repository.conan.internal.hosted.v1;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.sonatype.nexus.common.collect.AttributesMap;
@@ -43,31 +43,31 @@ import org.sonatype.nexus.repository.view.Response;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.payloads.StreamPayload;
 import org.sonatype.nexus.repository.view.payloads.StreamPayload.InputStreamSupplier;
-import org.sonatype.nexus.repository.view.payloads.StringPayload;
 import org.sonatype.nexus.transaction.UnitOfWork;
 import org.sonatype.repository.conan.internal.AssetKind;
+import org.sonatype.repository.conan.internal.hosted.ConanHostedHelper;
 import org.sonatype.repository.conan.internal.hosted.UploadUrlManager;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 import org.sonatype.repository.conan.internal.utils.ConanFacetUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Supplier;
 import com.google.common.hash.HashCode;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.nexus.repository.http.HttpStatus.OK;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
-import static org.sonatype.nexus.repository.view.ContentTypes.APPLICATION_JSON;
 import static org.sonatype.nexus.repository.view.Status.success;
-import static org.sonatype.repository.conan.internal.metadata.ConanCoords.convertFromState;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJECT;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.toContent;
+import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findAsset;
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findComponent;
 
 /**
@@ -78,62 +78,12 @@ import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findC
 public class ConanHostedFacet
     extends FacetSupport
 {
-  private final UploadUrlManager uploadUrlManager;
-
-  @Inject
-  public ConanHostedFacet(final UploadUrlManager uploadUrlManager) {
-    this.uploadUrlManager = checkNotNull(uploadUrlManager);
-  }
-
-  /**
-   * Services the upload_url endpoint which is basically the same as
-   * the get of download_url.
-   * @param assetPath
-   * @param coord
-   * @param payload
-   * @param assetKind
-   * @return if successful content of the download_url is returned
-   * @throws IOException
-   */
-  public Response uploadDownloadUrl(final String assetPath,
-                                    final ConanCoords coord,
-                                    final Payload payload,
-                                    final AssetKind assetKind) throws IOException {
-    checkNotNull(assetPath);
-    checkNotNull(coord);
-    checkNotNull(payload);
-    checkNotNull(assetKind);
-
-    String savedJson = getSavedJson(assetPath, payload);
-    doPutArchive(assetPath + "/download_urls", coord, new StringPayload(savedJson, APPLICATION_JSON), assetKind);
-    String response = getResponseJson(savedJson);
-
-    return new Response.Builder()
-        .status(success(OK))
-        .payload(new StringPayload(response, APPLICATION_JSON))
-        .build();
-  }
-
-  private String getResponseJson(final String savedJson) throws IOException {
-    String response;
-    try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(savedJson.getBytes())) {
-      response = uploadUrlManager.prefixToValues(getRepository().getUrl(), byteArrayInputStream);
-    }
-    return response;
-  }
-
-  private String getSavedJson(final String assetPath, final Payload payload) throws IOException {
-    String savedJson;
-    try (InputStream inputStream = payload.openInputStream()) {
-      savedJson = uploadUrlManager.convertKeys(assetPath + "/", inputStream);
-    }
-    return savedJson;
-  }
-
-  public Response upload(final String assetPath,
-                         final ConanCoords coord,
-                         final Payload payload,
-                         final AssetKind assetKind) throws IOException {
+  public Response upload(
+      final String assetPath,
+      final ConanCoords coord,
+      final Payload payload,
+      final AssetKind assetKind) throws IOException
+  {
     checkNotNull(assetPath);
     checkNotNull(coord);
     checkNotNull(payload);
@@ -146,22 +96,25 @@ public class ConanHostedFacet
         .build();
   }
 
-  private void doPutArchive(final String assetPath,
-                            final ConanCoords coord,
-                            final Payload payload,
-                            final AssetKind assetKind) throws IOException
+  private void doPutArchive(
+      final String assetPath,
+      final ConanCoords coord,
+      final Payload payload,
+      final AssetKind assetKind) throws IOException
   {
     StorageFacet storageFacet = facet(StorageFacet.class);
-    try (TempBlob tempBlob = storageFacet.createTempBlob(payload, ConanFacetUtils.HASH_ALGORITHMS)) {
+    try (TempBlob tempBlob = storageFacet
+        .createTempBlob(payload, ConanFacetUtils.HASH_ALGORITHMS)) {
       doPutArchive(coord, assetPath, tempBlob, assetKind);
     }
   }
 
   @TransactionalStoreBlob
-  protected void doPutArchive(final ConanCoords coord,
-                              final String path,
-                              final TempBlob tempBlob,
-                              final AssetKind assetKind) throws IOException
+  protected void doPutArchive(
+      final ConanCoords coord,
+      final String path,
+      final TempBlob tempBlob,
+      final AssetKind assetKind) throws IOException
   {
     checkNotNull(path);
     checkNotNull(tempBlob);
@@ -194,18 +147,20 @@ public class ConanHostedFacet
     saveAsset(tx, asset, tempBlob);
   }
 
-  private Content saveAsset(final StorageTx tx,
-                            final Asset asset,
-                            final Supplier<InputStream> contentSupplier) throws IOException
+  private Content saveAsset(
+      final StorageTx tx,
+      final Asset asset,
+      final Supplier<InputStream> contentSupplier) throws IOException
   {
     return saveAsset(tx, asset, contentSupplier, null, null);
   }
 
-  private Content saveAsset(final StorageTx tx,
-                            final Asset asset,
-                            final Supplier<InputStream> contentSupplier,
-                            final String contentType,
-                            final AttributesMap contentAttributes) throws IOException
+  private Content saveAsset(
+      final StorageTx tx,
+      final Asset asset,
+      final Supplier<InputStream> contentSupplier,
+      final String contentType,
+      final AttributesMap contentAttributes) throws IOException
   {
     Content.applyToAsset(asset, maintainLastModified(asset, contentAttributes));
     AssetBlob assetBlob = tx.setBlob(
@@ -217,67 +172,39 @@ public class ConanHostedFacet
     return toContent(asset, assetBlob.getBlob());
   }
 
-  /**
-   * Services the download_urls endpoint for root and package data
-   * @param gavPath path as GAV
-   * @param context
-   * @return json response of conan files to lookup
-   * @throws IOException
-   */
-  public Response getDownloadUrl(final String gavPath, final Context context) throws IOException {
-    log.debug("Original request {} is fetching locally from {}", context.getRequest().getPath(), gavPath);
-
-    Content content = doGet(gavPath);
-    if(content == null) {
-      return HttpResponses.notFound();
+  public String getDownloadUrl(final ConanCoords coords) throws JsonProcessingException {
+    String repositoryUrl = getRepository().getUrl();
+    if (StringUtils.isEmpty(coords.getSha())) {
+      return UploadUrlManager.generateDownloadUrlsAsJson(coords, repositoryUrl);
     }
-
-    String response;
-    try (InputStream inputStream = content.openInputStream()) {
-      response = uploadUrlManager.prefixToValues(getRepository().getUrl(), inputStream);
-    }
-
-    return new Response.Builder()
-        .status(success(OK))
-        .payload(new StringPayload(response, APPLICATION_JSON))
-        .build();
+    return UploadUrlManager.generatePackagesDownloadUrlsAsJson(coords, repositoryUrl);
   }
 
-  public Response getPackageSnapshot(final String gavPath, final Context context) throws IOException{
-    String downloadUrls = gavPath + "/download_urls";
-    Content content = doGet(downloadUrls);
-    if(content == null) {
-      return HttpResponses.notFound();
-    }
-    Map<String, String> filePathMap;
-    try (InputStream inputStream = content.openInputStream()) {
-      filePathMap = uploadUrlManager.valuesMap(inputStream);
-    }
+  public String getPackageSnapshot(final ConanCoords coords) throws JsonProcessingException {
+    Map<String, String> downloadUrls = UploadUrlManager.generateAssetPackagesDownloadUrls(coords);
 
-    Map<String, String> fileHashMap = new HashMap<>();
-    for(Map.Entry<String, String> entry : filePathMap.entrySet())
-    {
-      String hash = getHash(entry.getValue(), HashAlgorithm.MD5);
-      if (hash != null)
-      {
-        fileHashMap.put(entry.getKey(), hash);
-      }
-    }
-    ObjectMapper mapper = new ObjectMapper();
-    String response = mapper.writeValueAsString(fileHashMap);
-    return new Response.Builder()
-        .status(success(OK))
-        .payload(new StringPayload(response, APPLICATION_JSON))
-        .build();
+    Map<String, String> packageSnapshot = downloadUrls
+        .entrySet()
+        .stream()
+        .flatMap(entry -> {
+          String value = entry.getValue();
+          String hash = getHash(value, HashAlgorithm.MD5);
+          if (hash != null) {
+            return Stream.of(Pair.of(entry.getKey(), hash));
+          }
+          return Stream.empty();
+        })
+        .collect(Collectors.toMap(pair -> pair.getKey(), pair -> pair.getValue()));
+    return ConanHostedHelper.MAPPER.writeValueAsString(packageSnapshot);
   }
 
   public Response get(final Context context) {
     log.debug("Request {}", context.getRequest().getPath());
 
     TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
-    ConanCoords coord = convertFromState(state);
+    ConanCoords coord = ConanHostedHelper.convertFromState(state);
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
-    String assetPath = HostedHandlers.getHostedAssetPath(coord, assetKind);
+    String assetPath = ConanHostedHelper.getHostedAssetPath(coord, assetKind);
 
     Content content = doGet(assetPath);
     if (content == null) {
@@ -287,7 +214,8 @@ public class ConanHostedFacet
     return new Response.Builder()
         .status(success(OK))
         .payload(new StreamPayload(
-            new InputStreamSupplier() {
+            new InputStreamSupplier()
+            {
               @Nonnull
               @Override
               public InputStream get() throws IOException {
@@ -301,8 +229,7 @@ public class ConanHostedFacet
 
   @Nullable
   @TransactionalStoreBlob
-  protected Content doGet(final String path)
-  {
+  protected Content doGet(final String path) {
     checkNotNull(path);
 
     StorageTx tx = UnitOfWork.currentTx();
@@ -319,8 +246,7 @@ public class ConanHostedFacet
 
   @Nullable
   @TransactionalStoreBlob
-  protected String getHash(final String path, HashAlgorithm hashAlgorithm)
-  {
+  protected String getHash(final String path, HashAlgorithm hashAlgorithm) {
     checkNotNull(path);
 
     StorageTx tx = UnitOfWork.currentTx();

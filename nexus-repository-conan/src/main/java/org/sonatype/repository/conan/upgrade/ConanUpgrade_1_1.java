@@ -99,8 +99,9 @@ public class ConanUpgrade_1_1
   private void removeAttributesFromConanManifest(final List<String> repositoryNames) {
     DatabaseUpgradeSupport.withDatabaseAndClass(componentDatabaseInstance, ASSET_CLASS_NAME,
         (db, type) -> {
-          String selectAssetQuery = String.format("select from asset where bucket = ? and attributes.conan.asset_kind = '%s'",
-              AssetKind.CONAN_MANIFEST.name());
+          String selectAssetQuery =
+              String.format("select from asset where bucket = ? and attributes.conan.asset_kind = '%s'",
+                  AssetKind.CONAN_MANIFEST.name());
           findAssets(db, repositoryNames, selectAssetQuery)
               .forEach(oDocument -> {
 

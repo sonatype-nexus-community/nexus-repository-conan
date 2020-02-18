@@ -22,7 +22,7 @@ import org.sonatype.repository.conan.internal.AssetKind;
 import com.google.common.hash.HashCode;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.findAsset;
+import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findAsset;
 
 /**
  * Responsible for looking up the hashes to verify against

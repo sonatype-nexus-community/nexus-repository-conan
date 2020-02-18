@@ -20,7 +20,7 @@ public class ConanHostedHelper
 {
   public static final ObjectMapper MAPPER = new ObjectMapper();
 
-  private static final String CONAN_HOSTED_PREFIX = "conans/";
+  public static final String CONAN_HOSTED_PREFIX = "conans/";
 
   public static String getHostedAssetPath(final ConanCoords coord, final AssetKind assetKind) {
     String path = String.format("%s/%s/%s/%s%s",

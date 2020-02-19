@@ -16,18 +16,37 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
+import javax.inject.Named;
+
+import org.sonatype.nexus.common.hash.HashAlgorithm;
+import org.sonatype.nexus.repository.Facet.Exposed;
+import org.sonatype.nexus.repository.FacetSupport;
+import org.sonatype.nexus.repository.storage.Asset;
+import org.sonatype.nexus.repository.storage.StorageTx;
+import org.sonatype.nexus.repository.transaction.TransactionalStoreBlob;
+import org.sonatype.nexus.transaction.UnitOfWork;
 import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.hash.HashCode;
+import org.apache.commons.lang3.tuple.Pair;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.toMap;
+import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findAsset;
 
 /**
  * @since 1.0.0
  */
-public class ConanHostedMetadataHelper
+@Exposed
+@Named
+public class ConanHostedMetadataFacetSupport
+    extends FacetSupport
 {
   private static final List<AssetKind> DOWNLOAD_URL_ASSET_KINDS = Collections
       .unmodifiableList(Arrays.asList(
@@ -54,14 +73,7 @@ public class ConanHostedMetadataHelper
             x -> repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, x)));
   }
 
-  public static Map<String, String> generateAssetPackagesDownloadUrls(final ConanCoords coords) {
-    return DOWNLOAD_URL_PACKAGE_ASSET_KINDS
-        .stream()
-        .collect(
-            toMap(AssetKind::getFilename, x -> ConanHostedHelper.getHostedAssetPath(coords, x)));
-  }
-
-  public static String generatePackagesDownloadUrlsAsJson(
+  public String generateDownloadPackagesUrlsAsJson(
       final ConanCoords coords,
       final String repositoryUrl) throws JsonProcessingException
   {
@@ -70,7 +82,7 @@ public class ConanHostedMetadataHelper
     return ConanHostedHelper.MAPPER.writeValueAsString(downloadUrls);
   }
 
-  public static String generateDownloadUrlsAsJson(
+  public String generateDownloadUrlsAsJson(
       final ConanCoords coords,
       final String repositoryUrl)
       throws JsonProcessingException
@@ -78,5 +90,44 @@ public class ConanHostedMetadataHelper
     Map<String, String> downloadUrls = generateDownloadUrls(DOWNLOAD_URL_ASSET_KINDS, coords,
         repositoryUrl);
     return ConanHostedHelper.MAPPER.writeValueAsString(downloadUrls);
+  }
+
+  public String generatePackageSnapshotAsJson(final ConanCoords coords) throws JsonProcessingException {
+    Map<String, String> downloadUrls = DOWNLOAD_URL_PACKAGE_ASSET_KINDS
+        .stream()
+        .collect(
+            toMap(AssetKind::getFilename, x -> ConanHostedHelper.getHostedAssetPath(coords, x)));
+
+    Map<String, String> packageSnapshot = downloadUrls
+        .entrySet()
+        .stream()
+        .flatMap(entry -> {
+          String value = entry.getValue();
+          String hash = getHash(value);
+          if (hash != null) {
+            return Stream.of(Pair.of(entry.getKey(), hash));
+          }
+          return Stream.empty();
+        })
+        .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+    return ConanHostedHelper.MAPPER.writeValueAsString(packageSnapshot);
+  }
+
+  @Nullable
+  @TransactionalStoreBlob
+  public String getHash(final String path) {
+    checkNotNull(path);
+
+    StorageTx tx = UnitOfWork.currentTx();
+
+    Asset asset = findAsset(tx, tx.findBucket(getRepository()), path);
+    if (asset == null) {
+      return null;
+    }
+    HashCode checksum = asset.getChecksum(HashAlgorithm.MD5);
+    if (checksum == null) {
+      return null;
+    }
+    return checksum.toString();
   }
 }

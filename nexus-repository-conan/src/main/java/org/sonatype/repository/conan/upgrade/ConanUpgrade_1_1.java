@@ -28,6 +28,7 @@ import org.sonatype.nexus.common.upgrade.Upgrades;
 import org.sonatype.nexus.orient.DatabaseInstance;
 import org.sonatype.nexus.orient.DatabaseInstanceNames;
 import org.sonatype.nexus.orient.DatabaseUpgradeSupport;
+import org.sonatype.nexus.orient.OClassNameBuilder;
 import org.sonatype.nexus.orient.OIndexNameBuilder;
 import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.ConanFormat;
@@ -35,7 +36,9 @@ import org.sonatype.repository.conan.internal.ConanFormat;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.index.OIndex;
+import com.orientechnologies.orient.core.metadata.schema.OSchemaProxy;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -62,6 +65,13 @@ public class ConanUpgrade_1_1
 
   private static final String REPOSITORY_CLASS_NAME = "repository";
 
+  private static final String C_BROWSE_NODE = "browse_node";
+
+  private static final String BROWSE_NODE_CLASS = new OClassNameBuilder().type(C_BROWSE_NODE).build();
+
+  private static final String DELETE_BROWSE_NODE_FROM_REPOSITORIES = String
+      .format("delete from %s where repository_name in ?", BROWSE_NODE_CLASS);
+
   private final Provider<DatabaseInstance> configDatabaseInstance;
 
   private final Provider<DatabaseInstance> componentDatabaseInstance;
@@ -80,8 +90,11 @@ public class ConanUpgrade_1_1
     if (hasSchemaClass(configDatabaseInstance, REPOSITORY_CLASS_NAME) &&
         hasSchemaClass(componentDatabaseInstance, ASSET_CLASS_NAME)) {
       List<String> repositoryNames = findConanRepositoryNames();
-      updateAssetPath(repositoryNames);
-      removeAttributesFromConanManifest(repositoryNames);
+      if (!repositoryNames.isEmpty()) {
+        updateAssetPath(repositoryNames);
+        removeAttributesFromConanManifest(repositoryNames);
+        deleteConanBrowseNodes(repositoryNames);
+      }
     }
   }
 
@@ -171,5 +184,16 @@ public class ConanUpgrade_1_1
               db.query(new OSQLSynchQuery<ODocument>(SQL), bucket.getIdentity());
           return assets.stream();
         });
+  }
+
+  private void deleteConanBrowseNodes(final List<String> repositoryNames) {
+    log.debug("Deleting browse_node data from conan repositories to be rebuilt ({}).", repositoryNames);
+
+    DatabaseUpgradeSupport.withDatabaseAndClass(componentDatabaseInstance, C_BROWSE_NODE, (db, type) -> {
+      OSchemaProxy schema = db.getMetadata().getSchema();
+      if (schema.existsClass(C_BROWSE_NODE)) {
+        db.command(new OCommandSQL(DELETE_BROWSE_NODE_FROM_REPOSITORIES)).execute(repositoryNames);
+      }
+    });
   }
 }

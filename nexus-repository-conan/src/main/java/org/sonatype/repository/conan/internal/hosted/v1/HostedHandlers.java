@@ -82,7 +82,7 @@ public class HostedHandlers
     ConanCoords coord = ConanHostedHelper.convertFromState(state);
     String json = context.getRepository()
         .facet(ConanHostedFacet.class)
-        .getDownloadUrl(coord);
+        .getDownloadUrlAsJson(coord);
     return new Response.Builder()
         .status(success(OK))
         .payload(new StringPayload(json, APPLICATION_JSON))
@@ -100,7 +100,7 @@ public class HostedHandlers
 
     String json = context.getRepository()
         .facet(ConanHostedFacet.class)
-        .getPackageSnapshot(coord);
+        .generatePackageSnapshotAsJson(coord);
     return new Response.Builder()
         .status(success(OK))
         .payload(new StringPayload(json, APPLICATION_JSON))

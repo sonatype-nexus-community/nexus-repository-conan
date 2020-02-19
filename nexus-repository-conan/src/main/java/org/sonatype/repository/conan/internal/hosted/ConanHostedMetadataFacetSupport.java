@@ -43,8 +43,6 @@ import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findA
 /**
  * @since 1.0.0
  */
-@Exposed
-@Named
 public class ConanHostedMetadataFacetSupport
     extends FacetSupport
 {

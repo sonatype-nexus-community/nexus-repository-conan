@@ -32,6 +32,8 @@ import org.sonatype.nexus.orient.OClassNameBuilder;
 import org.sonatype.nexus.orient.OIndexNameBuilder;
 import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.ConanFormat;
+import org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe;
+import org.sonatype.repository.conan.internal.proxy.v1.ConanProxyRecipe;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -89,19 +91,30 @@ public class ConanUpgrade_1_1
   public void apply() {
     if (hasSchemaClass(configDatabaseInstance, REPOSITORY_CLASS_NAME) &&
         hasSchemaClass(componentDatabaseInstance, ASSET_CLASS_NAME)) {
-      List<String> repositoryNames = findConanRepositoryNames();
-      if (!repositoryNames.isEmpty()) {
-        updateAssetPath(repositoryNames);
-        removeAttributesFromConanManifest(repositoryNames);
-        deleteConanBrowseNodes(repositoryNames);
+      List<String> proxyRepositoryNames = findRepositoryNames(Collections.singletonList(ConanProxyRecipe.NAME));
+      if (!proxyRepositoryNames.isEmpty()) {
+        updateAssetPathProxy(proxyRepositoryNames);
+      }
+
+      List<String> hostedRepositoryNames = findRepositoryNames(Collections.singletonList(ConanHostedRecipe.NAME));
+      if (!hostedRepositoryNames.isEmpty()) {
+        updateHostedAssetPath(hostedRepositoryNames);
+      }
+
+      List<String> repositories = Stream.concat(proxyRepositoryNames.stream(), hostedRepositoryNames.stream())
+          .collect(Collectors.toList());
+
+      if (!repositories.isEmpty()) {
+        removeAttributesFromConanManifest(repositories);
+        deleteConanBrowseNodes(repositories);
       }
     }
   }
 
-  private List<String> findConanRepositoryNames() {
+  private List<String> findRepositoryNames(final List<String> recipes) {
     try (ODatabaseDocumentTx oDatabaseDocumentTx = configDatabaseInstance.get().connect()) {
       final List<ODocument> documents = oDatabaseDocumentTx.query(
-          new OSQLSynchQuery<ODocument>("select from repository where recipe_name in ['conan-proxy', 'conan-hosted']"));
+          new OSQLSynchQuery<ODocument>("select from repository where recipe_name in ?"), recipes);
       return documents
           .stream()
           .map(entries -> (String) entries.field(P_REPOSITORY_NAME))
@@ -130,7 +143,62 @@ public class ConanUpgrade_1_1
     );
   }
 
-  private void updateAssetPath(final List<String> repositoryNames) {
+  private void updateAssetPathProxy(final List<String> proxyRepositoryNames) {
+    DatabaseUpgradeSupport.withDatabaseAndClass(componentDatabaseInstance, ASSET_CLASS_NAME,
+        (db, type) -> findAssets(db, proxyRepositoryNames, "select from asset where bucket = ?")
+            .forEach(oDocument -> {
+              Map<String, Object> attributes = oDocument.field(P_ATTRIBUTES);
+              String name = oDocument.field(P_ASSET_NAME);
+              String nextName = null;
+
+              String strategy2 = "v1/conans/";
+              String conans = "conans/";
+
+              if (name.startsWith(strategy2)) { // based on refactor-v1-api PROXY
+                nextName = conans + name.substring(strategy2.length());
+              }
+              else if (!name.startsWith(conans)) { // looks like latest(master) PROXY
+                String preName = name;
+                String[] values = name.split("/");
+                Map<String, Object> conan = (Map<String, Object>) attributes.get(ConanFormat.NAME);
+                String assetKindName = (String) conan.get(P_ASSET_KIND);
+                AssetKind assetKind = AssetKind.valueOf(assetKindName);
+                if (assetKind == AssetKind.DOWNLOAD_URL) {
+                  String expectPackage = values[4];
+                  if (expectPackage.equals("packages")) {
+                    String group = values[0];
+                    String project = values[1];
+                    String version = values[2];
+                    String channel = values[3];
+                    String sha = values[5];
+                    String fileName = values[6];
+
+                    preName =
+                        project + "/" + version + "/" + group + "/" + channel + "/packages/" + sha + "/" + fileName;
+                  }
+                  else {
+                    String group = values[0];
+                    String project = values[1];
+                    String version = values[2];
+                    String channel = values[3];
+                    String fileName = values[4];
+
+                    preName =
+                        project + "/" + version + "/" + group + "/" + channel + "/" + fileName;
+                  }
+                }
+                nextName = conans + preName;
+              }
+
+              if (nextName != null) {
+                oDocument.field(P_ASSET_NAME, nextName);
+                oDocument.save();
+              }
+            })
+    );
+  }
+
+  private void updateHostedAssetPath(final List<String> repositoryNames) {
     DatabaseUpgradeSupport.withDatabaseAndClass(componentDatabaseInstance, ASSET_CLASS_NAME,
         (db, type) -> findAssets(db, repositoryNames, "select from asset where bucket = ?")
             .forEach(oDocument -> {
@@ -138,21 +206,14 @@ public class ConanUpgrade_1_1
               String nextName = null;
 
               String strategy1 = "/v1/conans/v1/conans/";
-              String strategy2 = "v1/conans/";
               String strategy3 = "/v1/conans/";
               String conans = "conans/";
 
               if (name.startsWith(strategy1)) { // broken based on refactor-v1-api HOSTED
                 nextName = conans + name.substring(strategy1.length());
               }
-              else if (name.startsWith(strategy2)) { // based on refactor-v1-api PROXY
-                nextName = conans + name.substring(strategy2.length());
-              }
               else if (name.startsWith(strategy3)) { // latest(master) HOSTED
                 nextName = conans + name.substring(strategy3.length());
-              }
-              else if (!name.startsWith(conans)) { // latest(master) PROXY
-                nextName = conans + name;
               }
 
               if (nextName != null) {

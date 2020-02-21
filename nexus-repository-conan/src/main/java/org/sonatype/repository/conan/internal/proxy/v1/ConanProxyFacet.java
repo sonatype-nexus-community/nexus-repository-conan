@@ -143,8 +143,7 @@ public class ConanProxyFacet
                              final AssetKind assetKind) throws IOException
   {
     StorageFacet storageFacet = facet(StorageFacet.class);
-    try (TempBlob tempBlob = storageFacet
-        .createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
+    try (TempBlob tempBlob = storageFacet.createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
       return doPutPackage(tempBlob, content, coords, assetKind);
     }
   }
@@ -156,8 +155,7 @@ public class ConanProxyFacet
       throws IOException
   {
     StorageFacet storageFacet = facet(StorageFacet.class);
-    try (TempBlob tempBlob = storageFacet
-        .createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
+    try (TempBlob tempBlob = storageFacet.createTempBlob(content.openInputStream(), HASH_ALGORITHMS)) {
 
       if (assetKind == DOWNLOAD_URL || assetKind == DIGEST) {
         Content saveMetadata = doSaveMetadata(tempBlob, content, assetKind, coords);

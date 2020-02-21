@@ -94,8 +94,7 @@ public class ConanHostedFacet
                             final AssetKind assetKind) throws IOException
   {
     StorageFacet storageFacet = facet(StorageFacet.class);
-    try (TempBlob tempBlob = storageFacet
-        .createTempBlob(payload, ConanFacetUtils.HASH_ALGORITHMS)) {
+    try (TempBlob tempBlob = storageFacet.createTempBlob(payload, ConanFacetUtils.HASH_ALGORITHMS)) {
       doPutArchive(coord, assetPath, tempBlob, assetKind);
     }
   }

@@ -32,6 +32,7 @@ import org.sonatype.nexus.repository.storage.StorageFacet;
 import org.sonatype.nexus.repository.storage.StorageTx;
 import org.sonatype.nexus.repository.storage.TempBlob;
 import org.sonatype.nexus.repository.transaction.TransactionalStoreBlob;
+import org.sonatype.nexus.repository.transaction.TransactionalTouchBlob;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
 import org.sonatype.nexus.repository.view.Payload;
@@ -197,7 +198,7 @@ public class ConanHostedFacet
   }
 
   @Nullable
-  @TransactionalStoreBlob
+  @TransactionalTouchBlob
   protected Content doGet(final String path) {
     checkNotNull(path);
 

@@ -74,7 +74,7 @@ class ConanProxyHelper
         coord.getSha() == null ? "" : "/packages/" + coord.getSha())
   }
 
-  /**
+  /*
    * Gets the path in this format: https://github
    * .com/conan-io/conan/blob/14f84411ddf5106b86be4464ccd76aea865ecd45/conans/model/rest_routes.py#L30
    */

@@ -20,14 +20,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
-import javax.inject.Named;
 
 import org.sonatype.nexus.common.hash.HashAlgorithm;
-import org.sonatype.nexus.repository.Facet.Exposed;
 import org.sonatype.nexus.repository.FacetSupport;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.StorageTx;
-import org.sonatype.nexus.repository.transaction.TransactionalStoreBlob;
+import org.sonatype.nexus.repository.transaction.TransactionalTouchBlob;
 import org.sonatype.nexus.transaction.UnitOfWork;
 import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
@@ -112,7 +110,7 @@ public class ConanHostedMetadataFacetSupport
   }
 
   @Nullable
-  @TransactionalStoreBlob
+  @TransactionalTouchBlob
   public String getHash(final String path) {
     checkNotNull(path);
 

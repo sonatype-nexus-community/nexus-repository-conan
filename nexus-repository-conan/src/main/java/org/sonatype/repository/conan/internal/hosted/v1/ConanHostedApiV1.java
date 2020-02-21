@@ -37,10 +37,9 @@ public class ConanHostedApiV1
   private ConanHostedControllerV1 conanHostedControllerV1;
 
   @Inject
-  public ConanHostedApiV1(
-      final PingController pingController,
-      final UserController userController,
-      final ConanHostedControllerV1 conanHostedControllerV1)
+  public ConanHostedApiV1(final PingController pingController,
+                          final UserController userController,
+                          final ConanHostedControllerV1 conanHostedControllerV1)
   {
     this.pingController = checkNotNull(pingController);
     this.userController = checkNotNull(userController);

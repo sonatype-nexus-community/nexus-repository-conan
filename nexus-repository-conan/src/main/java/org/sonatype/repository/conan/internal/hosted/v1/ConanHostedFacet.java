@@ -72,12 +72,10 @@ import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findC
 public class ConanHostedFacet
     extends ConanHostedMetadataFacetSupport
 {
-  public Response upload(
-      final String assetPath,
-      final ConanCoords coord,
-      final Payload payload,
-      final AssetKind assetKind) throws IOException
-  {
+  public Response upload(final String assetPath,
+                         final ConanCoords coord,
+                         final Payload payload,
+                         final AssetKind assetKind) throws IOException {
     checkNotNull(assetPath);
     checkNotNull(coord);
     checkNotNull(payload);
@@ -90,11 +88,10 @@ public class ConanHostedFacet
         .build();
   }
 
-  private void doPutArchive(
-      final String assetPath,
-      final ConanCoords coord,
-      final Payload payload,
-      final AssetKind assetKind) throws IOException
+  private void doPutArchive(final String assetPath,
+                            final ConanCoords coord,
+                            final Payload payload,
+                            final AssetKind assetKind) throws IOException
   {
     StorageFacet storageFacet = facet(StorageFacet.class);
     try (TempBlob tempBlob = storageFacet
@@ -104,11 +101,10 @@ public class ConanHostedFacet
   }
 
   @TransactionalStoreBlob
-  protected void doPutArchive(
-      final ConanCoords coord,
-      final String path,
-      final TempBlob tempBlob,
-      final AssetKind assetKind) throws IOException
+  protected void doPutArchive(final ConanCoords coord,
+                              final String path,
+                              final TempBlob tempBlob,
+                              final AssetKind assetKind) throws IOException
   {
     checkNotNull(path);
     checkNotNull(tempBlob);
@@ -149,20 +145,18 @@ public class ConanHostedFacet
     return generateDownloadPackagesUrlsAsJson(coords, repositoryUrl);
   }
 
-  private Content saveAsset(
-      final StorageTx tx,
-      final Asset asset,
-      final Supplier<InputStream> contentSupplier) throws IOException
+  private Content saveAsset(final StorageTx tx,
+                            final Asset asset,
+                            final Supplier<InputStream> contentSupplier) throws IOException
   {
     return saveAsset(tx, asset, contentSupplier, null, null);
   }
 
-  private Content saveAsset(
-      final StorageTx tx,
-      final Asset asset,
-      final Supplier<InputStream> contentSupplier,
-      final String contentType,
-      final AttributesMap contentAttributes) throws IOException
+  private Content saveAsset(final StorageTx tx,
+                            final Asset asset,
+                            final Supplier<InputStream> contentSupplier,
+                            final String contentType,
+                            final AttributesMap contentAttributes) throws IOException
   {
     Content.applyToAsset(asset, maintainLastModified(asset, contentAttributes));
     AssetBlob assetBlob = tx.setBlob(

@@ -147,7 +147,6 @@ public class ConanUpgrade_1_1
     DatabaseUpgradeSupport.withDatabaseAndClass(componentDatabaseInstance, ASSET_CLASS_NAME,
         (db, type) -> findAssets(db, proxyRepositoryNames, "select from asset where bucket = ?")
             .forEach(oDocument -> {
-              Map<String, Object> attributes = oDocument.field(P_ATTRIBUTES);
               String name = oDocument.field(P_ASSET_NAME);
               String nextName = null;
 
@@ -160,6 +159,7 @@ public class ConanUpgrade_1_1
               else if (!name.startsWith(conans)) { // looks like latest(master) PROXY
                 String preName = name;
                 String[] values = name.split("/");
+                Map<String, Object> attributes = oDocument.field(P_ATTRIBUTES);
                 Map<String, Object> conan = (Map<String, Object>) attributes.get(ConanFormat.NAME);
                 String assetKindName = (String) conan.get(P_ASSET_KIND);
                 AssetKind assetKind = AssetKind.valueOf(assetKindName);

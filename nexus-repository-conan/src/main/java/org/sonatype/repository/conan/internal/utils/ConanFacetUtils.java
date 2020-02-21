@@ -54,10 +54,6 @@ public class ConanFacetUtils
     return path.endsWith(AssetKind.DIGEST.getFilename());
   }
 
-  public static boolean isDownloadUrls(String path) {
-    return path.endsWith(AssetKind.DOWNLOAD_URL.getFilename());
-  }
-
   public static Asset findAsset(final StorageTx tx, final Bucket bucket, final String assetName) {
     return tx.findAssetWithProperty(P_NAME, assetName, bucket);
   }

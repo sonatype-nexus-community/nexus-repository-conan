@@ -35,11 +35,9 @@ public class ConanProxyApiV1
   private ConanProxyControllerV1 conanProxyControllerV1;
 
   @Inject
-  public ConanProxyApiV1(
-      final PingController pingController,
-      final UserController userController,
-      final ConanProxyControllerV1 conanProxyControllerV1)
-  {
+  public ConanProxyApiV1(final PingController pingController,
+                         final UserController userController,
+                         final ConanProxyControllerV1 conanProxyControllerV1) {
     this.pingController = checkNotNull(pingController);
     this.userController = checkNotNull(userController);
     this.conanProxyControllerV1 = checkNotNull(conanProxyControllerV1);

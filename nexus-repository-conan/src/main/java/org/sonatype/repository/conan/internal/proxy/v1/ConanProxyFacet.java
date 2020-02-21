@@ -78,9 +78,8 @@ public class ConanProxyFacet
   private final ConanUrlIndexer conanUrlIndexer;
 
   @Inject
-  public ConanProxyFacet(
-      final ConanUrlIndexer conanUrlIndexer,
-      final ConanHashVerifier hashVerifier)
+  public ConanProxyFacet(final ConanUrlIndexer conanUrlIndexer,
+                         final ConanHashVerifier hashVerifier)
   {
     this.conanUrlIndexer = conanUrlIndexer;
     this.hashVerifier = hashVerifier;
@@ -139,10 +138,9 @@ public class ConanProxyFacet
     return putMetadata(context, content, assetKind, conanCoords);
   }
 
-  private Content putPackage(
-      final Content content,
-      final ConanCoords coords,
-      final AssetKind assetKind) throws IOException
+  private Content putPackage(final Content content,
+                             final ConanCoords coords,
+                             final AssetKind assetKind) throws IOException
   {
     StorageFacet storageFacet = facet(StorageFacet.class);
     try (TempBlob tempBlob = storageFacet
@@ -151,11 +149,10 @@ public class ConanProxyFacet
     }
   }
 
-  private Content putMetadata(
-      final Context context,
-      final Content content,
-      final AssetKind assetKind,
-      final ConanCoords coords)
+  private Content putMetadata(final Context context,
+                              final Content content,
+                              final AssetKind assetKind,
+                              final ConanCoords coords)
       throws IOException
   {
     StorageFacet storageFacet = facet(StorageFacet.class);
@@ -180,10 +177,9 @@ public class ConanProxyFacet
     return content;
   }
 
-  private Component getOrCreateComponent(
-      final StorageTx tx,
-      final Bucket bucket,
-      final ConanCoords coords)
+  private Component getOrCreateComponent(final StorageTx tx,
+                                         final Bucket bucket,
+                                         final ConanCoords coords)
   {
     Component component = findComponent(tx, getRepository(), coords);
     if (component == null) {
@@ -197,11 +193,10 @@ public class ConanProxyFacet
   }
 
   @TransactionalStoreBlob
-  protected Content doPutPackage(
-      final TempBlob tempBlob,
-      final Payload content,
-      final ConanCoords coords,
-      final AssetKind assetKind) throws IOException
+  protected Content doPutPackage(final TempBlob tempBlob,
+                                 final Payload content,
+                                 final ConanCoords coords,
+                                 final AssetKind assetKind) throws IOException
   {
     StorageTx tx = UnitOfWork.currentTx();
     Bucket bucket = tx.findBucket(getRepository());
@@ -218,11 +213,10 @@ public class ConanProxyFacet
   }
 
   @TransactionalStoreBlob
-  protected Content doSaveMetadata(
-      final TempBlob metadataContent,
-      final Payload payload,
-      final AssetKind assetKind,
-      final ConanCoords coords) throws IOException
+  protected Content doSaveMetadata(final TempBlob metadataContent,
+                                   final Payload payload,
+                                   final AssetKind assetKind,
+                                   final ConanCoords coords) throws IOException
   {
     HashCode hash = null;
     StorageTx tx = UnitOfWork.currentTx();
@@ -245,12 +239,11 @@ public class ConanProxyFacet
    *
    * @return blob content
    */
-  private Content saveAsset(
-      final StorageTx tx,
-      final Asset asset,
-      final Supplier<InputStream> contentSupplier,
-      final Payload payload,
-      final HashCode hash) throws IOException
+  private Content saveAsset(final StorageTx tx,
+                            final Asset asset,
+                            final Supplier<InputStream> contentSupplier,
+                            final Payload payload,
+                            final HashCode hash) throws IOException
   {
     AttributesMap contentAttributes = null;
     String contentType = null;
@@ -266,13 +259,12 @@ public class ConanProxyFacet
    *
    * @return blob content
    */
-  private Content saveAsset(
-      final StorageTx tx,
-      final Asset asset,
-      final Supplier<InputStream> contentSupplier,
-      final String contentType,
-      final AttributesMap contentAttributes,
-      final HashCode hash) throws IOException
+  private Content saveAsset(final StorageTx tx,
+                            final Asset asset,
+                            final Supplier<InputStream> contentSupplier,
+                            final String contentType,
+                            final AttributesMap contentAttributes,
+                            final HashCode hash) throws IOException
   {
     Content.applyToAsset(asset, maintainLastModified(asset, contentAttributes));
     AssetBlob assetBlob = tx.setBlob(
@@ -288,9 +280,7 @@ public class ConanProxyFacet
   }
 
   @Override
-  protected void indicateVerified(
-      final Context context, final Content content,
-      final CacheInfo cacheInfo)
+  protected void indicateVerified(final Context context, final Content content, final CacheInfo cacheInfo)
   {
   }
 

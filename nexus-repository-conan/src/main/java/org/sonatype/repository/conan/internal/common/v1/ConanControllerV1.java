@@ -92,11 +92,10 @@ public class ConanControllerV1
     };
   }
 
-  protected void createRoute(
-      final Router.Builder builder,
-      final Builder matcher,
-      final AssetKind assetKind,
-      final Handler handler)
+  protected void createRoute(final Router.Builder builder,
+                             final Builder matcher,
+                             final AssetKind assetKind,
+                             final Handler handler)
   {
     builder.route(matcher
         .handler(timingHandler)

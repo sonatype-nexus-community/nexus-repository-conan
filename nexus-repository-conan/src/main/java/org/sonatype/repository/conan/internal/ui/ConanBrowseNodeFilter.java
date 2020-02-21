@@ -15,7 +15,7 @@ import org.sonatype.repository.conan.internal.ConanFormat;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 
 /**
- *
+ * @since 1.0.0
  */
 @Singleton
 @Named(ConanFormat.NAME)

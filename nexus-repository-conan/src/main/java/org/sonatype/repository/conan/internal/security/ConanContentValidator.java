@@ -67,7 +67,8 @@ public class ConanContentValidator
       }
       else if (ConanFacetUtils.isPackageSnapshot(contentName)) {
         return ContentTypes.APPLICATION_JSON;
-      } else if (ConanFacetUtils.isDigest(contentName)) {
+      }
+      else if (ConanFacetUtils.isDigest(contentName)) {
         return ContentTypes.APPLICATION_JSON;
       }
     }

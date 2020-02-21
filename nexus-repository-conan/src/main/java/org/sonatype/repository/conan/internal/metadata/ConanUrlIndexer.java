@@ -50,10 +50,9 @@ public class ConanUrlIndexer
 {
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
-  public String updateAbsoluteUrls(
-      final Context context,
-      final Content content,
-      final Repository repository) throws IOException
+  public String updateAbsoluteUrls(final Context context,
+                                   final Content content,
+                                   final Repository repository) throws IOException
   {
     Map<String, URL> downloadUrlContents = readIndex(content.openInputStream());
     Map<String, String> remappedContents = new HashMap<>();
@@ -73,9 +72,7 @@ public class ConanUrlIndexer
   private Map<String, URL> readIndex(final InputStream stream) {
     ObjectMapper objectMapper = new ObjectMapper();
 
-    TypeReference<HashMap<String, URL>> typeRef = new TypeReference<HashMap<String, URL>>()
-    {
-    };
+    TypeReference<HashMap<String, URL>> typeRef = new TypeReference<HashMap<String, URL>>() { };
     try {
       return objectMapper.readValue(stream, typeRef);
     }

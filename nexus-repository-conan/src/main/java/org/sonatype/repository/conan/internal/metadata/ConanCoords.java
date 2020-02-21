@@ -35,14 +35,12 @@ public class ConanCoords
 
   final private String sha;
 
-  public ConanCoords(
-      final String path,
-      final String group,
-      final String project,
-      final String version,
-      final String channel,
-      @Nullable final String sha)
-  {
+  public ConanCoords(final String path,
+                     final String group,
+                     final String project,
+                     final String version,
+                     final String channel,
+                     @Nullable final String sha) {
     this.path = checkNotNull(path);
     this.group = checkNotNull(group);
     this.project = checkNotNull(project);

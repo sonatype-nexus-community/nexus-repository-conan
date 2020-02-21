@@ -16,6 +16,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.sonatype.goodies.common.ComponentSupport;
+import org.sonatype.nexus.repository.http.HttpMethods;
 import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.Headers;
 import org.sonatype.nexus.repository.view.Response;
@@ -56,7 +57,7 @@ public class HostedHandlers
     Headers headers = context.getRequest().getHeaders();
     String method = context.getRequest().getAction();
 
-    if (headers.contains(CLIENT_CHECKSUM) && method != "PUT") {
+    if (headers.contains(CLIENT_CHECKSUM) && !method.equals(HttpMethods.PUT)) {
       return new Response.Builder()
           .status(Status.failure(NOT_FOUND))
           .build();

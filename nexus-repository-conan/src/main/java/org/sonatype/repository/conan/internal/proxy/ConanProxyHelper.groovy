@@ -22,6 +22,7 @@ import org.sonatype.repository.conan.internal.AssetKind
 import org.sonatype.repository.conan.internal.metadata.ConanCoords
 
 import com.google.common.collect.ImmutableList
+import org.apache.commons.lang.StringUtils
 
 import static org.sonatype.nexus.common.hash.HashAlgorithm.MD5
 import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA1
@@ -71,7 +72,7 @@ class ConanProxyHelper
         coord.getProject(),
         coord.getVersion(),
         coord.getChannel(),
-        coord.getSha() == null ? "" : "/packages/" + coord.getSha())
+        coord.getSha() == null ? StringUtils.EMPTY : "/packages/" + coord.getSha())
   }
 
   /*
@@ -86,8 +87,8 @@ class ConanProxyHelper
         coord.getVersion(),
         coord.getGroup(),
         coord.getChannel(),
-        coord.getSha() == null ? "" : "/packages/" + coord.getSha(),
-        filename == null ? "" : "/" + filename)
+        coord.getSha() == null ? StringUtils.EMPTY : "/packages/" + coord.getSha(),
+        filename == null ? StringUtils.EMPTY : "/" + filename)
   }
 
   static Content toContent(final Asset asset, final Blob blob) {

@@ -5,6 +5,7 @@ import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.DIGEST;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.GROUP;
@@ -28,7 +29,7 @@ public class ConanHostedHelper
         coord.getProject(),
         coord.getVersion(),
         coord.getChannel(),
-        coord.getSha() == null ? "" : "/packages/" + coord.getSha());
+        coord.getSha() == null ? StringUtils.EMPTY : "/packages/" + coord.getSha());
     return String.format("%s%s/%s", CONAN_HOSTED_PREFIX, path, assetKind.getFilename());
   }
 

@@ -16,7 +16,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.sonatype.nexus.repository.proxy.ProxyHandler;
 import org.sonatype.nexus.repository.view.Router;
 import org.sonatype.repository.conan.internal.common.PingController;
 import org.sonatype.repository.conan.internal.common.UserController;
@@ -35,17 +34,13 @@ public class ConanProxyApiV1
 
   private ConanProxyControllerV1 conanProxyControllerV1;
 
-  private ProxyHandler proxyHandler;
-
   @Inject
   public ConanProxyApiV1(final PingController pingController,
                          final UserController userController,
-                         final ConanProxyControllerV1 conanProxyControllerV1,
-                         final ProxyHandler proxyHandler) {
+                         final ConanProxyControllerV1 conanProxyControllerV1) {
     this.pingController = checkNotNull(pingController);
     this.userController = checkNotNull(userController);
     this.conanProxyControllerV1 = checkNotNull(conanProxyControllerV1);
-    this.proxyHandler = checkNotNull(proxyHandler);
   }
 
   public void create(final Router.Builder builder) {

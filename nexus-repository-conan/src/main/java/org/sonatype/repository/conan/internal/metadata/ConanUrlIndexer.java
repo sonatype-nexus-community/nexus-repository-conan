@@ -25,15 +25,20 @@ import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.view.Content;
 import org.sonatype.nexus.repository.view.Context;
-import org.sonatype.repository.conan.internal.common.v1.ConanRoutes;
+import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
+import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State;
+import org.sonatype.repository.conan.internal.AssetKind;
+import org.sonatype.repository.conan.internal.proxy.ConanProxyHelper;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static java.util.Collections.emptyMap;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.getProxyAssetPath;
 
 /**
  * download_url files contain absolute paths to each asset
- *
+ * <p>
  * This class removes the absolute address so as to redirect back to this repository
  *
  * @since 0.0.2
@@ -52,34 +57,34 @@ public class ConanUrlIndexer
     Map<String, URL> downloadUrlContents = readIndex(content.openInputStream());
     Map<String, String> remappedContents = new HashMap<>();
 
-    ConanCoords coords = ConanRoutes.getCoords(context);
-
-    String path = ConanCoords.getPath(coords);
+    State state = context.getAttributes().require(TokenMatcher.State.class);
+    ConanCoords coords = ConanProxyHelper.convertFromState(state);
 
     for (Map.Entry<String, URL> entry : downloadUrlContents.entrySet()) {
-      remappedContents.put(entry.getKey(), repository.getUrl() + "/" + path + "/" + entry.getKey());
+      String fileName = entry.getKey();
+      AssetKind assetKind = ConanProxyHelper.ASSET_KIND_FILENAMES.get(fileName);
+      remappedContents.put(entry.getKey(), repository.getUrl() + "/" + getProxyAssetPath(coords, assetKind));
     }
 
     return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(remappedContents);
   }
 
-
   private Map<String, URL> readIndex(final InputStream stream) {
     ObjectMapper objectMapper = new ObjectMapper();
 
-    TypeReference<HashMap<String, URL>> typeRef = new TypeReference<HashMap<String, URL>>() {};
+    TypeReference<HashMap<String, URL>> typeRef = new TypeReference<HashMap<String, URL>>() { };
     try {
       return objectMapper.readValue(stream, typeRef);
     }
     catch (IOException e) {
-      log.warn("Unable to read index for asset",  e);
+      log.warn("Unable to read index for asset", e);
     }
     return emptyMap();
   }
 
   public String findUrl(final InputStream inputStream, final String find) {
     Map<String, URL> downloadUrlContents = readIndex(inputStream);
-    if(downloadUrlContents.containsKey(find)) {
+    if (downloadUrlContents.containsKey(find)) {
       return downloadUrlContents.get(find).toString();
     }
     return null;

@@ -23,6 +23,7 @@ import org.sonatype.nexus.repository.http.HttpStatus;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.storage.ComponentMaintenance;
+import org.sonatype.nexus.repository.view.ContentTypes;
 import org.sonatype.nexus.testsuite.testsupport.NexusITSupport;
 import org.sonatype.repository.conan.internal.ConanFormat;
 
@@ -101,10 +102,6 @@ public class ConanProxyIT
 
   private static final String LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_PATH =
       LIB_WITH_WRONG_CONANINFO_HASH_DOWNLOAD_URLS_DIRECTORY + FILE_DOWNLOAD_URLS;
-
-  private static final String MIME_GZIP = "application/gzip";
-
-  private static final String MIME_TEXT = "text/plain";
 
   private static final String NXRM_CONAN_PROXY_REPO_NAME = "conan-test-proxy-online";
 
@@ -194,7 +191,7 @@ public class ConanProxyIT
     final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS);
     assertThat(asset.format(), is(ConanFormat.NAME));
     assertThat(asset.name(), is(PATH_DOWNLOAD_URLS));
-    assertThat(asset.contentType(), is(MIME_TEXT));
+    assertThat(asset.contentType(), is(ContentTypes.TEXT_PLAIN));
   }
 
   @Test
@@ -209,7 +206,7 @@ public class ConanProxyIT
     final Asset asset = findAsset(proxyRepo, PATH_DIGEST);
     assertThat(asset.format(), is(ConanFormat.NAME));
     assertThat(asset.name(), is(PATH_DIGEST));
-    assertThat(asset.contentType(), is(MIME_TEXT));
+    assertThat(asset.contentType(), is(ContentTypes.APPLICATION_JSON));
   }
 
   @Test
@@ -229,7 +226,7 @@ public class ConanProxyIT
     final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES);
     assertThat(asset.format(), is(ConanFormat.NAME));
     assertThat(asset.name(), is(PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES));
-    assertThat(asset.contentType(), is(MIME_TEXT));
+    assertThat(asset.contentType(), is(ContentTypes.TEXT_PLAIN));
   }
 
   @Test
@@ -240,7 +237,7 @@ public class ConanProxyIT
     Asset asset = findAsset(proxyRepo, PATH_TGZ_PACKAGE);
     assertThat(asset.format(), is(ConanFormat.NAME));
     assertThat(asset.name(), is(PATH_TGZ_PACKAGE));
-    assertThat(asset.contentType(), is(MIME_GZIP));
+    assertThat(asset.contentType(), is(ContentTypes.APPLICATION_GZIP));
   }
 
   @Test
@@ -254,7 +251,7 @@ public class ConanProxyIT
     final Asset asset = findAsset(proxyRepo, PATH_INFO);
     assertThat(asset.format(), is(ConanFormat.NAME));
     assertThat(asset.name(), is(PATH_INFO));
-    assertThat(asset.contentType(), is(MIME_TEXT));
+    assertThat(asset.contentType(), is(ContentTypes.TEXT_PLAIN));
   }
 
   @Test
@@ -266,7 +263,7 @@ public class ConanProxyIT
     final Asset asset = findAsset(proxyRepo, PATH_MANIFEST);
     assertThat(asset.format(), is(ConanFormat.NAME));
     assertThat(asset.name(), is(PATH_MANIFEST));
-    assertThat(asset.contentType(), is(MIME_TEXT));
+    assertThat(asset.contentType(), is(ContentTypes.TEXT_PLAIN));
   }
 
   @Test

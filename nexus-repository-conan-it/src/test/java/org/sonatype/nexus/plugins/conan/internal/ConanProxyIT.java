@@ -29,6 +29,7 @@ import org.sonatype.repository.conan.internal.ConanFormat;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -122,6 +123,10 @@ public class ConanProxyIT
 
   private static final String PATH_DIGEST = DIRECTORY_DOWNLOAD_URLS + FILE_DIGEST;
 
+  private static final String PATH_SEARCH = String.format("conans/%s/%s/%s/stable/search", LIBRARY_NAME, LIBRARY_VERSION, LIBRARY_VENDOR);
+
+  private static final String MOCK_SEARCH_REMOTE_RESPONSE = "MOCK_SEARCH_REMOTE_RESPONSE";
+
   private ConanClient proxyClient;
 
   private Repository proxyRepo;
@@ -159,6 +164,8 @@ public class ConanProxyIT
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_MANIFEST)))
         .serve("/" + LIB_WITH_WRONG_CONANINFO_HASH_CONANMANIFEST_PATH)
         .withBehaviours(Behaviours.file(testData.resolveFile(LIB_WITH_WRONG_CONANINFO_HASH_CONANMANIFEST_FILE_NAME)))
+        .serve("/" + PATH_SEARCH)
+        .withBehaviours(Behaviours.content(MOCK_SEARCH_REMOTE_RESPONSE, ContentTypes.APPLICATION_JSON))
         .start();
 
     proxyRepo = repos.createConanProxy(NXRM_CONAN_PROXY_REPO_NAME, server.getUrl().toExternalForm());
@@ -169,6 +176,20 @@ public class ConanProxyIT
   @After
   public void tearDown() throws Exception {
     server.stop();
+  }
+
+  @Test
+  public void search() throws Exception {
+    HttpResponse response = proxyClient.getHttpResponse(PATH_SEARCH);
+    assertThat(status(response), is(HttpStatus.OK));
+
+    HttpEntity entity = response.getEntity();
+    String actualJson = EntityUtils.toString(entity);
+    assertThat(actualJson, is(MOCK_SEARCH_REMOTE_RESPONSE));
+
+    Header contentType = response.getEntity().getContentType();
+    String mimeType = contentType.getValue();
+    assertThat(mimeType, is(ContentTypes.APPLICATION_JSON));
   }
 
   @Test

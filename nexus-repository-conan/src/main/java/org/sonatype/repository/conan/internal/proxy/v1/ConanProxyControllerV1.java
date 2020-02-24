@@ -16,9 +16,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.sonatype.nexus.repository.proxy.ProxyHandler;
 import org.sonatype.nexus.repository.view.Router;
 import org.sonatype.repository.conan.internal.common.v1.ConanControllerV1;
+import org.sonatype.repository.conan.internal.common.v1.ConanRoutes;
 
 @Named
 @Singleton
@@ -26,9 +26,14 @@ public class ConanProxyControllerV1
     extends ConanControllerV1
 {
   @Inject
-  ProxyHandler proxyHandler;
+  private ConanProxyHandlers conanProxyHandlers;
 
   public void attach(final Router.Builder builder) {
-    createGetRoutes(builder, proxyHandler, proxyHandler, proxyHandler, proxyHandler);
+    // query implementation
+    createRoute(builder, ConanRoutes.searchQuery(), null, conanProxyHandlers.searchQueryHandler);
+    // query implementation
+
+    createGetRoutes(builder, conanProxyHandlers.proxyHandler, conanProxyHandlers.proxyHandler,
+        conanProxyHandlers.proxyHandler, conanProxyHandlers.proxyHandler);
   }
 }

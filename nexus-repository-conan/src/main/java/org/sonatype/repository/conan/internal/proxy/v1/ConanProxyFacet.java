@@ -60,7 +60,7 @@ import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE;
 import static org.sonatype.repository.conan.internal.AssetKind.DIGEST;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.DOWNLOAD_ASSET_KINDS;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.METADATA_ASSET_KINDS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.convertFromState;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.getProxyAssetPath;
@@ -287,7 +287,7 @@ public class ConanProxyFacet
   protected String getUrl(@Nonnull final Context context) {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
 
-    if (DOWNLOAD_ASSET_KINDS.contains(assetKind)) {
+    if (METADATA_ASSET_KINDS.contains(assetKind)) {
       return context.getRequest().getPath().substring(1);
     }
 
@@ -316,10 +316,10 @@ public class ConanProxyFacet
       // TODO Looks like it was search request. So let's look up conanmanifest url from digest
       String digestAssetPath = ConanProxyHelper.getProxyAssetPath(coords, DIGEST);
       Asset digest = findAsset(tx, tx.findBucket(getRepository()), digestAssetPath);
-      if (digest != null) {
-        return conanUrlIndexer.findUrl(tx.requireBlob(digest.blobRef()).getInputStream(), CONAN_MANIFEST.getFilename());
+      if (digest == null) {
+        throw new IllegalStateException("DIGEST not found");
       }
-      throw new IllegalStateException("CONAN_MANIFEST not found");
+      return conanUrlIndexer.findUrl(tx.requireBlob(digest.blobRef()).getInputStream(), CONAN_MANIFEST.getFilename());
     }
     return conanUrlIndexer.findUrl(tx.requireBlob(downloadUrlAsset.blobRef()).getInputStream(), CONAN_MANIFEST.getFilename());
   }

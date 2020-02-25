@@ -40,7 +40,11 @@ import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERS
  */
 class ConanProxyHelper
 {
-  public static final List<AssetKind> DOWNLOAD_ASSET_KINDS = ImmutableList.of(AssetKind.DOWNLOAD_URL, AssetKind.DIGEST, AssetKind.CONAN_PACKAGE_SNAPSHOT)
+  public static final List<AssetKind> METADATA_ASSET_KINDS = ImmutableList.of(
+      AssetKind.DOWNLOAD_URL,
+      AssetKind.DIGEST,
+      AssetKind.CONAN_PACKAGE_SNAPSHOT
+  )
 
   public static final List<HashAlgorithm> HASH_ALGORITHMS = ImmutableList.of(SHA256, SHA1, SHA512, MD5)
 
@@ -48,7 +52,7 @@ class ConanProxyHelper
       Collections.unmodifiableMap(AssetKind.values().collectEntries { [it.filename, it] })
 
   static String getProxyAssetPath(final ConanCoords conanCoords, final AssetKind assetKind) {
-    if (DOWNLOAD_ASSET_KINDS.contains(assetKind)) {
+    if (METADATA_ASSET_KINDS.contains(assetKind)) {
       return getRecipePathWithPackages(conanCoords, assetKind)
     }
     return getPath(conanCoords) + "/" + assetKind.getFilename()
@@ -76,8 +80,7 @@ class ConanProxyHelper
   }
 
   /*
-   * Gets the path in this format: https://github
-   * .com/conan-io/conan/blob/14f84411ddf5106b86be4464ccd76aea865ecd45/conans/model/rest_routes.py#L30
+   * Gets the path in this format: https://github.com/conan-io/conan/blob/14f84411ddf5106b86be4464ccd76aea865ecd45/conans/model/rest_routes.py#L30
    */
   private static String getRecipePathWithPackages(final ConanCoords coord, final AssetKind assetKind) {
     String filename = assetKind.getFilename()

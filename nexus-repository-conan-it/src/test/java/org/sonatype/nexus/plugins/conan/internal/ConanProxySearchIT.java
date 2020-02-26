@@ -127,7 +127,7 @@ public class ConanProxySearchIT
   */
   @Test
   public void patternSearch() throws Exception {
-    HttpResponse response = proxyClient.getHttpResponse(PATH_PATTERN_SEARCH + "?q=zlib");
+    HttpResponse response = proxyClient.getHttpResponse(PATH_PATTERN_SEARCH);
     assertThat(status(response), is(HttpStatus.OK));
 
     HttpEntity entity = response.getEntity();

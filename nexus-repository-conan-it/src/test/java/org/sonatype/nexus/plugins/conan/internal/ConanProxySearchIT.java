@@ -51,8 +51,13 @@ public class ConanProxySearchIT
 
   private static final String NXRM_CONAN_PROXY_REPO_NAME = "conan-test-proxy-online";
 
+  private static final String PATH_PATTERN_SEARCH =
+      "conans/search";
+
   private static final String PATH_SEARCH =
       "conans/" + LIBRARY_NAME + "/" + LIBRARY_VERSION + "/" + LIBRARY_VENDOR + "/stable/search";
+
+  private static final String MOCK_PATTERN_SEARCH_REMOTE_RESPONSE = "MOCK_PATTERN_SEARCH_REMOTE_RESPONSE";
 
   private static final String MOCK_SEARCH_REMOTE_RESPONSE = "MOCK_SEARCH_REMOTE_RESPONSE";
 
@@ -94,12 +99,18 @@ public class ConanProxySearchIT
         .serve("/" + PATH_DOWNLOAD_URLS)
         .withBehaviours(Behaviours.error(501))
 
+        .serve("/" + PATH_PATTERN_SEARCH)
+        .withBehaviours(Behaviours.content(MOCK_PATTERN_SEARCH_REMOTE_RESPONSE, ContentTypes.APPLICATION_JSON))
+
         .serve("/" + PATH_SEARCH)
         .withBehaviours(Behaviours.content(MOCK_SEARCH_REMOTE_RESPONSE, ContentTypes.APPLICATION_JSON))
+
         .serve("/" + PATH_DIGEST)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_DIGEST)))
+
         .serve("/" + PATH_MANIFEST)
         .withBehaviours(Behaviours.file(testData.resolveFile(FILE_MANIFEST)))
+
         .start();
 
     proxyRepo = repos.createConanProxy(NXRM_CONAN_PROXY_REPO_NAME, server.getUrl().toExternalForm());
@@ -111,6 +122,35 @@ public class ConanProxySearchIT
     server.stop();
   }
 
+  /*
+    pattern search functionality should redirect requests to remote storage and response return back
+  */
+  @Test
+  public void patternSearch() throws Exception {
+    HttpResponse response = proxyClient.getHttpResponse(PATH_PATTERN_SEARCH + "?q=zlib");
+    assertThat(status(response), is(HttpStatus.OK));
+
+    HttpEntity entity = response.getEntity();
+    String actualJson = EntityUtils.toString(entity);
+    assertThat(actualJson, is(MOCK_PATTERN_SEARCH_REMOTE_RESPONSE));
+
+    Header contentType = response.getEntity().getContentType();
+    String mimeType = contentType.getValue();
+    assertThat(mimeType, is(ContentTypes.APPLICATION_JSON));
+
+    Asset conanManifestAsset = findAsset(proxyRepo, PATH_MANIFEST);
+    assertThat(conanManifestAsset, nullValue());
+
+    Asset downloadUrlsAsset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS);
+    assertThat(downloadUrlsAsset, nullValue());
+
+    Asset digestAsset = findAsset(proxyRepo, PATH_DIGEST);
+    assertThat(digestAsset, nullValue());
+  }
+
+  /*
+    search functionality should redirect requests to remote storage and response return back
+   */
   @Test
   public void search() throws Exception {
     HttpResponse response = proxyClient.getHttpResponse(PATH_SEARCH);
@@ -123,35 +163,35 @@ public class ConanProxySearchIT
     Header contentType = response.getEntity().getContentType();
     String mimeType = contentType.getValue();
     assertThat(mimeType, is(ContentTypes.APPLICATION_JSON));
+
+    Asset conanManifestAsset = findAsset(proxyRepo, PATH_MANIFEST);
+    assertThat(conanManifestAsset, nullValue());
+
+    Asset downloadUrlsAsset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS);
+    assertThat(downloadUrlsAsset, nullValue());
+
+    Asset digestAsset = findAsset(proxyRepo, PATH_DIGEST);
+    assertThat(digestAsset, nullValue());
   }
 
-  /*
-    Download url asset is not exist and
-    we should make sure, that conanmanifest ulr will be got from digest file
-   */
   @Test
   public void conanManifestUrlDownloadUrlIsNotExistButDigestIsExist() throws Exception {
     // init digest begin
     HttpResponse initDigestResponse = proxyClient.getHttpResponse(PATH_DIGEST);
     assertThat(status(initDigestResponse), is(HttpStatus.OK));
     // init digest end
-
-    final Asset assetDigest = findAsset(proxyRepo, PATH_DIGEST);
-    assertThat(assetDigest.format(), is(ConanFormat.NAME));
-    assertThat(assetDigest.name(), is(PATH_DIGEST));
-    assertThat(assetDigest.contentType(), is(ContentTypes.APPLICATION_JSON));
-
-    // we should make sure that downloadUrls is not exist
-    final Asset downloadUrlsAsset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS);
-    assertThat(downloadUrlsAsset, nullValue());
+    // do not test digest. It should be covered by proxy integration test
 
     HttpResponse response = proxyClient.getHttpResponse(PATH_MANIFEST);
     assertThat(status(response), is(HttpStatus.OK));
-    assertThat(status(response), is(HttpStatus.OK));
 
-    final Asset assetConanManifest = findAsset(proxyRepo, PATH_MANIFEST);
-    assertThat(assetConanManifest.format(), is(ConanFormat.NAME));
-    assertThat(assetConanManifest.name(), is(PATH_MANIFEST));
-    assertThat(assetConanManifest.contentType(), is(ContentTypes.TEXT_PLAIN));
+    // we should make sure that downloadUrls is not exist
+    Asset downloadUrlsAsset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS);
+    assertThat(downloadUrlsAsset, nullValue());
+
+    Asset conanManifestAsset = findAsset(proxyRepo, PATH_MANIFEST);
+    assertThat(conanManifestAsset.format(), is(ConanFormat.NAME));
+    assertThat(conanManifestAsset.name(), is(PATH_MANIFEST));
+    assertThat(conanManifestAsset.contentType(), is(ContentTypes.TEXT_PLAIN));
   }
 }

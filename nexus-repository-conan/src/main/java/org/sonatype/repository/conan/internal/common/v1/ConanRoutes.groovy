@@ -260,7 +260,7 @@ class ConanRoutes
     new Builder().matcher(
         and(
             new ActionMatcher(GET),
-            new TokenMatcher("/{api_version:.*}/{path:.*}/search")
+            new TokenMatcher("{prefix:.*}/{path:.*}/search")
         )
     )
   }

@@ -63,6 +63,7 @@ import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.DOWNLOAD_ASSET_KINDS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.convertFromState;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.getComponentVersion;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.getProxyAssetPath;
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findAsset;
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findComponent;
@@ -185,7 +186,7 @@ public class ConanProxyFacet
       component = tx.createComponent(bucket, getRepository().getFormat())
           .group(coords.getGroup())
           .name(coords.getProject())
-          .version(String.format("%s-%s", coords.getVersion(), coords.getChannel()));
+          .version(getComponentVersion(coords));
       component.formatAttributes().set("baseVersion", coords.getVersion());
       component.formatAttributes().set("channel", coords.getChannel());
     }

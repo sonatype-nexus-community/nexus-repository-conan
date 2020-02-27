@@ -34,6 +34,7 @@ import static org.sonatype.nexus.common.hash.HashAlgorithm.SHA256;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_GROUP;
 import static org.sonatype.nexus.repository.storage.ComponentEntityAdapter.P_VERSION;
 import static org.sonatype.nexus.repository.storage.MetadataNodeEntityAdapter.P_NAME;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.getComponentVersion;
 
 /**
  * @since 0.0.1
@@ -72,7 +73,7 @@ public class ConanFacetUtils
         Query.builder()
             .where(P_GROUP).eq(coords.getGroup())
             .and(P_NAME).eq(coords.getProject())
-            .and(P_VERSION).eq(String.format("%s-%s", coords.getVersion(), coords.getChannel()))
+            .and(P_VERSION).eq(getComponentVersion(coords))
             .build(),
         singletonList(repository)
     );

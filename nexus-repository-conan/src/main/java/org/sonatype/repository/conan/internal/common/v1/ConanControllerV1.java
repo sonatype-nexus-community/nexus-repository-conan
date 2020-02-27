@@ -116,12 +116,10 @@ public class ConanControllerV1
   protected void createGetRoutes(
       final Router.Builder builder,
       final Handler urlHandler,
-      final Handler digestHandler,
       final Handler fetchHandler,
       Handler packageHandler)
   {
     createRoute(builder, ConanRoutes.downloadUrls(), DOWNLOAD_URL, urlHandler);
-    createRoute(builder, ConanRoutes.digest(), DIGEST, digestHandler);
     createRoute(builder, ConanRoutes.conanManifest(), CONAN_MANIFEST, fetchHandler);
     createRoute(builder, ConanRoutes.conanFile(), CONAN_FILE, fetchHandler);
     createRoute(builder, ConanRoutes.conanInfo(), CONAN_INFO, fetchHandler);

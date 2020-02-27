@@ -88,6 +88,7 @@ public class ConanHostedMetadataFacetSupport
     return ConanHostedHelper.MAPPER.writeValueAsString(downloadUrls);
   }
 
+  @Nullable
   public String generatePackageSnapshotAsJson(final ConanCoords coords) throws JsonProcessingException {
     Map<String, String> downloadUrls = DOWNLOAD_URL_PACKAGE_ASSET_KINDS
         .stream()
@@ -106,6 +107,9 @@ public class ConanHostedMetadataFacetSupport
           return Stream.empty();
         })
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+    if (packageSnapshot.isEmpty()) {
+      return null;
+    }
     return ConanHostedHelper.MAPPER.writeValueAsString(packageSnapshot);
   }
 

@@ -33,6 +33,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.sonatype.goodies.testsupport.hamcrest.DiffMatchers.equalTo;
+import static org.sonatype.nexus.repository.http.HttpMethods.POST;
 import static org.sonatype.nexus.repository.http.HttpMethods.PUT;
 import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.HOSTED_ENABLED_PROPERTY;
 
@@ -63,6 +64,31 @@ public class ConanHostedRecipeTest
   @After
   public void tearDown() {
     System.getProperties().remove(HOSTED_ENABLED_PROPERTY);
+  }
+
+  @Test
+  public void canMatchOnConanUpload_url() {
+    when(request.getAction()).thenReturn(POST);
+    when(request.getPath()).thenReturn("/v1/conans/project/2.1.1/group/stable/upload_urls");
+
+    assertTrue(ConanRoutes.uploadUrls().handler(handler).create().getMatcher().matches(context));
+    TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
+    assertThat(matcherState.getTokens().get("group"), is(equalTo("group")));
+    assertThat(matcherState.getTokens().get("project"), is(equalTo("project")));
+    assertThat(matcherState.getTokens().get("version"), is(equalTo("2.1.1")));
+  }
+
+  @Test
+  public void canMatchOnConanPackage() {
+    when(request.getAction()).thenReturn(POST);
+    when(request.getPath()).thenReturn("/v1/conans/project/2.1.1/group/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/upload_urls");
+
+    assertTrue(ConanRoutes.uploadUrls().handler(handler).create().getMatcher().matches(context));
+    TokenMatcher.State matcherState = attributesMap.require(TokenMatcher.State.class);
+    assertThat(matcherState.getTokens().get("group"), is(equalTo("group")));
+    assertThat(matcherState.getTokens().get("project"), is(equalTo("project")));
+    assertThat(matcherState.getTokens().get("version"), is(equalTo("2.1.1")));
+    assertThat(matcherState.getTokens().get("sha"), is(equalTo("5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9")));
   }
 
   @Test

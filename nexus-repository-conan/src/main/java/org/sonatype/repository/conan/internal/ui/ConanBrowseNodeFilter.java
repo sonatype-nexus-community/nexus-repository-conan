@@ -34,8 +34,6 @@ import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 public class ConanBrowseNodeFilter
     implements BrowseNodeFilter
 {
-  public static final String CONAN_RECIPE_EMPTY_REFERENCE = "_";
-
   private final RepositoryManager repositoryManager;
 
   @Inject
@@ -49,6 +47,6 @@ public class ConanBrowseNodeFilter
     if (HostedType.NAME.equals(type.getValue())) {
       return !node.getName().endsWith(DOWNLOAD_URL.getFilename());
     }
-    return !CONAN_RECIPE_EMPTY_REFERENCE.equals(node.getName());
+    return true;
   }
 }

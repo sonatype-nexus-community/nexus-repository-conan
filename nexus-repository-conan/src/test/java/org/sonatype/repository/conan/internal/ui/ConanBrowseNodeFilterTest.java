@@ -65,14 +65,4 @@ public class ConanBrowseNodeFilterTest
 
     assertTrue(underTest.test(node, repositoryName));
   }
-
-  @Test
-  public void searchComponentsIgnore() {
-    when(node.getName()).thenReturn(ConanBrowseNodeFilter.CONAN_RECIPE_EMPTY_REFERENCE);
-    Repository repository = mock(Repository.class);
-    when(repositoryManager.get(repositoryName)).thenReturn(repository);
-    when(repository.getType()).thenReturn(new ProxyType());
-
-    assertFalse(underTest.test(node, repositoryName));
-  }
 }

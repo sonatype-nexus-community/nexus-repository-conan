@@ -12,9 +12,7 @@
  */
 package org.sonatype.repository.conan.upgrade;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,7 +37,6 @@ import org.sonatype.repository.conan.internal.proxy.v1.ConanProxyRecipe;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaProxy;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -64,13 +61,9 @@ public class ConanUpgrade_1_1
 
   private static final String P_ASSET_NAME = "name";
 
-  private static final String P_COMPONENT_NAME = "component";
-
   private static final String P_ATTRIBUTES = "attributes";
 
   private static final String ASSET_CLASS_NAME = "asset";
-
-  private static final String COMPONENT_CLASS_NAME = "component";
 
   private static final String REPOSITORY_CLASS_NAME = "repository";
 
@@ -111,13 +104,10 @@ public class ConanUpgrade_1_1
       List<String> repositories = Stream.concat(proxyRepositoryNames.stream(), hostedRepositoryNames.stream())
           .collect(Collectors.toList());
 
-      updateComponentVersion(proxyRepositoryNames);
-
       if (!repositories.isEmpty()) {
         removeAttributesFromConanManifest(repositories);
         deleteConanBrowseNodes(repositories);
       }
-
     }
   }
 
@@ -234,33 +224,6 @@ public class ConanUpgrade_1_1
     );
   }
 
-
-  private void updateComponentVersion(final List<String> proxyRepositoryNames) {
-    Map <String, String> components = new HashMap<>();
-    DatabaseUpgradeSupport.withDatabaseAndClass(componentDatabaseInstance, ASSET_CLASS_NAME,
-        (db, type) -> findAssets(db, proxyRepositoryNames, "select from asset where bucket = ?")
-            .forEach(oDocument -> {
-              String name = oDocument.field(P_ASSET_NAME);
-              String[] splits = name.split("/");
-              String channel = splits[4];
-
-              Object componentId = oDocument.field(P_COMPONENT_NAME);
-              components.putIfAbsent(componentId.toString(), channel);
-
-            })
-    );
-    DatabaseUpgradeSupport.withDatabaseAndClass(componentDatabaseInstance, COMPONENT_CLASS_NAME,
-        (db, type) -> findComponents(db, components.keySet(), "select from component where @rid = ?")
-            .forEach(componentDocument -> {
-              String key = componentDocument.getIdentity().toString();
-              String channel = components.get(key);
-              String newVersion = "%s-%s".format(componentDocument.field("version").toString(), channel);
-              componentDocument.field("version", newVersion);
-              componentDocument.save();
-            })
-    );
-  }
-
   private Stream<ODocument> findAssets(
       final ODatabaseDocumentTx db,
       final List<String> repositoryNames,
@@ -283,22 +246,6 @@ public class ConanUpgrade_1_1
           return assets.stream();
         });
   }
-
-  private List<ODocument> findComponents(
-      final ODatabaseDocumentTx db,
-      final Collection<String> componentIds,
-      final String SQL)
-  {
-    return db.query(new OSQLSynchQuery<ODocument>(SQL), componentIds);
-    //return componentIds
-    //    .stream()
-    //    .flatMap(componentId -> {
-    //      List<ODocument> assets =
-    //          db.query(new OSQLSynchQuery<ODocument>(SQL), componentIds);
-    //      return assets.stream();
-    //    });
-  }
-
 
   private void deleteConanBrowseNodes(final List<String> repositoryNames) {
     log.debug("Deleting browse_node data from conan repositories to be rebuilt ({}).", repositoryNames);

@@ -56,6 +56,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonatype.nexus.common.hash.HashAlgorithm.MD5;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
+import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE;
 import static org.sonatype.repository.conan.internal.AssetKind.DIGEST;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
@@ -290,13 +291,37 @@ public class ConanProxyFacet
       return context.getRequest().getPath().substring(1);
     }
 
+    TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
+    ConanCoords coords = convertFromState(state);
+
+    if (assetKind == CONAN_MANIFEST) {
+      return getUrlForConanManifest(coords);
+    }
+
     log.info("AssetKind {} to be fetched is {}", assetKind, context.getRequest().getPath());
 
     // TODO: There are two different URLs for DOWNLOAD_URL, this seems to only look in one of them, that seems problematic
-    TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
-    ConanCoords coords = convertFromState(state);
     String download_urls = ConanProxyHelper.getProxyAssetPath(coords, DOWNLOAD_URL);
     return getUrlFromDownloadAsset(download_urls, assetKind.getFilename());
+  }
+
+  @TransactionalTouchBlob
+  @Nullable
+  protected String getUrlForConanManifest(final ConanCoords coords) {
+    String downloadUrlsAssetPath = ConanProxyHelper.getProxyAssetPath(coords, DOWNLOAD_URL);
+    StorageTx tx = UnitOfWork.currentTx();
+
+    Asset downloadUrlAsset = findAsset(tx, tx.findBucket(getRepository()), downloadUrlsAssetPath);
+    if (downloadUrlAsset == null) {
+      // NEXUS-22735. Looks like it was search request. So let's look up conanmanifest url from digest
+      String digestAssetPath = ConanProxyHelper.getProxyAssetPath(coords, DIGEST);
+      Asset digest = findAsset(tx, tx.findBucket(getRepository()), digestAssetPath);
+      if (digest == null) {
+        throw new IllegalStateException("DIGEST not found");
+      }
+      return conanUrlIndexer.findUrl(tx.requireBlob(digest.blobRef()).getInputStream(), CONAN_MANIFEST.getFilename());
+    }
+    return conanUrlIndexer.findUrl(tx.requireBlob(downloadUrlAsset.blobRef()).getInputStream(), CONAN_MANIFEST.getFilename());
   }
 
   @TransactionalTouchBlob

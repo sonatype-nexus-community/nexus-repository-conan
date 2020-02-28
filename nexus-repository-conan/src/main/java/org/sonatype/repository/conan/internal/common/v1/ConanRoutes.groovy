@@ -255,4 +255,13 @@ class ConanRoutes
   private static TokenMatcher conanExportMatcher() {
     new TokenMatcher("{prefix:.*}/{path:.*}/${STANDARD_FORM}/conan_export.tgz")
   }
+
+  static Builder searchQuery() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(GET),
+            new TokenMatcher("{prefix:.*}/{path:.*}/search")
+        )
+    )
+  }
 }

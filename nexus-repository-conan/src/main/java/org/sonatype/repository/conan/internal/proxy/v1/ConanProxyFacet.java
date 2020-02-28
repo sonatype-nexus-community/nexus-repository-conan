@@ -212,8 +212,7 @@ public class ConanProxyFacet
       asset.name(assetPath);
       asset.formatAttributes().set(P_ASSET_KIND, CONAN_PACKAGE.name());
     }
-    else if (!(component.version().contains(coords.getChannel()) &&
-        asset.componentId().equals(EntityHelper.id(component)))) {
+    else if (!asset.componentId().equals(EntityHelper.id(component))) {
       // component version should contain channel info
       asset.componentId(EntityHelper.id(component));
     }
@@ -239,9 +238,7 @@ public class ConanProxyFacet
       asset.formatAttributes().set(P_ASSET_KIND, assetKind.name());
       hash = hashVerifier.lookupHashFromAsset(tx, bucket, assetPath);
     }
-    else if (!(component.version().contains(coords.getChannel()) &&
-        asset.componentId().equals(EntityHelper.id(component)))) {
-      // component version should contain channel info
+    else if (!asset.componentId().equals(EntityHelper.id(component))) {
       asset.componentId(EntityHelper.id(component));
     }
     return saveAsset(tx, asset, metadataContent, payload, hash);

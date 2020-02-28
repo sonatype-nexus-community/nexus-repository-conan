@@ -40,7 +40,7 @@ import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERS
  */
 class ConanProxyHelper
 {
-  public static final List<AssetKind> METADATA_ASSET_KINDS = ImmutableList.of(
+  public static final List<AssetKind> DOWNLOAD_ASSET_KINDS = ImmutableList.of(
       AssetKind.DOWNLOAD_URL,
       AssetKind.DIGEST,
       AssetKind.CONAN_PACKAGE_SNAPSHOT
@@ -52,7 +52,7 @@ class ConanProxyHelper
       Collections.unmodifiableMap(AssetKind.values().collectEntries { [it.filename, it] })
 
   static String getProxyAssetPath(final ConanCoords conanCoords, final AssetKind assetKind) {
-    if (METADATA_ASSET_KINDS.contains(assetKind)) {
+    if (DOWNLOAD_ASSET_KINDS.contains(assetKind)) {
       return getRecipePathWithPackages(conanCoords, assetKind)
     }
     return getPath(conanCoords) + "/" + assetKind.getFilename()

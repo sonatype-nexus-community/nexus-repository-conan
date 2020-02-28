@@ -60,7 +60,7 @@ import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE;
 import static org.sonatype.repository.conan.internal.AssetKind.DIGEST;
 import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
-import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.METADATA_ASSET_KINDS;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.DOWNLOAD_ASSET_KINDS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.convertFromState;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.getProxyAssetPath;
@@ -287,7 +287,7 @@ public class ConanProxyFacet
   protected String getUrl(@Nonnull final Context context) {
     AssetKind assetKind = context.getAttributes().require(AssetKind.class);
 
-    if (METADATA_ASSET_KINDS.contains(assetKind)) {
+    if (DOWNLOAD_ASSET_KINDS.contains(assetKind)) {
       return context.getRequest().getPath().substring(1);
     }
 
@@ -313,7 +313,7 @@ public class ConanProxyFacet
 
     Asset downloadUrlAsset = findAsset(tx, tx.findBucket(getRepository()), downloadUrlsAssetPath);
     if (downloadUrlAsset == null) {
-      // TODO Looks like it was search request. So let's look up conanmanifest url from digest
+      // NEXUS-22735. Looks like it was search request. So let's look up conanmanifest url from digest
       String digestAssetPath = ConanProxyHelper.getProxyAssetPath(coords, DIGEST);
       Asset digest = findAsset(tx, tx.findBucket(getRepository()), digestAssetPath);
       if (digest == null) {

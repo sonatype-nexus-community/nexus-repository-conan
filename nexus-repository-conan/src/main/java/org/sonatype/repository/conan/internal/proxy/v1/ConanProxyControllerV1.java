@@ -29,10 +29,7 @@ public class ConanProxyControllerV1
   private ConanProxyHandlers conanProxyHandlers;
 
   public void attach(final Router.Builder builder) {
-    // query implementation
     createRoute(builder, ConanRoutes.searchQuery(), null, conanProxyHandlers.searchQueryHandler);
-    // query implementation
-
     createGetRoutes(builder, conanProxyHandlers.proxyHandler, conanProxyHandlers.proxyHandler,
         conanProxyHandlers.proxyHandler, conanProxyHandlers.proxyHandler);
   }

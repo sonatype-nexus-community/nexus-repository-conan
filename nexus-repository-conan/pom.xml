@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>conan-parent</artifactId>
-    <version>0.0.7-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>nexus-repository-conan</artifactId>
   <packaging>bundle</packaging>

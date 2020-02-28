@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 import static org.sonatype.goodies.testsupport.hamcrest.DiffMatchers.equalTo;
 import static org.sonatype.nexus.repository.http.HttpMethods.POST;
 import static org.sonatype.nexus.repository.http.HttpMethods.PUT;
-import static org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe.HOSTED_ENABLED_PROPERTY;
+import static org.sonatype.repository.conan.internal.ConanSystemProperties.HOSTED_ENABLED_PROPERTY;
 
 public class ConanHostedRecipeTest
     extends TestSupport

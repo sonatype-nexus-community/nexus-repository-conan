@@ -28,6 +28,7 @@ import org.sonatype.nexus.repository.view.ViewFacet
 import org.sonatype.nexus.repository.view.handlers.HighAvailabilitySupportChecker
 import org.sonatype.repository.conan.internal.ConanFormat
 import org.sonatype.repository.conan.internal.ConanRecipeSupport
+import org.sonatype.repository.conan.internal.ConanSystemProperties
 import org.sonatype.repository.conan.internal.hosted.v1.ConanHostedApiV1
 import org.sonatype.repository.conan.internal.hosted.v1.ConanHostedFacet
 import org.sonatype.repository.conan.internal.security.token.ConanTokenFacet
@@ -45,8 +46,6 @@ class ConanHostedRecipe
     extends ConanRecipeSupport
 {
   public static final String NAME = 'conan-hosted'
-
-  public static final String HOSTED_ENABLED_PROPERTY = 'nexus.conan.hosted.enabled'
 
   @Inject
   Provider<ConanHostedFacet> hostedFacet
@@ -96,6 +95,6 @@ class ConanHostedRecipe
   @Override
   boolean isFeatureEnabled() {
     highAvailabilitySupportChecker.isSupported(getFormat().getValue()) &&
-        SystemPropertiesHelper.getBoolean(HOSTED_ENABLED_PROPERTY, false)
+        SystemPropertiesHelper.getBoolean(ConanSystemProperties.HOSTED_ENABLED_PROPERTY, false)
   }
 }

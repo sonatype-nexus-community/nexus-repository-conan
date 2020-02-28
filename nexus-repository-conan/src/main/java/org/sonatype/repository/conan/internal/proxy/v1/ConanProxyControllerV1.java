@@ -21,18 +21,17 @@ import org.sonatype.nexus.repository.view.Router;
 import org.sonatype.repository.conan.internal.common.v1.ConanControllerV1;
 import org.sonatype.repository.conan.internal.common.v1.ConanRoutes;
 
-import static org.sonatype.repository.conan.internal.AssetKind.DIGEST;
-
 @Named
 @Singleton
 public class ConanProxyControllerV1
     extends ConanControllerV1
 {
   @Inject
-  ProxyHandler proxyHandler;
+  private ConanProxyHandlers conanProxyHandlers;
 
   public void attach(final Router.Builder builder) {
-    createRoute(builder, ConanRoutes.digest(), DIGEST, proxyHandler);
-    createGetRoutes(builder, proxyHandler, proxyHandler, proxyHandler);
+    createRoute(builder, ConanRoutes.digest(), DIGEST, conanProxyHandlers.proxyHandler);
+    createRoute(builder, ConanRoutes.searchQuery(), null, conanProxyHandlers.searchQueryHandler);
+    createGetRoutes(builder, conanProxyHandlers.proxyHandler, conanProxyHandlers.proxyHandler, conanProxyHandlers.proxyHandler, conanProxyHandlers.proxyHandler);
   }
 }

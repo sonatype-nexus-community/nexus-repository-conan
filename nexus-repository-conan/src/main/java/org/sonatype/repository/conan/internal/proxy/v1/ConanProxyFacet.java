@@ -22,6 +22,7 @@ import javax.inject.Named;
 
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.common.collect.AttributesMap;
+import org.sonatype.nexus.common.entity.EntityHelper;
 import org.sonatype.nexus.repository.cache.CacheController;
 import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.config.Configuration;
@@ -211,6 +212,11 @@ public class ConanProxyFacet
       asset.name(assetPath);
       asset.formatAttributes().set(P_ASSET_KIND, CONAN_PACKAGE.name());
     }
+    else if (!(component.version().contains(coords.getChannel()) &&
+        asset.componentId().equals(EntityHelper.id(component)))) {
+      // component version should contain channel info
+      asset.componentId(EntityHelper.id(component));
+    }
     return saveAsset(tx, asset, tempBlob, content, null);
   }
 
@@ -232,6 +238,11 @@ public class ConanProxyFacet
       asset.name(assetPath);
       asset.formatAttributes().set(P_ASSET_KIND, assetKind.name());
       hash = hashVerifier.lookupHashFromAsset(tx, bucket, assetPath);
+    }
+    else if (!(component.version().contains(coords.getChannel()) &&
+        asset.componentId().equals(EntityHelper.id(component)))) {
+      // component version should contain channel info
+      asset.componentId(EntityHelper.id(component));
     }
     return saveAsset(tx, asset, metadataContent, payload, hash);
   }

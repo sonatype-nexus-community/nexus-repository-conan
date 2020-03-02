@@ -213,7 +213,6 @@ public class ConanProxyFacet
       asset.formatAttributes().set(P_ASSET_KIND, CONAN_PACKAGE.name());
     }
     else if (!asset.componentId().equals(EntityHelper.id(component))) {
-      // component version should contain channel info
       asset.componentId(EntityHelper.id(component));
     }
     return saveAsset(tx, asset, tempBlob, content, null);

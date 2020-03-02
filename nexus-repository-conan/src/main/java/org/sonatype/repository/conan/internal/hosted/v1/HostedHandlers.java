@@ -27,11 +27,11 @@ import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.hosted.ConanHostedHelper;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
+import org.apache.commons.lang3.StringUtils;
+
 import static org.sonatype.nexus.repository.http.HttpStatus.NOT_FOUND;
-import static org.sonatype.nexus.repository.http.HttpStatus.NOT_IMPLEMENTED;
 import static org.sonatype.nexus.repository.http.HttpStatus.OK;
 import static org.sonatype.nexus.repository.view.ContentTypes.APPLICATION_JSON;
-import static org.sonatype.nexus.repository.view.ContentTypes.TEXT_PLAIN;
 import static org.sonatype.nexus.repository.view.Status.failure;
 import static org.sonatype.nexus.repository.view.Status.success;
 
@@ -44,6 +44,19 @@ public class HostedHandlers
     extends ComponentSupport
 {
   private static final String CLIENT_CHECKSUM = "X-Checksum-Sha1";
+
+  public static final Handler uploadUrl = context -> {
+    State state = context.getAttributes().require(State.class);
+    ConanCoords coord = ConanHostedHelper.convertFromState(state);
+    String downloadUrlAsJson = context.getRepository()
+        .facet(ConanHostedFacet.class)
+        .getDownloadUrlAsJson(coord);
+
+    return new Response.Builder()
+        .status(success(OK))
+        .payload(new StringPayload(downloadUrlAsJson, APPLICATION_JSON))
+        .build();
+  };
 
   /**
    * Upload handler for all asset except asset kind is DOWNLOAD_URL
@@ -73,11 +86,6 @@ public class HostedHandlers
         .upload(assetPath, coord, context.getRequest().getPayload(), assetKind);
   };
 
-  public static final Handler getDigest = context -> new Response.Builder()
-      .status(failure(NOT_IMPLEMENTED))
-      .payload(new StringPayload("Hosted does not support digest files and install with force update option", TEXT_PLAIN))
-      .build();
-
   public static final Handler getDownloadUrl = context -> {
     State state = context.getAttributes().require(State.class);
     ConanCoords coord = ConanHostedHelper.convertFromState(state);
@@ -102,6 +110,11 @@ public class HostedHandlers
     String json = context.getRepository()
         .facet(ConanHostedFacet.class)
         .generatePackageSnapshotAsJson(coord);
+    if (StringUtils.isEmpty(json)) {
+      return new Response.Builder()
+          .status(failure(NOT_FOUND))
+          .build();
+    }
     return new Response.Builder()
         .status(success(OK))
         .payload(new StringPayload(json, APPLICATION_JSON))

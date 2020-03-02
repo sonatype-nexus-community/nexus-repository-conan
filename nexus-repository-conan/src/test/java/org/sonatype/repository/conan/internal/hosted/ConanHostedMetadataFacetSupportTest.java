@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_EXPORT;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_FILE;
@@ -61,6 +62,22 @@ public class ConanHostedMetadataFacetSupportTest
     String actual = conanHostedMetadataFacetSupport.generatePackageSnapshotAsJson(conanCoords);
 
     assertThat(actual, is(expected));
+  }
+
+  @Test
+  public void generateAssetPackagesDownloadUrlsHashNotFound() throws Exception {
+    String assetPath =
+        String.format("%s%s/%s/%s/%s/packages/%s", ConanHostedHelper.CONAN_HOSTED_PREFIX, group, project, version,
+            channel, sha);
+
+    Mockito.doReturn(null).when(conanHostedMetadataFacetSupport).getHash(String.format("%s/%s", assetPath, CONAN_INFO.getFilename()));
+    Mockito.doReturn(null).when(conanHostedMetadataFacetSupport).getHash(String.format("%s/%s", assetPath, CONAN_PACKAGE.getFilename()));
+    Mockito.doReturn(null).when(conanHostedMetadataFacetSupport).getHash(String.format("%s/%s", assetPath, CONAN_MANIFEST.getFilename()));
+
+    ConanCoords conanCoords = new ConanCoords(path, group, project, version, channel, sha);
+    String actual = conanHostedMetadataFacetSupport.generatePackageSnapshotAsJson(conanCoords);
+
+    assertThat(actual, nullValue());
   }
 
   @Test

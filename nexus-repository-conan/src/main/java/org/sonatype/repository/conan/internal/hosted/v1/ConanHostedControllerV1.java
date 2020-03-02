@@ -25,6 +25,7 @@ import static org.sonatype.repository.conan.internal.AssetKind.CONAN_INFO;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_MANIFEST;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_PACKAGE;
 import static org.sonatype.repository.conan.internal.AssetKind.CONAN_SOURCES;
+import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 
 @Named
 @Singleton
@@ -32,6 +33,7 @@ public class ConanHostedControllerV1
     extends ConanControllerV1
 {
   public void attach(final Router.Builder builder) {
+    createRoute(builder, ConanRoutes.uploadUrls(), DOWNLOAD_URL, HostedHandlers.uploadUrl);
     createRoute(builder, ConanRoutes.uploadManifest(), CONAN_MANIFEST, HostedHandlers.uploadContentHandler);
     createRoute(builder, ConanRoutes.uploadConanfile(), CONAN_FILE, HostedHandlers.uploadContentHandler);
     createRoute(builder, ConanRoutes.uploadConanInfo(), CONAN_INFO, HostedHandlers.uploadContentHandler);
@@ -41,7 +43,6 @@ public class ConanHostedControllerV1
 
     createGetRoutes(builder,
         HostedHandlers.getDownloadUrl,
-        HostedHandlers.getDigest,
         HostedHandlers.getAssets,
         HostedHandlers.getPackageSnapshot
     );

@@ -17,6 +17,7 @@ import org.sonatype.nexus.repository.view.matchers.ActionMatcher
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher
 import static org.sonatype.nexus.repository.http.HttpMethods.GET
 import static org.sonatype.nexus.repository.http.HttpMethods.HEAD
+import static org.sonatype.nexus.repository.http.HttpMethods.POST
 import static org.sonatype.nexus.repository.http.HttpMethods.PUT
 import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.and
 import static org.sonatype.nexus.repository.view.matchers.logic.LogicMatchers.or
@@ -30,6 +31,21 @@ class ConanRoutes
   protected static String DOWNLOAD_FORM = "{${PROJECT}:.+}/{${VERSION}:.+}/{${GROUP}:.+}/{${STATE}:.+}"
 
   protected static String STANDARD_FORM = "{${GROUP}:.+}/{${PROJECT}:.+}/{${VERSION}:.+}/{${STATE}:.+}"
+
+  /**
+   * Matches on urls ending with upload_urls
+   */
+  static Builder uploadUrls() {
+    new Builder().matcher(
+        and(
+            new ActionMatcher(POST),
+            or(
+                new TokenMatcher("{prefix:.*}/{path:.*}/${DOWNLOAD_FORM}/packages/{sha:.+}/upload_urls"),
+                new TokenMatcher("{prefix:.*}/{path:.*}/${DOWNLOAD_FORM}/upload_urls")
+            )
+        )
+    )
+  }
 
   static Builder uploadManifest() {
     new Builder().matcher(

@@ -74,6 +74,9 @@ public class ConanUpgrade_1_1
   private static final String DELETE_BROWSE_NODE_FROM_REPOSITORIES = String
       .format("delete from %s where repository_name in ?", BROWSE_NODE_CLASS);
 
+  private static final String DELETE_FROM_ASSET_WHERE_BUCKET_AND_ASSET_KIND =
+      String.format("delete from %s where bucket = ? and attributes.conan.asset_kind = ? ", ASSET_CLASS_NAME);
+
   private final Provider<DatabaseInstance> configDatabaseInstance;
 
   private final Provider<DatabaseInstance> componentDatabaseInstance;
@@ -99,6 +102,7 @@ public class ConanUpgrade_1_1
       List<String> hostedRepositoryNames = findRepositoryNames(Collections.singletonList(ConanHostedRecipe.NAME));
       if (!hostedRepositoryNames.isEmpty()) {
         updateHostedAssetPath(hostedRepositoryNames);
+        deleteDownloadUrls(hostedRepositoryNames);
       }
 
       List<String> repositories = Stream.concat(proxyRepositoryNames.stream(), hostedRepositoryNames.stream())
@@ -202,6 +206,15 @@ public class ConanUpgrade_1_1
     DatabaseUpgradeSupport.withDatabaseAndClass(componentDatabaseInstance, ASSET_CLASS_NAME,
         (db, type) -> findAssets(db, repositoryNames, "select from asset where bucket = ?")
             .forEach(oDocument -> {
+
+              Map<String, Object> attributes = oDocument.field(P_ATTRIBUTES);
+              Map<String, Object> conan = (Map<String, Object>) attributes.get(ConanFormat.NAME);
+              String asset_kind = (String) conan.get(P_ASSET_KIND);
+              AssetKind assetKind = AssetKind.valueOf(asset_kind);
+              if (AssetKind.DOWNLOAD_URL == assetKind) {
+                return;
+              }
+
               String name = oDocument.field(P_ASSET_NAME);
               String nextName = null;
 
@@ -254,6 +267,26 @@ public class ConanUpgrade_1_1
       OSchemaProxy schema = db.getMetadata().getSchema();
       if (schema.existsClass(C_BROWSE_NODE)) {
         db.command(new OCommandSQL(DELETE_BROWSE_NODE_FROM_REPOSITORIES)).execute(repositoryNames);
+      }
+    });
+  }
+
+  private void deleteDownloadUrls(final List<String> repositoryNames) {
+    log.debug("Deleting DOWNLOAD_URLS assets from conan repositories ({}).", repositoryNames);
+
+    DatabaseUpgradeSupport.withDatabaseAndClass(componentDatabaseInstance, ASSET_CLASS_NAME, (db, type) -> {
+      OSchemaProxy schema = db.getMetadata().getSchema();
+      if (schema.existsClass(ASSET_CLASS_NAME)) {
+        repositoryNames.forEach(repositoryName -> {
+          OIndex<?> bucketIdx = db.getMetadata().getIndexManager().getIndex(new OIndexNameBuilder()
+              .type("bucket")
+              .property(P_REPOSITORY_NAME)
+              .build());
+          OIdentifiable bucket = (OIdentifiable) bucketIdx.get(repositoryName);
+
+          db.command(new OCommandSQL(DELETE_FROM_ASSET_WHERE_BUCKET_AND_ASSET_KIND))
+              .execute(bucket, AssetKind.DOWNLOAD_URL.name());
+        });
       }
     });
   }

@@ -102,22 +102,14 @@ public class ConanProxyFacet
     TokenMatcher.State state = context.getAttributes().require(TokenMatcher.State.class);
     ConanCoords conanCoords = convertFromState(state);
     String assetPath = getProxyAssetPath(conanCoords, assetKind);
-    Content content = getAsset(assetPath);
-    if (content != null &&
-        (assetKind.equals(DOWNLOAD_URL) ||
-            assetKind.equals(DIGEST))) {
-      return new Content(
-          new StringPayload(
-              conanUrlIndexer.updateAbsoluteUrls(context, content, getRepository()),
-              ContentTypes.APPLICATION_JSON)
-      );
-    }
-    return content;
+    return  getAssetContent(assetPath, context, assetKind);
   }
 
   @TransactionalTouchBlob
   @Nullable
-  protected Content getAsset(final String name) {
+  protected Content getAssetContent(final String name, final Context context, final AssetKind  assetKind)
+      throws IOException
+  {
     StorageTx tx = UnitOfWork.currentTx();
 
     Asset asset = findAsset(tx, tx.findBucket(getRepository()), name);
@@ -127,7 +119,18 @@ public class ConanProxyFacet
     if (asset.markAsDownloaded()) {
       tx.saveAsset(asset);
     }
-    return toContent(asset, tx.requireBlob(asset.requireBlobRef()));
+    Content content = toContent(asset, tx.requireBlob(asset.requireBlobRef()));
+    if (content != null &&
+        (assetKind.equals(DOWNLOAD_URL) ||
+            assetKind.equals(DIGEST))) {
+      content = new Content(
+          new StringPayload(
+              conanUrlIndexer.updateAbsoluteUrls(context, content, getRepository()),
+              ContentTypes.APPLICATION_JSON)
+      );
+      Content.extractFromAsset(asset, HASH_ALGORITHMS, content.getAttributes());
+    }
+    return content;
   }
 
   @Override

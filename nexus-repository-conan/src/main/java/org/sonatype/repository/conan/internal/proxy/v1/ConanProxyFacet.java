@@ -172,7 +172,7 @@ public class ConanProxyFacet
       return doSaveMetadata(tempBlob, content, assetKind, coords);
     }
   }
-  
+
   static Content toContent(final Asset asset, final Blob blob) {
     Content content = new Content(new BlobPayload(blob, asset.requireContentType()));
     Content.extractFromAsset(asset, HASH_ALGORITHMS, content.getAttributes());

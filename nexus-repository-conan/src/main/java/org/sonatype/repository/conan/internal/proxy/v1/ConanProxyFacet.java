@@ -22,6 +22,7 @@ import javax.inject.Named;
 
 import org.sonatype.nexus.blobstore.api.Blob;
 import org.sonatype.nexus.common.collect.AttributesMap;
+import org.sonatype.nexus.common.entity.EntityHelper;
 import org.sonatype.nexus.repository.cache.CacheController;
 import org.sonatype.nexus.repository.cache.CacheInfo;
 import org.sonatype.nexus.repository.config.Configuration;
@@ -63,6 +64,7 @@ import static org.sonatype.repository.conan.internal.AssetKind.DOWNLOAD_URL;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.DOWNLOAD_ASSET_KINDS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.convertFromState;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.getComponentVersion;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.getProxyAssetPath;
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findAsset;
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findComponent;
@@ -185,7 +187,9 @@ public class ConanProxyFacet
       component = tx.createComponent(bucket, getRepository().getFormat())
           .group(coords.getGroup())
           .name(coords.getProject())
-          .version(coords.getVersion());
+          .version(getComponentVersion(coords));
+      component.formatAttributes().set("baseVersion", coords.getVersion());
+      component.formatAttributes().set("channel", coords.getChannel());
     }
     tx.saveComponent(component);
     return component;
@@ -208,6 +212,9 @@ public class ConanProxyFacet
       asset.name(assetPath);
       asset.formatAttributes().set(P_ASSET_KIND, CONAN_PACKAGE.name());
     }
+    else if (!asset.componentId().equals(EntityHelper.id(component))) {
+      asset.componentId(EntityHelper.id(component));
+    }
     return saveAsset(tx, asset, tempBlob, content, null);
   }
 
@@ -229,6 +236,9 @@ public class ConanProxyFacet
       asset.name(assetPath);
       asset.formatAttributes().set(P_ASSET_KIND, assetKind.name());
       hash = hashVerifier.lookupHashFromAsset(tx, bucket, assetPath);
+    }
+    else if (!asset.componentId().equals(EntityHelper.id(component))) {
+      asset.componentId(EntityHelper.id(component));
     }
     return saveAsset(tx, asset, metadataContent, payload, hash);
   }

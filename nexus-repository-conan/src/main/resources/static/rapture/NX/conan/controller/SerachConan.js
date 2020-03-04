@@ -23,6 +23,27 @@ Ext.define('NX.conan.controller.SearchConan', {
     var me = this,
         search = me.getController('NX.coreui.controller.Search');
 
+    search.registerCriteria([
+      {
+        id: 'attributes.conan.baseVersion',
+        group: NX.I18n.get('SearchConan_Group'),
+        config: {
+          format: 'conan',
+          fieldLabel: NX.I18n.get('SearchConan_BaseVersion_FieldLabel'),
+          width: 250
+        }
+      },
+      {
+        id: 'attributes.conan.channel',
+        group: NX.I18n.get('SearchConan_Group'),
+        config: {
+          format: 'conan',
+          fieldLabel: NX.I18n.get('SearchConan_Channel_FieldLabel'),
+          width: 250
+        }
+      }
+    ], me);
+
     search.registerFilter({
       id: 'conan',
       name: 'Conan',
@@ -31,7 +52,9 @@ Ext.define('NX.conan.controller.SearchConan', {
       readOnly: true,
       criterias: [
         {id: 'format', value: 'conan', hidden: true},
-        {id: 'name.raw'}
+        {id: 'name.raw'},
+        {id: 'attributes.conan.baseVersion'},
+        {id: 'attributes.conan.channel'}
       ]
     }, me);
   }

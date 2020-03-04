@@ -66,7 +66,6 @@ public class ConanBrowseNodeGenerator
   private List<BrowsePaths> assetSegment(final String path) {
     String[] split = path.split(File.separator);
     int fileNameIndex = split.length - 1;
-    int channelIndex = split.length - 2;
     int packageNameIndex;
     int packagesSegmentIndex;
 
@@ -74,21 +73,19 @@ public class ConanBrowseNodeGenerator
       if (ConanFacetUtils.isPackageSnapshot(path)) {
         packageNameIndex = split.length - 1;
         packagesSegmentIndex = split.length - 2;
-        channelIndex = split.length - 3;
         return BrowsePaths
-            .fromPaths(ImmutableList.of(split[channelIndex], split[packagesSegmentIndex], split[packageNameIndex]),
+            .fromPaths(ImmutableList.of(split[packagesSegmentIndex], split[packageNameIndex]),
                 false);
       }
       else {
         packageNameIndex = split.length - 2;
         packagesSegmentIndex = split.length - 3;
-        channelIndex = split.length - 4;
         return BrowsePaths
             .fromPaths(ImmutableList
-                    .of(split[channelIndex], split[packagesSegmentIndex], split[packageNameIndex], split[fileNameIndex]),
+                    .of(split[packagesSegmentIndex], split[packageNameIndex], split[fileNameIndex]),
                 false);
       }
     }
-    return BrowsePaths.fromPaths(ImmutableList.of(split[channelIndex], split[fileNameIndex]), false);
+    return BrowsePaths.fromPaths(ImmutableList.of(split[fileNameIndex]), false);
   }
 }

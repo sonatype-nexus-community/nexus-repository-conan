@@ -39,6 +39,7 @@ import org.junit.Test
 
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.notNullValue
+import static org.hamcrest.Matchers.nullValue
 
 class ConanUpgrade_1_1_Test
     extends TestSupport
@@ -183,6 +184,12 @@ class ConanUpgrade_1_1_Test
       //Pair.of(AssetKind.DOWNLOAD_URL, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/download_urls")
   ))
 
+  static final List<Pair<AssetKind, String>> HOSTED_DOWNLOAD_URLS_ASSETS = Collections.unmodifiableList(Arrays.asList(
+      Pair.of(AssetKind.DOWNLOAD_URL, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/download_urls"),
+      Pair.of(AssetKind.DOWNLOAD_URL, "/v1/conans/conan/hosted-v1-lib/1.2.11/stable/download_urls"),
+      Pair.of(AssetKind.DOWNLOAD_URL, "conans/conan/hosted-v1-lib/1.2.11/stable/download_urls")
+  ))
+
   private static final String P_NAME = "name"
 
   private static final String P_FORMAT = "format"
@@ -261,7 +268,7 @@ class ConanUpgrade_1_1_Test
       def proxies = PROXY_BASE_ON_V1_CHANGES_ACTUAL + PROXY_BASE_ON_MASTER_CHANGES_ACTUAL
       proxies.each { asset(bucketIdx, CONAN_PROXY_REPOSITORY_NAME, it.value, attributes(it.key)) }
 
-      def hostedList = HOSTED_BASE_ON_MASTER_CHANGES_ACTUAL + HOSTED_BASE_ON_V1_CHANGES_ACTUAL
+      def hostedList = HOSTED_BASE_ON_MASTER_CHANGES_ACTUAL + HOSTED_BASE_ON_V1_CHANGES_ACTUAL + HOSTED_DOWNLOAD_URLS_ASSETS
       hostedList.each { asset(bucketIdx, CONAN_HOSTED_REPOSITORY_NAME, it.value, attributes(it.key)) }
     }
 
@@ -317,6 +324,18 @@ class ConanUpgrade_1_1_Test
         assertThat(idf, notNullValue())
         ODocument asset = idf.record
         assertThat(asset, notNullValue())
+      }
+    }
+  }
+
+  @Test
+  void 'delete download_urls hosted'() {
+    underTest.apply()
+    componentDatabase.instance.connect().withCloseable {
+      OIndex<?> idx = it.getMetadata().getIndexManager().getIndex(I_ASSET_NAME)
+      HOSTED_DOWNLOAD_URLS_ASSETS.each {
+        OIdentifiable idf = idx.get(it.value) as OIdentifiable
+        assertThat(idf, nullValue())
       }
     }
   }

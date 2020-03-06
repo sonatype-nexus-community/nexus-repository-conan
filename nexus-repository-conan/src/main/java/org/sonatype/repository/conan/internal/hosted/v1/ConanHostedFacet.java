@@ -61,6 +61,7 @@ import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.PROJ
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.STATE;
 import static org.sonatype.repository.conan.internal.metadata.ConanMetadata.VERSION;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.HASH_ALGORITHMS;
+import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.getComponentVersion;
 import static org.sonatype.repository.conan.internal.proxy.ConanProxyHelper.toContent;
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findAsset;
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findComponent;
@@ -123,7 +124,7 @@ public class ConanHostedFacet
       component = tx.createComponent(bucket, getRepository().getFormat())
           .group(coord.getGroup())
           .name(coord.getProject())
-          .version(coord.getVersion());
+          .version(getComponentVersion(coord));
     }
     tx.saveComponent(component);
 

@@ -35,7 +35,6 @@ public class ConanHostedControllerV1
 {
   public void attach(final Router.Builder builder) {
     createRoute(builder, ConanRoutes.uploadUrls(), DOWNLOAD_URL, HostedHandlers.uploadUrl);
-    createRoute(builder, ConanRoutes.digest(), DIGEST, HostedHandlers.getDownloadUrl);
     createRoute(builder, ConanRoutes.uploadManifest(), CONAN_MANIFEST, HostedHandlers.uploadContentHandler);
     createRoute(builder, ConanRoutes.uploadConanfile(), CONAN_FILE, HostedHandlers.uploadContentHandler);
     createRoute(builder, ConanRoutes.uploadConanInfo(), CONAN_INFO, HostedHandlers.uploadContentHandler);
@@ -43,6 +42,7 @@ public class ConanHostedControllerV1
     createRoute(builder, ConanRoutes.uploadConanSource(), CONAN_SOURCES, HostedHandlers.uploadContentHandler);
     createRoute(builder, ConanRoutes.uploadConanExportZip(), CONAN_EXPORT, HostedHandlers.uploadContentHandler);
 
+    createRoute(builder, ConanRoutes.digest(), DIGEST, HostedHandlers.getDigest);
     createGetRoutes(builder,
         HostedHandlers.getDownloadUrl,
         HostedHandlers.getAssets,

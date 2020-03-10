@@ -146,6 +146,15 @@ public class ConanHostedFacet
     return generateDownloadPackagesUrlsAsJson(coords, repositoryUrl);
   }
 
+  public String getDigestAsJson(final ConanCoords coords) throws JsonProcessingException {
+    String repositoryUrl = getRepository().getUrl();
+    Map<String, String> digest = new HashMap<>();
+    digest.put(AssetKind.CONAN_MANIFEST.getFilename(),
+        repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, AssetKind.CONAN_MANIFEST));
+
+    return ConanHostedHelper.MAPPER.writeValueAsString(digest);
+  }
+
   private Content saveAsset(final StorageTx tx,
                             final Asset asset,
                             final Supplier<InputStream> contentSupplier) throws IOException

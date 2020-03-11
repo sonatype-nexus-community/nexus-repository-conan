@@ -14,6 +14,7 @@ package org.sonatype.repository.conan.internal.hosted;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -86,6 +87,16 @@ public class ConanHostedMetadataFacetSupport
     Map<String, String> downloadUrls = generateDownloadUrls(DOWNLOAD_URL_ASSET_KINDS, coords,
         repositoryUrl);
     return ConanHostedHelper.MAPPER.writeValueAsString(downloadUrls);
+  }
+
+  public String generateDigestAsJson(final ConanCoords coords,
+                                      final String repositoryUrl)
+      throws JsonProcessingException
+  {
+    Map<String, String> digest = new HashMap<>();
+    digest.put(AssetKind.CONAN_MANIFEST.getFilename(),
+        repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, AssetKind.CONAN_MANIFEST));
+    return ConanHostedHelper.MAPPER.writeValueAsString(digest);
   }
 
   @Nullable

@@ -148,11 +148,7 @@ public class ConanHostedFacet
 
   public String getDigestAsJson(final ConanCoords coords) throws JsonProcessingException {
     String repositoryUrl = getRepository().getUrl();
-    Map<String, String> digest = new HashMap<>();
-    digest.put(AssetKind.CONAN_MANIFEST.getFilename(),
-        repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, AssetKind.CONAN_MANIFEST));
-
-    return ConanHostedHelper.MAPPER.writeValueAsString(digest);
+    return generateDigestAsJson(coords, repositoryUrl);
   }
 
   private Content saveAsset(final StorageTx tx,

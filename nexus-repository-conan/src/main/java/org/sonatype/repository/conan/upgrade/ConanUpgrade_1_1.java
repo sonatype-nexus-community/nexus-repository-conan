@@ -218,11 +218,15 @@ public class ConanUpgrade_1_1
               String name = oDocument.field(P_ASSET_NAME);
               String nextName = null;
 
+              String strategy0 = "/v1/conans/v1/conans/v1/conans/";
               String strategy1 = "/v1/conans/v1/conans/";
               String strategy3 = "/v1/conans/";
               String conans = "conans/";
 
-              if (name.startsWith(strategy1)) { // broken based on refactor-v1-api HOSTED
+              if (name.startsWith(strategy0)) { // broken based on refactor-v1-api HOSTED
+                nextName = conans + name.substring(strategy0.length());
+              }
+              else if (name.startsWith(strategy1)) { // broken based on refactor-v1-api HOSTED
                 nextName = conans + name.substring(strategy1.length());
               }
               else if (name.startsWith(strategy3)) { // latest(master) HOSTED

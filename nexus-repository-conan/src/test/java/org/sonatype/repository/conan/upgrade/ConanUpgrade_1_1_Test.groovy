@@ -118,13 +118,24 @@ class ConanUpgrade_1_1_Test
       //Pair.of(AssetKind.CONAN_PACKAGE_SNAPSHOT, "/v1/conans/v1/conans/hosted-v1-lib/1.2.11/conan/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55"),
       Pair.of(AssetKind.CONAN_PACKAGE, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conan_package.tgz"),
       Pair.of(AssetKind.CONAN_INFO, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conaninfo.txt"),
-      Pair.of(AssetKind.CONAN_MANIFEST, "/v1/conans/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conanmanifest.txt"),
+      Pair.of(AssetKind.CONAN_MANIFEST, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conanmanifest.txt"),
       //Pair.of(AssetKind.DOWNLOAD_URL, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/download_urls"),
 
       Pair.of(AssetKind.CONAN_EXPORT, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/conan_export.tgz"),
       Pair.of(AssetKind.CONAN_FILE, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/conanfile.py"),
       Pair.of(AssetKind.CONAN_MANIFEST, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/conanmanifest.txt"),
       //Pair.of(AssetKind.DOWNLOAD_URL, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/download_urls")
+  ))
+
+  static final List<Pair<AssetKind, String>> HOSTED_BASE_ON_V1_CHANGES_ACTUAL_THREE_PREFIXES = Collections.unmodifiableList(Arrays.asList(
+
+      Pair.of(AssetKind.CONAN_PACKAGE, "/v1/conans/v1/conans/v1/conans/conan/hosted-v2-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conan_package.tgz"),
+      Pair.of(AssetKind.CONAN_INFO, "/v1/conans/v1/conans/v1/conans/conan/hosted-v2-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conaninfo.txt"),
+      Pair.of(AssetKind.CONAN_MANIFEST, "/v1/conans/v1/conans/v1/conans/conan/hosted-v2-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conanmanifest.txt"),
+
+      Pair.of(AssetKind.CONAN_EXPORT, "/v1/conans/v1/conans/v1/conans/conan/hosted-v2-lib/1.2.11/stable/conan_export.tgz"),
+      Pair.of(AssetKind.CONAN_FILE, "/v1/conans/v1/conans/v1/conans/conan/hosted-v2-lib/1.2.11/stable/conanfile.py"),
+      Pair.of(AssetKind.CONAN_MANIFEST, "/v1/conans/v1/conans/v1/conans/conan/hosted-v2-lib/1.2.11/stable/conanmanifest.txt"),
   ))
 
   static final List<Pair<AssetKind, String>> PROXY_BASE_ON_MASTER_CHANGES_EXPECTED = Collections.unmodifiableList(Arrays.asList(
@@ -188,6 +199,18 @@ class ConanUpgrade_1_1_Test
       Pair.of(AssetKind.DOWNLOAD_URL, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/download_urls"),
       Pair.of(AssetKind.DOWNLOAD_URL, "/v1/conans/conan/hosted-v1-lib/1.2.11/stable/download_urls"),
       Pair.of(AssetKind.DOWNLOAD_URL, "conans/conan/hosted-v1-lib/1.2.11/stable/download_urls")
+  ))
+
+
+  static final List<Pair<AssetKind, String>> HOSTED_BASE_ON_V1_CHANGES_EXPECTED_THREE_PREFIXES = Collections.unmodifiableList(Arrays.asList(
+
+      Pair.of(AssetKind.CONAN_PACKAGE, "conans/conan/hosted-v2-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conan_package.tgz"),
+      Pair.of(AssetKind.CONAN_INFO, "conans/conan/hosted-v2-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conaninfo.txt"),
+      Pair.of(AssetKind.CONAN_MANIFEST, "conans/conan/hosted-v2-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conanmanifest.txt"),
+
+      Pair.of(AssetKind.CONAN_EXPORT, "conans/conan/hosted-v2-lib/1.2.11/stable/conan_export.tgz"),
+      Pair.of(AssetKind.CONAN_FILE, "conans/conan/hosted-v2-lib/1.2.11/stable/conanfile.py"),
+      Pair.of(AssetKind.CONAN_MANIFEST, "conans/conan/hosted-v2-lib/1.2.11/stable/conanmanifest.txt"),
   ))
 
   private static final String P_NAME = "name"
@@ -268,7 +291,8 @@ class ConanUpgrade_1_1_Test
       def proxies = PROXY_BASE_ON_V1_CHANGES_ACTUAL + PROXY_BASE_ON_MASTER_CHANGES_ACTUAL
       proxies.each { asset(bucketIdx, CONAN_PROXY_REPOSITORY_NAME, it.value, attributes(it.key)) }
 
-      def hostedList = HOSTED_BASE_ON_MASTER_CHANGES_ACTUAL + HOSTED_BASE_ON_V1_CHANGES_ACTUAL + HOSTED_DOWNLOAD_URLS_ASSETS
+      def hostedList = HOSTED_BASE_ON_MASTER_CHANGES_ACTUAL + HOSTED_BASE_ON_V1_CHANGES_ACTUAL +
+          HOSTED_DOWNLOAD_URLS_ASSETS + HOSTED_BASE_ON_V1_CHANGES_ACTUAL_THREE_PREFIXES
       hostedList.each { asset(bucketIdx, CONAN_HOSTED_REPOSITORY_NAME, it.value, attributes(it.key)) }
     }
 
@@ -318,7 +342,9 @@ class ConanUpgrade_1_1_Test
     underTest.apply()
     componentDatabase.instance.connect().withCloseable { db ->
       OIndex<?> idx = db.getMetadata().getIndexManager().getIndex(I_ASSET_NAME)
-      def list = HOSTED_BASE_ON_MASTER_CHANGES_EXPECTED + HOSTED_BASE_ON_V1_CHANGES_EXPECTED + PROXY_BASE_ON_V1_CHANGES_EXPECTED + PROXY_BASE_ON_MASTER_CHANGES_EXPECTED
+      def list = HOSTED_BASE_ON_MASTER_CHANGES_EXPECTED + HOSTED_BASE_ON_V1_CHANGES_EXPECTED +
+          PROXY_BASE_ON_V1_CHANGES_EXPECTED + PROXY_BASE_ON_MASTER_CHANGES_EXPECTED +
+          HOSTED_BASE_ON_V1_CHANGES_EXPECTED_THREE_PREFIXES
       list.each {
         OIdentifiable idf = idx.get(it.value) as OIdentifiable
         assertThat(idf, notNullValue())

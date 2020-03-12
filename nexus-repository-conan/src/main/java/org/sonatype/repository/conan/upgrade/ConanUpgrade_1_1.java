@@ -223,7 +223,7 @@ public class ConanUpgrade_1_1
               String strategy3 = "/v1/conans/";
               String conans = "conans/";
 
-              if (name.startsWith(strategy0)) {
+              if (name.startsWith(strategy0)) { // broken based on refactor-v1-api HOSTED
                 nextName = conans + name.substring(strategy0.length());
               }
               else if (name.startsWith(strategy1)) { // broken based on refactor-v1-api HOSTED

@@ -118,7 +118,7 @@ class ConanUpgrade_1_1_Test
       //Pair.of(AssetKind.CONAN_PACKAGE_SNAPSHOT, "/v1/conans/v1/conans/hosted-v1-lib/1.2.11/conan/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55"),
       Pair.of(AssetKind.CONAN_PACKAGE, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conan_package.tgz"),
       Pair.of(AssetKind.CONAN_INFO, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conaninfo.txt"),
-      Pair.of(AssetKind.CONAN_MANIFEST, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conanmanifest.txt"),
+      Pair.of(AssetKind.CONAN_MANIFEST, "/v1/conans/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/conanmanifest.txt"),
       //Pair.of(AssetKind.DOWNLOAD_URL, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/packages/534dcc368c999e07e81f146b3466b8f656ef1f55/download_urls"),
 
       Pair.of(AssetKind.CONAN_EXPORT, "/v1/conans/v1/conans/conan/hosted-v1-lib/1.2.11/stable/conan_export.tgz"),

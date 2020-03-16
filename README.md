@@ -14,21 +14,23 @@
 -->
 # Nexus Repository Conan Format
 
-[![Maven Central](https://img.shields.io/maven-central/v/org.sonatype.nexus.plugins/nexus-repository-conan.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22org.sonatype.nexus.plugins%22%20AND%20a:%22nexus-repository-conan%22) 
+[![Maven Central](https://img.shields.io/maven-central/v/org.sonatype.nexus.plugins/nexus-repository-conan.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22org.sonatype.nexus.plugins%22%20AND%20a:%22nexus-repository-conan%22)
 [![CircleCI](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-conan.svg?style=svg)](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-conan)
 [![Join the chat at https://gitter.im/sonatype/nexus-developers](https://badges.gitter.im/sonatype/nexus-developers.svg)](https://gitter.im/sonatype/nexus-developers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![DepShield Badge](https://depshield.sonatype.org/badges/sonatype-nexus-community/nexus-repository-conan/depshield.svg)](https://depshield.github.io)
 
 # Table Of Contents
 * [Developing](#developing)
+   * [Contribution Guidelines](#contribution-guidelines)
    * [Requirements](#requirements)
    * [Building](#building)
 * [Using Conan with Nexus Repository Manager 3](#using-conan-with-nexus-repository-manager-3)
 * [Installing the plugin](#installing-the-plugin)
+   * [Permanent Reinstall](#permanent-reinstall)
+* [Installing the plugin in old NXRM versions](#installing-the-plugin-in-old-versions)
    * [Easiest Install](#easiest-install)
    * [Temporary Install](#temporary-install)
-   * [(more) Permanent Install](#more-permanent-install)
-   * [(most) Permament Install](#most-permanent-install)
+   * [Permament Install](#permanent-install)
 * [The Fine Print](#the-fine-print)
 * [Getting Help](#getting-help)
 
@@ -42,42 +44,70 @@ we would like things to flow.
 ### Requirements
 
 * [Apache Maven 3.3.3+](https://maven.apache.org/install.html)
-* [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+* OpenJDK 8
 * Network access to https://repository.sonatype.org/content/groups/sonatype-public-grid
 
 Also, there is a good amount of information available at [Bundle Development](https://help.sonatype.com/display/NXRM3/Bundle+Development#BundleDevelopment-BundleDevelopmentOverview)
-
-NOTE: Version 0.0.2+ of Conan is only compatible with Nexus Repo 3.11.0 or greater due to adding Tree View Filtering. If 
-you need to use this plugin with an older version, please use 0.0.1
 
 ### Building
 
 To build the project and generate the bundle use Maven
 
-    mvn clean package -PbuildKar
+    mvn clean install
 
 If everything checks out, the bundle for Conan should be available in the `target` folder
 
-#### Build with Docker
+## Using Conan with Nexus Repository Manager 3
 
-`docker build -t nexus-repository-conan:0.0.6 .`
+[We have detailed instructions on how to get started here!](https://help.sonatype.com/repomanager3/formats/conan-repositories)
 
-#### Run as a Docker container
+## Compatibility with Nexus Repository Manager 3 Versions
 
-`docker run -d -p 8081:8081 --name nexus nexus-repository-conan:0.0.6` 
+The table below outlines what version of Nexus Repository Manager the plugin was built against:
 
-For further information like how to persist volumes check out [the GitHub repo for our official image](https://github.com/sonatype/docker-nexus3).
+| Plugin Version    | Nexus Repository Manager Version |
+|-------------------|----------------------------------|
+| v0.0.1            | <3.11.0                          |
+| v0.0.2 - v0.0.6   | >=3.11.0                         |
+| v1.0.0 In product | >=3.22.0                         |
 
-The application will now be available from your browser at http://localhost:8081
-
-## Using Conan With Nexus Repository Manager 3
-
-[We have detailed instructions on how to get started here!](docs/CONAN_USER_DOCUMENTATION.md)
 
 ## Installing the plugin
 
-There are a range of options for installing the Conan plugin. You'll need to build it first, and
-then install the plugin with the options shown below:
+In Nexus Repository Manager 3.22+ Conan proxy is already included, so there is no need to install it.
+But if you want to reinstall the plugin with your improvements then the following instructions will be useful.
+Note: Using an unofficial version of the plugin is not supported by the Sonatype Support team.
+Conan hosted repository is not supported and disabled by default. You can enable hosted repo by setting
+nexus.conan.hosted.enabled=true in NXRM's properties file.
+
+### Permanent Reinstall
+
+* Copy the bundle into: `<nexus_dir>/system/org/sonatype/nexus/plugins/nexus-repository-conan/1.0.0/nexus-repository-conan-1.0.0.jar`
+* Modify xml to introduce the plugin:
+  * OSS edition: `<nexus_dir>/system/com/sonatype/nexus/assemblies/nexus-oss-feature/3.x.y/nexus-oss-feature-3.x.y-features.xml`
+
+  * PRO edition: `<nexus_dir>/system/com/sonatype/nexus/assemblies/nexus-pro-feature/3.x.y/nexus-pro-feature-3.x.y-features.xml`
+
+   ```
+         <feature version="3.x.y.xy" prerequisite="false" dependency="false">nexus-repository-rubygems</feature>
+         <feature version="1.0.0" prerequisite="false" dependency="false">nexus-repository-conan</feature>
+         <feature version="3.x.y.xy" prerequisite="false" dependency="false">nexus-repository-yum</feature>
+     </features>
+   ```
+
+   And
+   ```
+       <feature name="nexus-repository-conan" description="org.sonatype.nexus.plugins:nexus-repository-conan" version="1.0.0">
+        <details>org.sonatype.nexus.plugins:nexus-repository-conan</details>
+        <bundle>mvn:org.sonatype.nexus.plugins/nexus-repository-conan/1.1.0</bundle>
+       </feature>
+    </features>
+   ```
+
+### Installing the plugin in old versions
+
+For older versions there are a range of options for installing the Conan plugin. You'll need to build it first, and
+then install the plugin with one of the options shown below:
 
 ### Easiest Install
 	
@@ -95,11 +125,11 @@ You should see `conan (hosted)` and `conan (proxy)` in the available Repository 
 Installations done via the Karaf console will be wiped out with every restart of Nexus Repository. This is a
 good installation path if you are just testing or doing development on the plugin.
 
-* Enable Nexus console: edit `<nexus_dir>/bin/nexus.vmoptions` and change `karaf.startLocalConsole`  to `true`.
+* Enable NXRM's console: edit `<nexus_dir>/bin/nexus.vmoptions` and change `karaf.startLocalConsole`  to `true`.
 
-  More details here: https://help.sonatype.com/display/NXRM3/Bundle+Development#BundleDevelopment-InstallingBundles
+  More details here: https://help.sonatype.com/display/NXRM3/Bundle+Development+Overview
 
-* Run Nexus' console:
+* Run NXRM's console:
   ```
   # sudo su - nexus
   $ cd <nexus_dir>/bin
@@ -112,7 +142,7 @@ good installation path if you are just testing or doing development on the plugi
   > bundle:start <org.sonatype.nexus.plugins:nexus-repository-conan ID>
   ```
 
-### (more) Permanent Install
+### Permanent Install
 
 For more permanent installs of the nexus-repository-conan plugin, follow these instructions:
 
@@ -122,33 +152,12 @@ This will cause the plugin to be loaded with each restart of Nexus Repository. A
 by Nexus Repository and the plugin should load within 60 seconds of being copied there if Nexus Repository
 is running. You will still need to start the bundle using the karaf commands mentioned in the temporary install.
 
-### (most) Permanent Install
-
-If you are trying to use the Conan plugin permanently, it likely makes more sense to do the following:
-
-* Copy the bundle into `<nexus_dir>/system/org/sonatype/nexus/plugins/nexus-repository-conan/0.0.6/nexus-repository-conan-0.0.6.jar`
-* If you are using OSS edition, make these mods in: `<nexus_dir>/system/com/sonatype/nexus/assemblies/nexus-oss-feature/3.x.y/nexus-oss-feature-3.x.y-features.xml`
-* If you are using PRO edition, make these mods in: `<nexus_dir>/system/com/sonatype/nexus/assemblies/nexus-pro-feature/3.x.y/nexus-pro-feature-3.x.y-features.xml`
-   ```
-         <feature version="3.x.y.xy" prerequisite="false" dependency="false">nexus-repository-rubygems</feature>
-         <feature version="0.0.6" prerequisite="false" dependency="false">nexus-repository-conan</feature>
-         <feature version="3.x.y.xy" prerequisite="false" dependency="false">nexus-repository-yum</feature>
-     </features>
-   ```
-   And
-   ```
-       <feature name="nexus-repository-conan" description="org.sonatype.nexus.plugins:nexus-repository-conan" version="0.0.6">
-        <details>org.sonatype.nexus.plugins:nexus-repository-conan</details>
-        <bundle>mvn:org.sonatype.nexus.plugins/nexus-repository-conan/0.0.6</bundle>
-       </feature>
-    </features>
-   ```
 This will cause the plugin to be loaded and started with each startup of Nexus Repository.
 
 ## The Fine Print
 
-It is worth noting that this is **NOT SUPPORTED** by Sonatype, and is a contribution of ours
-to the open source community (read: you!)
+Starting from version 3.22 the Conan plugin is supported by Sonatype, but still is a contribution of ours
+to the open source community (read: you!).
 
 Remember:
 

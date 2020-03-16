@@ -18,6 +18,8 @@ Sonatype internal people:
 
 * [@doddi](https://github.com/doddi/) (Mark Dodgson)
 * [@DarthHater](https://github.com/darthhater/) (Jeffry Hesse)
+* [@mlukaretkyi](https://github.com/mlukaretkyi/) (Maksym Lukaretkyi)
+* [@igorudovika](https://github.com/igorudovika/) (Igor Udovika)
 
 External contributors:
 

@@ -1,18 +1,16 @@
-ARG NEXUS_VERSION=3.15.1
+# declaration of NEXUS_VERSION must appear before first FROM command
+# see: https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
+ARG NEXUS_VERSION=latest
 
 FROM maven:3-jdk-8-alpine AS build
-ARG NEXUS_VERSION=3.18.1
-ARG NEXUS_BUILD=01
 
 COPY . /nexus-repository-conan/
-RUN cd /nexus-repository-conan/; sed -i "s/3.15.1-01/${NEXUS_VERSION}-${NEXUS_BUILD}/g" pom.xml; \
+RUN cd /nexus-repository-conan/; \
     mvn clean package -PbuildKar;
 
 FROM sonatype/nexus3:$NEXUS_VERSION
-ARG NEXUS_VERSION=3.18.1
-ARG NEXUS_BUILD=01
-ARG CONAN_VERSION=0.0.6
+
 ARG DEPLOY_DIR=/opt/sonatype/nexus/deploy/
 USER root
-COPY --from=build /nexus-repository-conan/target/nexus-repository-conan-${CONAN_VERSION}-bundle.kar ${DEPLOY_DIR}
+COPY --from=build /nexus-repository-conan/nexus-repository-conan/target/nexus-repository-conan-*-bundle.kar ${DEPLOY_DIR}
 USER nexus

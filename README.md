@@ -57,6 +57,24 @@ To build the project and generate the bundle use Maven
 
 If everything checks out, the bundle for Conan should be available in the `target` folder
 
+#### Build with Docker
+
+    docker build -t nexus-repository-conan .
+
+#### Run as a Docker container
+
+    docker run -d -p 8081:8081 --name nexus-repository-conan nexus-repository-conan  
+
+For further information like how to persist volumes check out [the GitHub repo for our official image](https://github.com/sonatype/docker-nexus3).
+
+After allowing some time to spin up, the application will be available from your browser at http://localhost:8081.
+
+To read the generated admin password for your first login to the web UI, you can use the command below against the running docker container:
+
+    docker exec -it nexus-repository-conan cat /nexus-data/admin.password && echo
+
+For simplicity, you should check `Enable anonymous access` in the prompts following your first login.   
+
 ## Using Conan with Nexus Repository Manager 3
 
 [We have detailed instructions on how to get started here!](https://help.sonatype.com/repomanager3/formats/conan-repositories)

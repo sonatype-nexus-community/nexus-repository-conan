@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>conan-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
   </parent>
 
   <artifactId>nexus-repository-conan-it</artifactId>
@@ -149,7 +149,7 @@
               <target>
                 <unzip src="${org.sonatype.nexus.testsuite:nexus-it-suite-data:jar}" dest="${project.build.directory}/it-resources">
                   <patternset>
-                    <exclude name="META-INF/**"/>
+                    <exclude name="META-INF/**" />
                   </patternset>
                 </unzip>
               </target>

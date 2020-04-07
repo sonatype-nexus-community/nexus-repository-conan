@@ -46,7 +46,7 @@ import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findA
 public class ConanHostedMetadataFacetSupport
     extends FacetSupport
 {
-  public static final List<AssetKind> DOWNLOAD_URL_ASSET_KINDS = Collections
+  private static final List<AssetKind> DOWNLOAD_URL_ASSET_KINDS = Collections
       .unmodifiableList(Arrays.asList(
           AssetKind.CONAN_EXPORT,
           AssetKind.CONAN_FILE,
@@ -54,7 +54,7 @@ public class ConanHostedMetadataFacetSupport
           AssetKind.CONAN_MANIFEST)
       );
 
-  public static final List<AssetKind> DOWNLOAD_URL_PACKAGE_ASSET_KINDS = Collections
+  private static final List<AssetKind> DOWNLOAD_URL_PACKAGE_ASSET_KINDS = Collections
       .unmodifiableList(Arrays.asList(
           AssetKind.CONAN_PACKAGE,
           AssetKind.CONAN_INFO,

@@ -14,9 +14,11 @@ package org.sonatype.repository.conan.internal.hosted.v1;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,7 +55,6 @@ import com.google.common.base.Supplier;
 import org.apache.commons.lang3.StringUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.stream.Collectors.toMap;
 import static org.sonatype.nexus.repository.http.HttpStatus.OK;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
@@ -151,24 +152,16 @@ public class ConanHostedFacet
   public String getUploadUrlAsJson(final ConanCoords coords, final Set<String> assetsToUpload)
       throws JsonProcessingException
   {
-    Map<String, String> downloadUrls;
     String repositoryUrl = getRepository().getUrl();
-    if (StringUtils.isEmpty(coords.getSha())) {
-      downloadUrls =
-          DOWNLOAD_URL_ASSET_KINDS
-              .stream()
-              .filter(x -> assetsToUpload.contains(x.getFilename()))
-              .collect(toMap(AssetKind::getFilename,
-                  x -> repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, x)));
-    }
-    else {
-      downloadUrls =
-          DOWNLOAD_URL_PACKAGE_ASSET_KINDS
-              .stream()
-              .filter(x -> assetsToUpload.contains(x.getFilename()))
-              .collect(toMap(AssetKind::getFilename,
-                  x -> repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, x)));
-    }
+    Map<String, String> downloadUrls = assetsToUpload.stream()
+        .map(fileName -> Arrays.stream(AssetKind.values())
+            .filter(assetKind -> assetKind.getFilename().equals(fileName))
+            .findAny()
+            .orElseThrow(
+                () -> new IllegalArgumentException("Unknown asset kind for uploading file: " + fileName))
+        )
+        .collect(Collectors.toMap(AssetKind::getFilename,
+            x -> repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, x)));
     return ConanHostedHelper.MAPPER.writeValueAsString(downloadUrls);
   }
 

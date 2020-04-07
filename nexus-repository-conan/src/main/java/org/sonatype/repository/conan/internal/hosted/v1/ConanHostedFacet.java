@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -138,12 +139,23 @@ public class ConanHostedFacet
     saveAsset(tx, asset, tempBlob);
   }
 
+  @TransactionalTouchBlob
   public String getDownloadUrlAsJson(final ConanCoords coords) throws JsonProcessingException {
     String repositoryUrl = getRepository().getUrl();
     if (StringUtils.isEmpty(coords.getSha())) {
       return generateDownloadUrlsAsJson(coords, repositoryUrl);
     }
     return generateDownloadPackagesUrlsAsJson(coords, repositoryUrl);
+  }
+
+  public String getUploadUrlAsJson(final ConanCoords coords, final Set<String> assetsToUpload)
+      throws JsonProcessingException
+  {
+    String repositoryUrl = getRepository().getUrl();
+    if (StringUtils.isEmpty(coords.getSha())) {
+      return generateUploadUrlsAsJson(coords, repositoryUrl, assetsToUpload);
+    }
+    return generatePackagesUploadUrlsAsJson(coords, repositoryUrl, assetsToUpload);
   }
 
   public String getDigestAsJson(final ConanCoords coords) throws JsonProcessingException {

@@ -5,6 +5,7 @@ import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.Spy;
@@ -48,9 +49,12 @@ public class ConanHostedMetadataFacetSupportTest
         String.format("%s%s/%s/%s/%s/packages/%s", ConanHostedHelper.CONAN_HOSTED_PREFIX, group, project, version,
             channel, sha);
 
-    Mockito.doReturn("some_hash_1").when(conanHostedMetadataFacetSupport).getHash(String.format("%s/%s", assetPath, CONAN_INFO.getFilename()));
-    Mockito.doReturn("some_hash_2").when(conanHostedMetadataFacetSupport).getHash(String.format("%s/%s", assetPath, CONAN_PACKAGE.getFilename()));
-    Mockito.doReturn("some_hash_3").when(conanHostedMetadataFacetSupport).getHash(String.format("%s/%s", assetPath, CONAN_MANIFEST.getFilename()));
+    Mockito.doReturn("some_hash_1").when(conanHostedMetadataFacetSupport)
+        .getHash(String.format("%s/%s", assetPath, CONAN_INFO.getFilename()));
+    Mockito.doReturn("some_hash_2").when(conanHostedMetadataFacetSupport)
+        .getHash(String.format("%s/%s", assetPath, CONAN_PACKAGE.getFilename()));
+    Mockito.doReturn("some_hash_3").when(conanHostedMetadataFacetSupport)
+        .getHash(String.format("%s/%s", assetPath, CONAN_MANIFEST.getFilename()));
 
     String expected = MAPPER.writeValueAsString(ImmutableMap.of(
         CONAN_INFO.getFilename(), "some_hash_1",
@@ -70,9 +74,12 @@ public class ConanHostedMetadataFacetSupportTest
         String.format("%s%s/%s/%s/%s/packages/%s", ConanHostedHelper.CONAN_HOSTED_PREFIX, group, project, version,
             channel, sha);
 
-    Mockito.doReturn(null).when(conanHostedMetadataFacetSupport).getHash(String.format("%s/%s", assetPath, CONAN_INFO.getFilename()));
-    Mockito.doReturn(null).when(conanHostedMetadataFacetSupport).getHash(String.format("%s/%s", assetPath, CONAN_PACKAGE.getFilename()));
-    Mockito.doReturn(null).when(conanHostedMetadataFacetSupport).getHash(String.format("%s/%s", assetPath, CONAN_MANIFEST.getFilename()));
+    Mockito.doReturn(null).when(conanHostedMetadataFacetSupport)
+        .getHash(String.format("%s/%s", assetPath, CONAN_INFO.getFilename()));
+    Mockito.doReturn(null).when(conanHostedMetadataFacetSupport)
+        .getHash(String.format("%s/%s", assetPath, CONAN_PACKAGE.getFilename()));
+    Mockito.doReturn(null).when(conanHostedMetadataFacetSupport)
+        .getHash(String.format("%s/%s", assetPath, CONAN_MANIFEST.getFilename()));
 
     ConanCoords conanCoords = new ConanCoords(path, group, project, version, channel, sha);
     String actual = conanHostedMetadataFacetSupport.generatePackageSnapshotAsJson(conanCoords);
@@ -81,12 +88,15 @@ public class ConanHostedMetadataFacetSupportTest
   }
 
   @Test
-  public void generateDownloadPackagesUrlsAsJson() throws Exception {
+  public void generateUploadPackagesUrlsAsJson() throws Exception {
     String repositoryURL = "http://localhost:8081/repositories/conan-proxy";
 
     String assetPath =
         String.format("%s%s/%s/%s/%s/packages/%s", ConanHostedHelper.CONAN_HOSTED_PREFIX, group, project, version,
             channel, sha);
+
+    ImmutableSet<String> assetsToUpload = ImmutableSet
+        .of(CONAN_INFO.getFilename(), CONAN_PACKAGE.getFilename(), CONAN_MANIFEST.getFilename());
 
     String expected = MAPPER.writeValueAsString(ImmutableMap.of(
         CONAN_INFO.getFilename(), String.format("%s/%s/%s", repositoryURL, assetPath, CONAN_INFO.getFilename()),
@@ -95,18 +105,23 @@ public class ConanHostedMetadataFacetSupportTest
     ));
 
     ConanCoords conanCoords = new ConanCoords(path, group, project, version, channel, sha);
-    String actual = conanHostedMetadataFacetSupport.generateDownloadPackagesUrlsAsJson(conanCoords, repositoryURL);
+    String actual =
+        conanHostedMetadataFacetSupport.generatePackagesUploadUrlsAsJson(conanCoords, repositoryURL, assetsToUpload);
 
     assertThat(actual, is(expected));
   }
 
   @Test
-  public void generateDownloadUrlsAsJson() throws Exception {
+  public void generateUploadUrlsAsJson() throws Exception {
     String repositoryURL = "http://localhost:8081/repositories/conan-proxy";
 
     String assetPath =
         String.format("%s%s/%s/%s/%s", ConanHostedHelper.CONAN_HOSTED_PREFIX, group, project, version,
             channel);
+
+    ImmutableSet<String> assetsToUpload = ImmutableSet
+        .of(CONAN_EXPORT.getFilename(), CONAN_SOURCES.getFilename(), CONAN_MANIFEST.getFilename(),
+            CONAN_FILE.getFilename());
 
     String expected = MAPPER.writeValueAsString(ImmutableMap.of(
         CONAN_EXPORT.getFilename(), String.format("%s/%s/%s", repositoryURL, assetPath, CONAN_EXPORT.getFilename()),
@@ -116,7 +131,8 @@ public class ConanHostedMetadataFacetSupportTest
     ));
 
     ConanCoords conanCoords = new ConanCoords(path, group, project, version, channel, null);
-    String actual = conanHostedMetadataFacetSupport.generateDownloadUrlsAsJson(conanCoords, repositoryURL);
+    String actual =
+        conanHostedMetadataFacetSupport.generateUploadUrlsAsJson(conanCoords, repositoryURL, assetsToUpload);
 
     assertThat(actual, is(expected));
   }

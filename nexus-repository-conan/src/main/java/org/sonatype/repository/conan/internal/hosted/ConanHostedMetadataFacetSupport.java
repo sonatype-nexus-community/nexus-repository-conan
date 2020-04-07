@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,7 +46,7 @@ import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findA
 public class ConanHostedMetadataFacetSupport
     extends FacetSupport
 {
-  private static final List<AssetKind> DOWNLOAD_URL_ASSET_KINDS = Collections
+  public static final List<AssetKind> DOWNLOAD_URL_ASSET_KINDS = Collections
       .unmodifiableList(Arrays.asList(
           AssetKind.CONAN_EXPORT,
           AssetKind.CONAN_FILE,
@@ -55,7 +54,7 @@ public class ConanHostedMetadataFacetSupport
           AssetKind.CONAN_MANIFEST)
       );
 
-  private static final List<AssetKind> DOWNLOAD_URL_PACKAGE_ASSET_KINDS = Collections
+  public static final List<AssetKind> DOWNLOAD_URL_PACKAGE_ASSET_KINDS = Collections
       .unmodifiableList(Arrays.asList(
           AssetKind.CONAN_PACKAGE,
           AssetKind.CONAN_INFO,
@@ -64,67 +63,29 @@ public class ConanHostedMetadataFacetSupport
 
   private Map<String, String> generateDownloadUrls(
       final List<AssetKind> assetKinds,
-      final ConanCoords coords, final String repositoryUrl)
+      final ConanCoords coords)
   {
     Repository repository = getRepository();
     StorageTx tx = UnitOfWork.currentTx();
     return assetKinds
         .stream().filter(x -> tx.assetExists(ConanHostedHelper.getHostedAssetPath(coords, x), repository))
         .collect(toMap(AssetKind::getFilename,
-            x -> repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, x)));
+            x -> repository.getUrl() + "/" + ConanHostedHelper.getHostedAssetPath(coords, x)));
   }
 
-  public String generateDownloadPackagesUrlsAsJson(
-      final ConanCoords coords,
-      final String repositoryUrl) throws JsonProcessingException
+  public String generateDownloadPackagesUrlsAsJson(final ConanCoords coords)
+      throws JsonProcessingException
   {
     Map<String, String> downloadUrls = generateDownloadUrls(DOWNLOAD_URL_PACKAGE_ASSET_KINDS,
-        coords, repositoryUrl);
+        coords);
     return ConanHostedHelper.MAPPER.writeValueAsString(downloadUrls);
   }
 
-  public String generateDownloadUrlsAsJson(
-      final ConanCoords coords,
-      final String repositoryUrl)
+  public String generateDownloadUrlsAsJson(final ConanCoords coords)
       throws JsonProcessingException
   {
-    Map<String, String> downloadUrls = generateDownloadUrls(DOWNLOAD_URL_ASSET_KINDS, coords,
-        repositoryUrl);
+    Map<String, String> downloadUrls = generateDownloadUrls(DOWNLOAD_URL_ASSET_KINDS, coords);
     return ConanHostedHelper.MAPPER.writeValueAsString(downloadUrls);
-  }
-
-  private String generateUploadUrlsAsJson(
-      final List<AssetKind> assetKinds,
-      final ConanCoords coords,
-      final String repositoryUrl,
-      final Set<String> assetsToUpload)
-      throws JsonProcessingException
-  {
-    Map<String, String> downloadUrls =
-        assetKinds
-            .stream()
-            .filter(x -> assetsToUpload.contains(x.getFilename()))
-            .collect(toMap(AssetKind::getFilename,
-                x -> repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, x)));
-    return ConanHostedHelper.MAPPER.writeValueAsString(downloadUrls);
-  }
-
-  public String generateUploadUrlsAsJson(
-      final ConanCoords coords,
-      final String repositoryUrl,
-      final Set<String> assetsToUpload)
-      throws JsonProcessingException
-  {
-    return generateUploadUrlsAsJson(DOWNLOAD_URL_ASSET_KINDS, coords, repositoryUrl, assetsToUpload);
-  }
-
-  public String generatePackagesUploadUrlsAsJson(
-      final ConanCoords coords,
-      final String repositoryUrl,
-      final Set<String> assetsToUpload)
-      throws JsonProcessingException
-  {
-    return generateUploadUrlsAsJson(DOWNLOAD_URL_PACKAGE_ASSET_KINDS, coords, repositoryUrl, assetsToUpload);
   }
 
   public String generateDigestAsJson(final ConanCoords coords,

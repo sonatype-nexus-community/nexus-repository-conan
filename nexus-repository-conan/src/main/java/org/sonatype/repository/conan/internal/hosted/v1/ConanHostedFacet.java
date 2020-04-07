@@ -53,6 +53,7 @@ import com.google.common.base.Supplier;
 import org.apache.commons.lang3.StringUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.stream.Collectors.toMap;
 import static org.sonatype.nexus.repository.http.HttpStatus.OK;
 import static org.sonatype.nexus.repository.storage.AssetEntityAdapter.P_ASSET_KIND;
 import static org.sonatype.nexus.repository.view.Content.maintainLastModified;
@@ -141,21 +142,34 @@ public class ConanHostedFacet
 
   @TransactionalTouchBlob
   public String getDownloadUrlAsJson(final ConanCoords coords) throws JsonProcessingException {
-    String repositoryUrl = getRepository().getUrl();
     if (StringUtils.isEmpty(coords.getSha())) {
-      return generateDownloadUrlsAsJson(coords, repositoryUrl);
+      return generateDownloadUrlsAsJson(coords);
     }
-    return generateDownloadPackagesUrlsAsJson(coords, repositoryUrl);
+    return generateDownloadPackagesUrlsAsJson(coords);
   }
 
   public String getUploadUrlAsJson(final ConanCoords coords, final Set<String> assetsToUpload)
       throws JsonProcessingException
   {
+    Map<String, String> downloadUrls;
     String repositoryUrl = getRepository().getUrl();
     if (StringUtils.isEmpty(coords.getSha())) {
-      return generateUploadUrlsAsJson(coords, repositoryUrl, assetsToUpload);
+      downloadUrls =
+          DOWNLOAD_URL_ASSET_KINDS
+              .stream()
+              .filter(x -> assetsToUpload.contains(x.getFilename()))
+              .collect(toMap(AssetKind::getFilename,
+                  x -> repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, x)));
     }
-    return generatePackagesUploadUrlsAsJson(coords, repositoryUrl, assetsToUpload);
+    else {
+      downloadUrls =
+          DOWNLOAD_URL_PACKAGE_ASSET_KINDS
+              .stream()
+              .filter(x -> assetsToUpload.contains(x.getFilename()))
+              .collect(toMap(AssetKind::getFilename,
+                  x -> repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, x)));
+    }
+    return ConanHostedHelper.MAPPER.writeValueAsString(downloadUrls);
   }
 
   public String getDigestAsJson(final ConanCoords coords) throws JsonProcessingException {

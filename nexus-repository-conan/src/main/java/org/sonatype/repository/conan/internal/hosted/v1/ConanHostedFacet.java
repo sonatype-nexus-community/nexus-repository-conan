@@ -153,15 +153,14 @@ public class ConanHostedFacet
       throws JsonProcessingException
   {
     String repositoryUrl = getRepository().getUrl();
-    Map<String, String> downloadUrls = assetsToUpload.stream()
-        .map(fileName -> Arrays.stream(AssetKind.values())
-            .filter(assetKind -> assetKind.getFilename().equals(fileName))
-            .findAny()
-            .orElseThrow(
-                () -> new IllegalArgumentException("Unknown asset kind for uploading file: " + fileName))
-        )
-        .collect(Collectors.toMap(AssetKind::getFilename,
-            x -> repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, x)));
+    Map<String, String> downloadUrls = new HashMap<>();
+    for (String fileName : assetsToUpload) {
+      AssetKind assetKind = AssetKind.valueFromFileName(fileName);
+      if (assetKind == null) {
+        throw new IllegalArgumentException("Unknown asset kind for uploading file: " + fileName);
+      }
+      downloadUrls.put(fileName, repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, assetKind));
+    }
     return ConanHostedHelper.MAPPER.writeValueAsString(downloadUrls);
   }
 

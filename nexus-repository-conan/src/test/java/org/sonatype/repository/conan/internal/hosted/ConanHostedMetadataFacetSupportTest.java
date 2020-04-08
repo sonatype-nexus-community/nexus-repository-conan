@@ -1,14 +1,11 @@
 package org.sonatype.repository.conan.internal.hosted;
 
 import org.sonatype.goodies.testsupport.TestSupport;
-import org.sonatype.nexus.repository.Repository;
-import org.sonatype.repository.conan.internal.hosted.v1.ConanHostedFacet;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 

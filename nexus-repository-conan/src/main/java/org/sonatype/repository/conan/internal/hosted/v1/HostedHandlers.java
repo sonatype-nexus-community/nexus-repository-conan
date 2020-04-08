@@ -33,6 +33,7 @@ import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import org.apache.commons.lang3.StringUtils;
 
 import static org.sonatype.nexus.repository.http.HttpStatus.BAD_REQUEST;
@@ -52,16 +53,17 @@ public class HostedHandlers
 {
   private static final String CLIENT_CHECKSUM = "X-Checksum-Sha1";
 
+  private static ObjectReader objectReader =
+      new ObjectMapper().reader(new TypeReference<HashMap<String, String>>() { });
+
   public static final Handler uploadUrl = context -> {
     State state = context.getAttributes().require(State.class);
     ConanCoords coord = ConanHostedHelper.convertFromState(state);
-    ObjectMapper objectMapper = new ObjectMapper();
     Map<String, String> uploadRequestData;
 
     Payload payload = context.getRequest().getPayload();
     try (InputStream inputStream = payload.openInputStream()) {
-      TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>() { };
-      uploadRequestData = objectMapper.readValue(inputStream, typeRef);
+      uploadRequestData = objectReader.readValue(inputStream);
     }
 
     if (uploadRequestData != null && !uploadRequestData.isEmpty()) {

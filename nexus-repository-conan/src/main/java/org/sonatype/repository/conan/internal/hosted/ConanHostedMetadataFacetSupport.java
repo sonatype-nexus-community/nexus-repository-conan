@@ -37,8 +37,10 @@ import com.google.common.hash.HashCode;
 import org.apache.commons.lang3.tuple.Pair;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.stream.Collectors.toMap;
 import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findAsset;
+import static org.sonatype.repository.conan.internal.hosted.ConanHostedHelper.getHostedAssetPath;
+import static org.sonatype.repository.conan.internal.hosted.ConanHostedHelper.MAPPER;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * @since 1.0.0
@@ -68,24 +70,23 @@ public class ConanHostedMetadataFacetSupport
     Repository repository = getRepository();
     StorageTx tx = UnitOfWork.currentTx();
     return assetKinds
-        .stream().filter(x -> tx.assetExists(ConanHostedHelper.getHostedAssetPath(coords, x), repository))
+        .stream().filter(x -> tx.assetExists(getHostedAssetPath(coords, x), repository))
         .collect(toMap(AssetKind::getFilename,
-            x -> repository.getUrl() + "/" + ConanHostedHelper.getHostedAssetPath(coords, x)));
+            x -> repository.getUrl() + "/" + getHostedAssetPath(coords, x)));
   }
 
   public String generateDownloadPackagesUrlsAsJson(final ConanCoords coords)
       throws JsonProcessingException
   {
-    Map<String, String> downloadUrls = generateDownloadUrls(DOWNLOAD_URL_PACKAGE_ASSET_KINDS,
-        coords);
-    return ConanHostedHelper.MAPPER.writeValueAsString(downloadUrls);
+    Map<String, String> downloadUrls = generateDownloadUrls(DOWNLOAD_URL_PACKAGE_ASSET_KINDS, coords);
+    return MAPPER.writeValueAsString(downloadUrls);
   }
 
   public String generateDownloadUrlsAsJson(final ConanCoords coords)
       throws JsonProcessingException
   {
     Map<String, String> downloadUrls = generateDownloadUrls(DOWNLOAD_URL_ASSET_KINDS, coords);
-    return ConanHostedHelper.MAPPER.writeValueAsString(downloadUrls);
+    return MAPPER.writeValueAsString(downloadUrls);
   }
 
   public String generateDigestAsJson(final ConanCoords coords,
@@ -94,8 +95,8 @@ public class ConanHostedMetadataFacetSupport
   {
     Map<String, String> digest = new HashMap<>();
     digest.put(AssetKind.CONAN_MANIFEST.getFilename(),
-        repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, AssetKind.CONAN_MANIFEST));
-    return ConanHostedHelper.MAPPER.writeValueAsString(digest);
+        repositoryUrl + "/" + getHostedAssetPath(coords, AssetKind.CONAN_MANIFEST));
+    return MAPPER.writeValueAsString(digest);
   }
 
   @Nullable
@@ -103,7 +104,7 @@ public class ConanHostedMetadataFacetSupport
     Map<String, String> downloadUrls = DOWNLOAD_URL_PACKAGE_ASSET_KINDS
         .stream()
         .collect(
-            toMap(AssetKind::getFilename, x -> ConanHostedHelper.getHostedAssetPath(coords, x)));
+            toMap(AssetKind::getFilename, x -> getHostedAssetPath(coords, x)));
 
     Map<String, String> packageSnapshot = downloadUrls
         .entrySet()
@@ -120,7 +121,7 @@ public class ConanHostedMetadataFacetSupport
     if (packageSnapshot.isEmpty()) {
       return null;
     }
-    return ConanHostedHelper.MAPPER.writeValueAsString(packageSnapshot);
+    return MAPPER.writeValueAsString(packageSnapshot);
   }
 
   @Nullable

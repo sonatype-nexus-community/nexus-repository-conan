@@ -14,8 +14,11 @@ package org.sonatype.repository.conan.internal.hosted.v1;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -138,12 +141,27 @@ public class ConanHostedFacet
     saveAsset(tx, asset, tempBlob);
   }
 
+  @TransactionalTouchBlob
   public String getDownloadUrlAsJson(final ConanCoords coords) throws JsonProcessingException {
-    String repositoryUrl = getRepository().getUrl();
     if (StringUtils.isEmpty(coords.getSha())) {
-      return generateDownloadUrlsAsJson(coords, repositoryUrl);
+      return generateDownloadUrlsAsJson(coords);
     }
-    return generateDownloadPackagesUrlsAsJson(coords, repositoryUrl);
+    return generateDownloadPackagesUrlsAsJson(coords);
+  }
+
+  public String getUploadUrlAsJson(final ConanCoords coords, final Set<String> assetsToUpload)
+      throws JsonProcessingException
+  {
+    String repositoryUrl = getRepository().getUrl();
+    Map<String, String> downloadUrls = new HashMap<>();
+    for (String fileName : assetsToUpload) {
+      AssetKind assetKind = AssetKind.valueFromFileName(fileName);
+      if (assetKind == null) {
+        throw new IllegalArgumentException("Unknown asset kind for uploading file: " + fileName);
+      }
+      downloadUrls.put(fileName, repositoryUrl + "/" + ConanHostedHelper.getHostedAssetPath(coords, assetKind));
+    }
+    return ConanHostedHelper.MAPPER.writeValueAsString(downloadUrls);
   }
 
   public String getDigestAsJson(final ConanCoords coords) throws JsonProcessingException {

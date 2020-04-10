@@ -46,4 +46,8 @@ enum AssetKind {
   String getFilename() {
     return filename
   }
+
+  static AssetKind valueFromFileName(final String filename) {
+    values().find { it.filename == filename }
+  }
 }

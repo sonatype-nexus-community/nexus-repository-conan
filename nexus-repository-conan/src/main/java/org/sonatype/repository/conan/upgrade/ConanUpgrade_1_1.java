@@ -32,8 +32,8 @@ import org.sonatype.nexus.orient.OClassNameBuilder;
 import org.sonatype.nexus.orient.OIndexNameBuilder;
 import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.ConanFormat;
-import org.sonatype.repository.conan.internal.hosted.ConanHostedRecipe;
-import org.sonatype.repository.conan.internal.proxy.v1.ConanProxyRecipe;
+import org.sonatype.repository.conan.internal.orient.hosted.ConanHostedRecipe;
+import org.sonatype.repository.conan.internal.orient.proxy.v1.ConanProxyRecipe;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;

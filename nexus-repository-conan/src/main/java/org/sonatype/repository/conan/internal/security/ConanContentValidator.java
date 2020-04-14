@@ -26,7 +26,7 @@ import org.sonatype.nexus.repository.storage.ContentValidator;
 import org.sonatype.nexus.repository.storage.DefaultContentValidator;
 import org.sonatype.nexus.repository.view.ContentTypes;
 import org.sonatype.repository.conan.internal.ConanFormat;
-import org.sonatype.repository.conan.internal.utils.ConanFacetUtils;
+import org.sonatype.repository.conan.internal.orient.utils.ConanFacetUtils;
 
 import com.google.common.base.Supplier;
 

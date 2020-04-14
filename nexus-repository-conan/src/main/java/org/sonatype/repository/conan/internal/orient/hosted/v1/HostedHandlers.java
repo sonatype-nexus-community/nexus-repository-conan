@@ -12,6 +12,10 @@
  */
 package org.sonatype.repository.conan.internal.orient.hosted.v1;
 
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Named;
 import javax.inject.Singleton;
 
@@ -19,16 +23,20 @@ import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.repository.http.HttpMethods;
 import org.sonatype.nexus.repository.view.Handler;
 import org.sonatype.nexus.repository.view.Headers;
+import org.sonatype.nexus.repository.view.Payload;
 import org.sonatype.nexus.repository.view.Response;
-import org.sonatype.nexus.repository.view.Status;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State;
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
 import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.orient.hosted.ConanHostedHelper;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import org.apache.commons.lang3.StringUtils;
 
+import static org.sonatype.nexus.repository.http.HttpStatus.BAD_REQUEST;
 import static org.sonatype.nexus.repository.http.HttpStatus.NOT_FOUND;
 import static org.sonatype.nexus.repository.http.HttpStatus.OK;
 import static org.sonatype.nexus.repository.view.ContentTypes.APPLICATION_JSON;
@@ -45,17 +53,34 @@ public class HostedHandlers
 {
   private static final String CLIENT_CHECKSUM = "X-Checksum-Sha1";
 
+  private static ObjectReader objectReader =
+      new ObjectMapper().reader(new TypeReference<HashMap<String, String>>() { });
+
   public static final Handler uploadUrl = context -> {
     State state = context.getAttributes().require(State.class);
     ConanCoords coord = ConanHostedHelper.convertFromState(state);
-    String downloadUrlAsJson = context.getRepository()
-        .facet(ConanHostedFacet.class)
-        .getDownloadUrlAsJson(coord);
+    Map<String, String> uploadRequestData;
 
-    return new Response.Builder()
-        .status(success(OK))
-        .payload(new StringPayload(downloadUrlAsJson, APPLICATION_JSON))
-        .build();
+    Payload payload = context.getRequest().getPayload();
+    try (InputStream inputStream = payload.openInputStream()) {
+      uploadRequestData = objectReader.readValue(inputStream);
+    }
+
+    if (uploadRequestData != null && !uploadRequestData.isEmpty()) {
+      String downloadUrlAsJson = context.getRepository()
+          .facet(ConanHostedFacet.class)
+          .getUploadUrlAsJson(coord, uploadRequestData.keySet());
+
+      return new Response.Builder()
+          .status(success(OK))
+          .payload(new StringPayload(downloadUrlAsJson, APPLICATION_JSON))
+          .build();
+    }
+    else {
+      return new Response.Builder()
+          .status(failure(BAD_REQUEST))
+          .build();
+    }
   };
 
   /**
@@ -72,7 +97,7 @@ public class HostedHandlers
 
     if (headers.contains(CLIENT_CHECKSUM) && !method.equals(HttpMethods.PUT)) {
       return new Response.Builder()
-          .status(Status.failure(NOT_FOUND))
+          .status(failure(NOT_FOUND))
           .build();
     }
 

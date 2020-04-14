@@ -37,9 +37,9 @@ import com.google.common.hash.HashCode;
 import org.apache.commons.lang3.tuple.Pair;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.sonatype.repository.conan.internal.utils.ConanFacetUtils.findAsset;
-import static org.sonatype.repository.conan.internal.hosted.ConanHostedHelper.getHostedAssetPath;
-import static org.sonatype.repository.conan.internal.hosted.ConanHostedHelper.MAPPER;
+import static org.sonatype.repository.conan.internal.orient.hosted.ConanHostedHelper.getHostedAssetPath;
+import static org.sonatype.repository.conan.internal.orient.utils.ConanFacetUtils.findAsset;
+import static org.sonatype.repository.conan.internal.orient.hosted.ConanHostedHelper.MAPPER;
 import static java.util.stream.Collectors.toMap;
 
 /**

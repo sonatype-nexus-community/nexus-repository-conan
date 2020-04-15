@@ -28,7 +28,7 @@ import org.sonatype.nexus.repository.view.Response;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher.State;
 import org.sonatype.nexus.repository.view.payloads.StringPayload;
 import org.sonatype.repository.conan.internal.AssetKind;
-import org.sonatype.repository.conan.internal.orient.hosted.ConanHostedHelper;
+import org.sonatype.repository.conan.internal.hosted.ConanHostedHelper;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import com.fasterxml.jackson.core.type.TypeReference;

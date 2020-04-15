@@ -13,6 +13,7 @@
 package org.sonatype.repository.conan.internal.orient.hosted;
 
 import org.sonatype.goodies.testsupport.TestSupport;
+import org.sonatype.repository.conan.internal.hosted.ConanHostedHelper;
 import org.sonatype.repository.conan.internal.metadata.ConanCoords;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

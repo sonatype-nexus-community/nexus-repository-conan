@@ -19,6 +19,7 @@ import org.sonatype.nexus.repository.browse.BrowsePaths;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.storage.DefaultComponent;
+import org.sonatype.repository.conan.internal.orient.ui.ConanBrowseNodeGenerator;
 
 import org.junit.Before;
 import org.junit.Test;

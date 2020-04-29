@@ -129,7 +129,7 @@ public class ConanProxyFacet
       );
       Content.extractFromAsset(asset, HASH_ALGORITHMS, content.getAttributes());
     }
-    return content;
+    return null;
   }
 
   @Override

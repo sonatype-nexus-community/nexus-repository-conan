@@ -56,7 +56,7 @@ public class ConanFacetUtils
   }
 
   public static Asset findAsset(final StorageTx tx, final Bucket bucket, final String assetName) {
-    return tx.findAssetWithProperty(P_NAME, assetName, bucket);
+    return null;
   }
 
   /**

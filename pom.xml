@@ -46,7 +46,7 @@
   </distributionManagement>
 
   <properties>
-    <nxrm-version>3.22.1-01</nxrm-version>
+    <nxrm-version>3.23.0-01</nxrm-version>
   </properties>
 
   <repositories>

@@ -30,16 +30,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.sonatype.nexus.plugins.conan.ConanITConfig.configureConanBase;
 
 public class ConanResourceIT
     extends ConanResourceITSupport
 {
   @Configuration
   public static Option[] configureNexus() {
-    return options(
-        configureNexusBase(),
-        nexusFeature("org.sonatype.nexus.plugins", "nexus-repository-conan")
-    );
+    return configureConanBase();
   }
 
   @Before

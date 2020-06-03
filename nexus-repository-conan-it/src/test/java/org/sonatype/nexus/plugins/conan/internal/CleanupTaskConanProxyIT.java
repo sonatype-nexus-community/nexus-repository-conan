@@ -21,7 +21,6 @@ import org.sonatype.nexus.common.app.BaseUrlHolder;
 import org.sonatype.nexus.pax.exam.NexusPaxExamSupport;
 import org.sonatype.nexus.plugins.conan.internal.fixtures.RepositoryRuleConan;
 import org.sonatype.nexus.repository.Repository;
-import org.sonatype.nexus.testsuite.testsupport.NexusITSupport;
 import org.sonatype.nexus.testsuite.testsupport.cleanup.CleanupITSupport;
 
 import org.junit.After;
@@ -30,6 +29,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
+
+import static org.sonatype.nexus.plugins.conan.ConanITConfig.configureConanBase;
 
 public class CleanupTaskConanProxyIT
     extends CleanupITSupport
@@ -69,10 +70,7 @@ public class CleanupTaskConanProxyIT
 
   @Configuration
   public static Option[] configureNexus() {
-    return NexusPaxExamSupport.options(
-        NexusITSupport.configureNexusBase(),
-        nexusFeature("org.sonatype.nexus.plugins", "nexus-repository-conan")
-    );
+    return configureConanBase();
   }
 
   @Before

@@ -17,14 +17,12 @@ import java.io.IOException;
 import org.sonatype.goodies.httpfixture.server.fluent.Behaviours;
 import org.sonatype.goodies.httpfixture.server.fluent.Server;
 import org.sonatype.nexus.common.app.BaseUrlHolder;
-import org.sonatype.nexus.pax.exam.NexusPaxExamSupport;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpStatus;
 import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.storage.Component;
 import org.sonatype.nexus.repository.storage.ComponentMaintenance;
 import org.sonatype.nexus.repository.view.ContentTypes;
-import org.sonatype.nexus.testsuite.testsupport.NexusITSupport;
 import org.sonatype.repository.conan.internal.ConanFormat;
 
 import com.google.gson.JsonObject;
@@ -41,6 +39,7 @@ import org.ops4j.pax.exam.Option;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.sonatype.nexus.plugins.conan.ConanITConfig.configureConanBase;
 import static org.sonatype.nexus.testsuite.testsupport.FormatClientSupport.status;
 
 public class ConanProxyIT
@@ -130,10 +129,7 @@ public class ConanProxyIT
 
   @Configuration
   public static Option[] configureNexus() {
-    return NexusPaxExamSupport.options(
-        NexusITSupport.configureNexusBase(),
-        nexusFeature("org.sonatype.nexus.plugins", "nexus-repository-conan")
-    );
+    return configureConanBase();
   }
 
   @Before

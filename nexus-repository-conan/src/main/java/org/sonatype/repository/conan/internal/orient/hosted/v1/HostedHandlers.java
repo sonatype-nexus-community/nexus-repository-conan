@@ -117,10 +117,17 @@ public class HostedHandlers
     String json = context.getRepository()
         .facet(ConanHostedFacet.class)
         .getDownloadUrlAsJson(coord);
-    return new Response.Builder()
-        .status(success(OK))
-        .payload(new StringPayload(json, APPLICATION_JSON))
-        .build();
+    if (!json.equals("{}")) {
+      return new Response.Builder()
+          .status(success(OK))
+          .payload(new StringPayload(json, APPLICATION_JSON))
+          .build();
+    }
+    else {
+      return new Response.Builder()
+          .status(failure(NOT_FOUND))
+          .build();
+    }
   };
 
   public static final Handler getDigest = context -> {

@@ -117,7 +117,7 @@ public class HostedHandlers
     String json = context.getRepository()
         .facet(ConanHostedFacet.class)
         .getDownloadUrlAsJson(coord);
-    if (!json.equals("{}")) {
+    if (json != null) {
       return new Response.Builder()
           .status(success(OK))
           .payload(new StringPayload(json, APPLICATION_JSON))

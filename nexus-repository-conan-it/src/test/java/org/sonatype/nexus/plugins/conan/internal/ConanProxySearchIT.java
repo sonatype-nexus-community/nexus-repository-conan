@@ -17,9 +17,7 @@ import org.sonatype.goodies.httpfixture.server.fluent.Server;
 import org.sonatype.nexus.common.app.BaseUrlHolder;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpStatus;
-import org.sonatype.nexus.repository.storage.Asset;
 import org.sonatype.nexus.repository.view.ContentTypes;
-import org.sonatype.repository.conan.internal.ConanFormat;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -33,7 +31,6 @@ import org.ops4j.pax.exam.Option;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.sonatype.nexus.plugins.conan.ConanITConfig.configureConanBase;
 import static org.sonatype.nexus.testsuite.testsupport.FormatClientSupport.status;
 
@@ -134,14 +131,9 @@ public class ConanProxySearchIT
     String mimeType = contentType.getValue();
     assertThat(mimeType, is(ContentTypes.APPLICATION_JSON));
 
-    Asset conanManifestAsset = findAsset(proxyRepo, PATH_MANIFEST);
-    assertThat(conanManifestAsset, nullValue());
-
-    Asset downloadUrlsAsset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS);
-    assertThat(downloadUrlsAsset, nullValue());
-
-    Asset digestAsset = findAsset(proxyRepo, PATH_DIGEST);
-    assertThat(digestAsset, nullValue());
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, PATH_MANIFEST), is(false));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, PATH_DOWNLOAD_URLS), is(false));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, PATH_DIGEST), is(false));
   }
 
   /*
@@ -160,14 +152,9 @@ public class ConanProxySearchIT
     String mimeType = contentType.getValue();
     assertThat(mimeType, is(ContentTypes.APPLICATION_JSON));
 
-    Asset conanManifestAsset = findAsset(proxyRepo, PATH_MANIFEST);
-    assertThat(conanManifestAsset, nullValue());
-
-    Asset downloadUrlsAsset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS);
-    assertThat(downloadUrlsAsset, nullValue());
-
-    Asset digestAsset = findAsset(proxyRepo, PATH_DIGEST);
-    assertThat(digestAsset, nullValue());
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, PATH_MANIFEST), is(false));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, PATH_DOWNLOAD_URLS), is(false));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, PATH_DIGEST), is(false));
   }
 
   @Test
@@ -182,12 +169,7 @@ public class ConanProxySearchIT
     assertThat(status(response), is(HttpStatus.OK));
 
     // we should make sure that downloadUrls is not exist
-    Asset downloadUrlsAsset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS);
-    assertThat(downloadUrlsAsset, nullValue());
-
-    Asset conanManifestAsset = findAsset(proxyRepo, PATH_MANIFEST);
-    assertThat(conanManifestAsset.format(), is(ConanFormat.NAME));
-    assertThat(conanManifestAsset.name(), is(PATH_MANIFEST));
-    assertThat(conanManifestAsset.contentType(), is(ContentTypes.TEXT_PLAIN));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, PATH_DOWNLOAD_URLS), is(false));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, PATH_MANIFEST), is(true));
   }
 }

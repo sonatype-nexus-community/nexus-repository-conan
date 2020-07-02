@@ -19,11 +19,6 @@ import org.sonatype.goodies.httpfixture.server.fluent.Server;
 import org.sonatype.nexus.common.app.BaseUrlHolder;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.http.HttpStatus;
-import org.sonatype.nexus.repository.storage.Asset;
-import org.sonatype.nexus.repository.storage.Component;
-import org.sonatype.nexus.repository.storage.ComponentMaintenance;
-import org.sonatype.nexus.repository.view.ContentTypes;
-import org.sonatype.repository.conan.internal.ConanFormat;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -37,7 +32,6 @@ import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.sonatype.nexus.plugins.conan.ConanITConfig.configureConanBase;
 import static org.sonatype.nexus.testsuite.testsupport.FormatClientSupport.status;
@@ -184,10 +178,7 @@ public class ConanProxyIT
     assertThat(obj.get(FILE_PACKAGE).getAsString(), is(NXRM_CONAN_PROXY_REPO_PATH + PATH_TGZ_PACKAGE));
     assertThat(obj.get(FILE_MANIFEST).getAsString(), is(NXRM_CONAN_PROXY_REPO_PATH + PATH_MANIFEST));
 
-    final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS);
-    assertThat(asset.format(), is(ConanFormat.NAME));
-    assertThat(asset.name(), is(PATH_DOWNLOAD_URLS));
-    assertThat(asset.contentType(), is(ContentTypes.TEXT_PLAIN));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, PATH_DOWNLOAD_URLS), is(true));
   }
 
   @Test
@@ -199,10 +190,7 @@ public class ConanProxyIT
     JsonObject obj = new JsonParser().parse(digest).getAsJsonObject();
     assertThat(obj.get(FILE_MANIFEST).getAsString(), is(NXRM_CONAN_PROXY_REPO_PATH + PATH_MANIFEST));
 
-    final Asset asset = findAsset(proxyRepo, PATH_DIGEST);
-    assertThat(asset.format(), is(ConanFormat.NAME));
-    assertThat(asset.name(), is(PATH_DIGEST));
-    assertThat(asset.contentType(), is(ContentTypes.APPLICATION_JSON));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, PATH_DIGEST), is(true));
   }
 
   @Test
@@ -219,10 +207,7 @@ public class ConanProxyIT
     assertThat(obj.get("conanfile.py").getAsString(),
         is("http://localhost:10000/repository/conan-test-proxy-online/conans/vthiery/jsonformoderncpp/3.7.0/stable/conanfile.py"));
 
-    final Asset asset = findAsset(proxyRepo, PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES);
-    assertThat(asset.format(), is(ConanFormat.NAME));
-    assertThat(asset.name(), is(PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES));
-    assertThat(asset.contentType(), is(ContentTypes.TEXT_PLAIN));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, PATH_DOWNLOAD_URLS_WITHOUT_PACKAGES), is(true));
   }
 
   @Test
@@ -230,10 +215,7 @@ public class ConanProxyIT
     HttpResponse response = proxyClient.getHttpResponse(PATH_TGZ_PACKAGE);
     assertThat(status(response), is(HttpStatus.OK));
 
-    Asset asset = findAsset(proxyRepo, PATH_TGZ_PACKAGE);
-    assertThat(asset.format(), is(ConanFormat.NAME));
-    assertThat(asset.name(), is(PATH_TGZ_PACKAGE));
-    assertThat(asset.contentType(), is(ContentTypes.APPLICATION_GZIP));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, PATH_TGZ_PACKAGE), is(true));
   }
 
   @Test
@@ -244,10 +226,7 @@ public class ConanProxyIT
     // Conan client gets conanifo.txt file
     assertThat(status(proxyClient.getHttpResponse(PATH_INFO)), is(HttpStatus.OK));
 
-    final Asset asset = findAsset(proxyRepo, PATH_INFO);
-    assertThat(asset.format(), is(ConanFormat.NAME));
-    assertThat(asset.name(), is(PATH_INFO));
-    assertThat(asset.contentType(), is(ContentTypes.TEXT_PLAIN));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, PATH_INFO), is(true));
   }
 
   @Test
@@ -256,10 +235,7 @@ public class ConanProxyIT
 
     assertThat(status(response), is(HttpStatus.OK));
 
-    final Asset asset = findAsset(proxyRepo, PATH_MANIFEST);
-    assertThat(asset.format(), is(ConanFormat.NAME));
-    assertThat(asset.name(), is(PATH_MANIFEST));
-    assertThat(asset.contentType(), is(ContentTypes.TEXT_PLAIN));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, PATH_MANIFEST), is(true));
   }
 
   @Test
@@ -269,19 +245,13 @@ public class ConanProxyIT
 
     String assetPath = PATH_MANIFEST;
 
-    Asset asset = findAsset(proxyRepo, assetPath);
-    Component component = findComponent(proxyRepo, LIBRARY_NAME);
-    assertThat(component.name(), is(equalTo(LIBRARY_NAME)));
-    assertThat(component.version(), is(equalTo(LIBRARY_VERSION)));
-    assertThat(component.group(), is(equalTo(LIBRARY_VENDOR)));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, assetPath), is(true));
+    assertThat(componentAssetTestHelper.componentExists(proxyRepo, LIBRARY_NAME, LIBRARY_VERSION), is(true));
 
-    ComponentMaintenance maintenanceFacet = proxyRepo.facet(ComponentMaintenance.class);
-    maintenanceFacet.deleteAsset(asset.getEntityMetadata().getId());
+    componentAssetTestHelper.removeAsset(proxyRepo, assetPath);
 
-    asset = findAsset(proxyRepo, assetPath);
-    assertThat(asset, is(equalTo(null)));
-    component = findComponent(proxyRepo, LIBRARY_NAME);
-    assertThat(component, is(equalTo(null)));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, assetPath), is(false));
+    assertThat(componentAssetTestHelper.componentExists(proxyRepo, LIBRARY_NAME, LIBRARY_VERSION), is(false));
   }
 
   @Test
@@ -298,6 +268,7 @@ public class ConanProxyIT
 
     assertThat(status(proxyClient.getHttpResponse(LIB_WITH_WRONG_CONANINFO_HASH_CONANINFO_PATH)),
         is(HttpStatus.NOT_FOUND));
-    assertThat(findAsset(proxyRepo, LIB_WITH_WRONG_CONANINFO_HASH_CONANINFO_PATH), is(equalTo(null)));
+    assertThat(componentAssetTestHelper.assetExists(proxyRepo, LIB_WITH_WRONG_CONANINFO_HASH_CONANINFO_PATH),
+        is(false));
   }
 }

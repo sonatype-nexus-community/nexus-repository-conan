@@ -52,12 +52,12 @@ public class ConanBrowseNodeGeneratorTest
     List<BrowsePaths> assetPath = underTest.computeAssetPaths(asset, component);
 
     assertThat(assetPath.size(), is(6));
-    assertThat(assetPath.get(0).getBrowsePath(), is("vthiery"));
-    assertThat(assetPath.get(1).getBrowsePath(), is("jsonformoderncpp"));
-    assertThat(assetPath.get(2).getBrowsePath(), is("2.1.1"));
-    assertThat(assetPath.get(3).getBrowsePath(), is("packages"));
-    assertThat(assetPath.get(4).getBrowsePath(), is("5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9"));
-    assertThat(assetPath.get(5).getBrowsePath(), is("download_urls"));
+    assertThat(assetPath.get(0).getDisplayName(), is("vthiery"));
+    assertThat(assetPath.get(1).getDisplayName(), is("jsonformoderncpp"));
+    assertThat(assetPath.get(2).getDisplayName(), is("2.1.1"));
+    assertThat(assetPath.get(3).getDisplayName(), is("packages"));
+    assertThat(assetPath.get(4).getDisplayName(), is("5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9"));
+    assertThat(assetPath.get(5).getDisplayName(), is("download_urls"));
   }
 
   @Test
@@ -68,11 +68,11 @@ public class ConanBrowseNodeGeneratorTest
     List<BrowsePaths> assetPath = underTest.computeAssetPaths(asset, component);
 
     assertThat(assetPath.size(), is(5));
-    assertThat(assetPath.get(0).getBrowsePath(), is("vthiery"));
-    assertThat(assetPath.get(1).getBrowsePath(), is("jsonformoderncpp"));
-    assertThat(assetPath.get(2).getBrowsePath(), is("2.1.1"));
-    assertThat(assetPath.get(3).getBrowsePath(), is("packages"));
-    assertThat(assetPath.get(4).getBrowsePath(), is("5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9"));
+    assertThat(assetPath.get(0).getDisplayName(), is("vthiery"));
+    assertThat(assetPath.get(1).getDisplayName(), is("jsonformoderncpp"));
+    assertThat(assetPath.get(2).getDisplayName(), is("2.1.1"));
+    assertThat(assetPath.get(3).getDisplayName(), is("packages"));
+    assertThat(assetPath.get(4).getDisplayName(), is("5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9"));
   }
 
   @Test
@@ -83,10 +83,10 @@ public class ConanBrowseNodeGeneratorTest
     List<BrowsePaths> assetPath = underTest.computeAssetPaths(asset, component);
 
     assertThat(assetPath.size(), is(4));
-    assertThat(assetPath.get(0).getBrowsePath(), is("vthiery"));
-    assertThat(assetPath.get(1).getBrowsePath(), is("jsonformoderncpp"));
-    assertThat(assetPath.get(2).getBrowsePath(), is("2.1.1"));
-    assertThat(assetPath.get(3).getBrowsePath(), is("download_urls"));
+    assertThat(assetPath.get(0).getDisplayName(), is("vthiery"));
+    assertThat(assetPath.get(1).getDisplayName(), is("jsonformoderncpp"));
+    assertThat(assetPath.get(2).getDisplayName(), is("2.1.1"));
+    assertThat(assetPath.get(3).getDisplayName(), is("download_urls"));
   }
 
   private Asset createAsset(String assetName) {

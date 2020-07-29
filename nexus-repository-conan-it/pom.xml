@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>conan-parent</artifactId>
-    <version>1.0.11-SNAPSHOT</version>
+    <version>1.0.16-SNAPSHOT</version>
   </parent>
 
   <artifactId>nexus-repository-conan-it</artifactId>
@@ -86,6 +86,13 @@
       <version>${nxrm-version}</version>
       <type>zip</type>
       <scope>test</scope>
+      <exclusions>
+        <!-- Avoid leaking older conan plugins from distro -->
+        <exclusion>
+          <groupId>org.sonatype.nexus.plugins</groupId>
+          <artifactId>nexus-repository-conan</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>

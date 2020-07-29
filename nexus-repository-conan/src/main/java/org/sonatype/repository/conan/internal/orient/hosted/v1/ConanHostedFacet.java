@@ -139,6 +139,7 @@ public class ConanHostedFacet
     saveAsset(tx, asset, tempBlob);
   }
 
+  @Nullable
   @TransactionalTouchBlob
   public String getDownloadUrlAsJson(final ConanCoords coords) throws JsonProcessingException {
     if (StringUtils.isEmpty(coords.getSha())) {

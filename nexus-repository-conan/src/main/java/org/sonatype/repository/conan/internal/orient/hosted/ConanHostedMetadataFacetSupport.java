@@ -75,17 +75,25 @@ public class ConanHostedMetadataFacetSupport
             x -> repository.getUrl() + "/" + getHostedAssetPath(coords, x)));
   }
 
+  @Nullable
   public String generateDownloadPackagesUrlsAsJson(final ConanCoords coords)
       throws JsonProcessingException
   {
     Map<String, String> downloadUrls = generateDownloadUrls(DOWNLOAD_URL_PACKAGE_ASSET_KINDS, coords);
+    if (downloadUrls.isEmpty()){
+      return null;
+    }
     return MAPPER.writeValueAsString(downloadUrls);
   }
 
+  @Nullable
   public String generateDownloadUrlsAsJson(final ConanCoords coords)
       throws JsonProcessingException
   {
     Map<String, String> downloadUrls = generateDownloadUrls(DOWNLOAD_URL_ASSET_KINDS, coords);
+    if (downloadUrls.isEmpty()){
+      return null;
+    }
     return MAPPER.writeValueAsString(downloadUrls);
   }
 

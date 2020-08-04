@@ -61,7 +61,7 @@ public class ConanResourceITSupport
 
   protected static final String REMOTE_URL = "http://example.com";
 
-  private static final String REPOSITORIES_API_URL = "service/rest/beta/repositories";
+  public static final String REPOSITORIES_API_URL = "service/rest/beta/repositories";
 
   private static final String UNRELATED_PRIVILEGE = "nx-analytics-all";
 

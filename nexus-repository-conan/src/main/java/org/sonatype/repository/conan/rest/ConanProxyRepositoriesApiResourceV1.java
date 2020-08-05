@@ -22,6 +22,9 @@ import org.sonatype.nexus.repository.rest.api.AuthorizingRepositoryManager;
 import org.sonatype.nexus.repository.rest.api.RepositoriesApiResourceV1;
 import org.sonatype.repository.conan.api.ConanProxyRepositoryApiRequest;
 
+/**
+ * @since 1.0.18
+ */
 @Named
 @Singleton
 @Path(RepositoriesApiResourceV1.RESOURCE_URI + "/conan/proxy")

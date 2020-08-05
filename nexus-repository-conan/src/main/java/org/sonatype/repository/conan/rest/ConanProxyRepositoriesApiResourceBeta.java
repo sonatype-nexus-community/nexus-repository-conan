@@ -24,6 +24,9 @@ import org.sonatype.repository.conan.api.ConanProxyRepositoryApiRequest;
 
 import io.swagger.annotations.Api;
 
+/**
+ * @since 1.0.18
+ */
 @Named
 @Singleton
 @Path(RepositoriesApiResourceBeta.RESOURCE_URI + "/conan/proxy")

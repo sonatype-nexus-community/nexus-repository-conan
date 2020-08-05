@@ -22,9 +22,13 @@ import org.sonatype.nexus.repository.rest.api.AuthorizingRepositoryManager;
 import org.sonatype.nexus.repository.rest.api.RepositoriesApiResourceBeta;
 import org.sonatype.repository.conan.api.ConanProxyRepositoryApiRequest;
 
+import io.swagger.annotations.Api;
+
 @Named
 @Singleton
 @Path(RepositoriesApiResourceBeta.RESOURCE_URI + "/conan/proxy")
+@Deprecated
+@Api(hidden = true)
 public class ConanProxyRepositoriesApiResourceBeta
     extends ConanProxyRepositoriesApiResource
 {

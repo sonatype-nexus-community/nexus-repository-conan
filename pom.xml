@@ -23,7 +23,7 @@
   </parent>
 
   <artifactId>conan-parent</artifactId>
-  <version>1.0.18</version>
+  <version>1.0.19-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <inceptionYear>2017</inceptionYear>

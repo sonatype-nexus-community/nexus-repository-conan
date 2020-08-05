@@ -26,6 +26,7 @@ import io.swagger.annotations.Api;
 
 /**
  * @since 1.0.18
+ * @deprecated - prefer to use {@link ConanProxyRepositoriesApiResourceV1 } instead of Beta.
  */
 @Named
 @Singleton

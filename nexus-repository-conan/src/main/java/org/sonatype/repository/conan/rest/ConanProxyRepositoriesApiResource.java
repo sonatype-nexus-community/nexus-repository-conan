@@ -12,7 +12,6 @@
  */
 package org.sonatype.repository.conan.rest;
 
-import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -20,8 +19,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.sonatype.nexus.repository.rest.api.AbstractRepositoriesApiResource;
-import org.sonatype.nexus.repository.rest.api.AbstractRepositoryApiRequestToConfigurationConverter;
-import org.sonatype.nexus.repository.rest.api.AuthorizingRepositoryManager;
 import org.sonatype.nexus.validation.Validate;
 import org.sonatype.repository.conan.api.ConanProxyRepositoryApiRequest;
 
@@ -43,14 +40,6 @@ import static org.sonatype.nexus.rest.ApiDocConstants.REPOSITORY_UPDATED;
 public abstract class ConanProxyRepositoriesApiResource
     extends AbstractRepositoriesApiResource<ConanProxyRepositoryApiRequest>
 {
-  @Inject
-  public ConanProxyRepositoriesApiResource(
-      final AuthorizingRepositoryManager authorizingRepositoryManager,
-      final AbstractRepositoryApiRequestToConfigurationConverter<ConanProxyRepositoryApiRequest> configurationAdapter)
-  {
-    super(authorizingRepositoryManager, configurationAdapter);
-  }
-
   @ApiOperation("Create Conan proxy repository")
   @ApiResponses(value = {
       @ApiResponse(code = 201, message = REPOSITORY_CREATED),

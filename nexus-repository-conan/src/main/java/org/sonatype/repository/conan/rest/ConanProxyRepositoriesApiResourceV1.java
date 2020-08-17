@@ -12,15 +12,11 @@
  */
 package org.sonatype.repository.conan.rest;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.ws.rs.Path;
 
-import org.sonatype.nexus.repository.rest.api.AbstractRepositoryApiRequestToConfigurationConverter;
-import org.sonatype.nexus.repository.rest.api.AuthorizingRepositoryManager;
 import org.sonatype.nexus.repository.rest.api.RepositoriesApiResourceV1;
-import org.sonatype.repository.conan.api.ConanProxyRepositoryApiRequest;
 
 /**
  * @since 1.0.18
@@ -31,10 +27,4 @@ import org.sonatype.repository.conan.api.ConanProxyRepositoryApiRequest;
 public class ConanProxyRepositoriesApiResourceV1
     extends ConanProxyRepositoriesApiResource
 {
-  @Inject
-  public ConanProxyRepositoriesApiResourceV1(final AuthorizingRepositoryManager authorizingRepositoryManager,
-                                             final AbstractRepositoryApiRequestToConfigurationConverter<ConanProxyRepositoryApiRequest> configurationAdapter)
-  {
-    super(authorizingRepositoryManager, configurationAdapter);
-  }
 }

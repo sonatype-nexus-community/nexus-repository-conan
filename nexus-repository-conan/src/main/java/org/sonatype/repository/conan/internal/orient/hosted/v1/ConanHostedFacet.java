@@ -41,6 +41,7 @@ import org.sonatype.nexus.repository.view.Response;
 import org.sonatype.nexus.repository.view.matchers.token.TokenMatcher;
 import org.sonatype.nexus.repository.view.payloads.StreamPayload;
 import org.sonatype.nexus.repository.view.payloads.StreamPayload.InputStreamSupplier;
+import org.sonatype.nexus.transaction.Transactional;
 import org.sonatype.nexus.transaction.UnitOfWork;
 import org.sonatype.repository.conan.internal.AssetKind;
 import org.sonatype.repository.conan.internal.hosted.ConanHostedHelper;
@@ -163,7 +164,13 @@ public class ConanHostedFacet
     return ConanHostedHelper.MAPPER.writeValueAsString(downloadUrls);
   }
 
+  @Transactional
   public String getDigestAsJson(final ConanCoords coords) throws JsonProcessingException {
+    final StorageTx tx = UnitOfWork.currentTx();
+    Component component = findComponent(tx, getRepository(), coords);
+    if (component == null) {
+      return null;
+    }
     String repositoryUrl = getRepository().getUrl();
     return generateDigestAsJson(coords, repositoryUrl);
   }

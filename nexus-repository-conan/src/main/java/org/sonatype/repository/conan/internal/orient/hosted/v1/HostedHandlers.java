@@ -133,13 +133,21 @@ public class HostedHandlers
   public static final Handler getDigest = context -> {
     State state = context.getAttributes().require(State.class);
     ConanCoords coord = ConanHostedHelper.convertFromState(state);
+
     String json = context.getRepository()
         .facet(ConanHostedFacet.class)
         .getDigestAsJson(coord);
-    return new Response.Builder()
-        .status(success(OK))
-        .payload(new StringPayload(json, APPLICATION_JSON))
-        .build();
+    if (json != null) {
+      return new Response.Builder()
+          .status(success(OK))
+          .payload(new StringPayload(json, APPLICATION_JSON))
+          .build();
+    }
+    else {
+      return new Response.Builder()
+          .status(failure(NOT_FOUND))
+          .build();
+    }
   };
 
   public static final Handler getAssets = context ->

@@ -40,5 +40,11 @@ trait ConanRepoRecipes
     createRepository(createHosted(name, 'conan-hosted'))
   }
 
+  @Nonnull
+  Repository createConanGroup(final String name, final List<String> members)
+  {
+    createRepository(createGroup(name, 'conan-group', members as String[]))
+  }
+
   abstract Repository createRepository(final Configuration configuration)
 }

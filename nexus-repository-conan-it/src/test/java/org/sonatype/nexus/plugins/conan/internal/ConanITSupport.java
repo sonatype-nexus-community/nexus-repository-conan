@@ -12,6 +12,7 @@
  */
 package org.sonatype.nexus.plugins.conan.internal;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.annotation.Nonnull;
@@ -21,6 +22,11 @@ import org.sonatype.nexus.plugins.conan.internal.fixtures.RepositoryRuleConan;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.testsuite.testsupport.RepositoryITSupport;
 
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.Rule;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -54,5 +60,21 @@ public class ConanITSupport
         clientContext(),
         repositoryUrl.toURI()
     );
+  }
+
+  protected ConanClient conanClient(final Credentials credentials, final Repository repository)
+      throws Exception
+  {
+    HttpClientBuilder builder = clientBuilder();
+    if (credentials != null) {
+      String hostname = nexusUrl.getHost();
+      AuthScope scope = new AuthScope(hostname, -1);
+      CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+      credentialsProvider.
+          setCredentials(scope, credentials);
+      builder.setDefaultCredentialsProvider(credentialsProvider);
+    }
+
+    return new ConanClient(clientBuilder(repositoryBaseUrl(repository)).build(), clientContext(), repositoryBaseUrl(repository).toURI());
   }
 }

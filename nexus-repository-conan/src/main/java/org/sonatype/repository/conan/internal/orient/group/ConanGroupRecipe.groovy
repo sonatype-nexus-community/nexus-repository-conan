@@ -21,8 +21,6 @@ import javax.inject.Singleton
 import org.sonatype.nexus.repository.Format
 import org.sonatype.nexus.repository.Repository
 import org.sonatype.nexus.repository.Type
-import org.sonatype.nexus.repository.group.GroupFacetImpl
-import org.sonatype.nexus.repository.group.GroupHandler
 import org.sonatype.nexus.repository.http.HttpHandlers
 import org.sonatype.nexus.repository.types.GroupType
 import org.sonatype.nexus.repository.view.ConfigurableViewFacet
@@ -48,10 +46,10 @@ class ConanGroupRecipe
   private static final String VERSION = "v1";
 
   @Inject
-  Provider<GroupFacetImpl> groupFacet
+  Provider<ConanGroupFacet> groupFacet
 
   @Inject
-  GroupHandler groupHandler
+  ConanGroupHandler groupHandler
 
   @Inject
   ConanGroupRecipe(@Named(GroupType.NAME) final Type type,

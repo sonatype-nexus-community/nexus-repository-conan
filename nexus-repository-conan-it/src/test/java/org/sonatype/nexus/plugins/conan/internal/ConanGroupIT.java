@@ -12,8 +12,6 @@
  */
 package org.sonatype.nexus.plugins.conan.internal;
 
-import java.io.IOException;
-
 import org.sonatype.goodies.httpfixture.server.fluent.Behaviours;
 import org.sonatype.goodies.httpfixture.server.fluent.Server;
 import org.sonatype.nexus.common.app.BaseUrlHolder;
@@ -26,6 +24,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.util.EntityUtils;
 import org.apache.shiro.util.ThreadContext;
 import org.junit.After;
@@ -37,7 +36,6 @@ import org.ops4j.pax.exam.Option;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.sonatype.nexus.plugins.conan.ConanITConfig.configureConanBase;
-import static org.sonatype.nexus.repository.http.HttpStatus.CREATED;
 import static org.sonatype.nexus.testsuite.testsupport.FormatClientSupport.status;
 
 public class ConanGroupIT
@@ -124,7 +122,7 @@ public class ConanGroupIT
 
   private static final String PATH_DIGEST = DIRECTORY_DOWNLOAD_URLS + FILE_DIGEST;
 
-  private static final String CONAN_HOSTED_PACKAGE_TGZ = "conans/sonatype/testlib/1.0.0/stable/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz";
+  private static final String CONAN_HOSTED_PACKAGE_TGZ = "conans/sonatype/testlib/1.0.0/stable/packages/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/conan_package.tgz";
 
   private ConanClient groupClient;
 
@@ -287,4 +285,15 @@ public class ConanGroupIT
         is(false));
   }
 
+
+  @Test
+  public void retrieveProxyAndHostedPackage() throws Exception {
+    ConanClient hostedClient = conanClient(new UsernamePasswordCredentials("admin", "admin123"), hostedRepo);
+    HttpResponse response = hostedClient.put(CONAN_HOSTED_PACKAGE_TGZ, testData.resolveFile("conan_package.tgz"));
+    assertThat(status(response), is(HttpStatus.OK));
+    assertThat(componentAssetTestHelper.assetExists(hostedRepo, CONAN_HOSTED_PACKAGE_TGZ), is(true));
+
+    assertThat(status(groupClient.getHttpResponse(PATH_TGZ_PACKAGE)), is(HttpStatus.OK));
+    assertThat(status(groupClient.getHttpResponse(CONAN_HOSTED_PACKAGE_TGZ)), is(HttpStatus.OK));
+  }
 }

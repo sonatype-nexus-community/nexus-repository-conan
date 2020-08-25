@@ -148,9 +148,6 @@
 
     <profile>
       <id>circle-ci-release</id>
-      <!--
-      only sign during deploy phase
-      -->
       <build>
         <plugins>
           <plugin>

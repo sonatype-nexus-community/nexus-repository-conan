@@ -12,14 +12,14 @@
     Eclipse Foundation. All other trademarks are the property of their respective owners.
 
 -->
-# Nexus Repository JFrog Conan Format
+# Nexus Repository Conan Format
 
 [![Maven Central](https://img.shields.io/maven-central/v/org.sonatype.nexus.plugins/nexus-repository-conan.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22org.sonatype.nexus.plugins%22%20AND%20a:%22nexus-repository-conan%22)
 [![CircleCI](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-conan.svg?style=shield)](https://circleci.com/gh/sonatype-nexus-community/nexus-repository-conan)
 [![Join the chat at https://gitter.im/sonatype/nexus-developers](https://badges.gitter.im/sonatype/nexus-developers.svg)](https://gitter.im/sonatype/nexus-developers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![DepShield Badge](https://depshield.sonatype.org/badges/sonatype-nexus-community/nexus-repository-conan/depshield.svg)](https://depshield.github.io)
 
-> **Huzzah!** JFrog Conan is now part of Nexus Repository Manager. Version 3.20 includes the JFrog Conan plugin by default. 
+> **Huzzah!** Conan is now part of Nexus Repository Manager. Version 3.20 includes the Conan plugin by default. 
 >The plugin source code is now in [nexus-public](https://github.com/sonatype/nexus-public) in [nexus-repository-conan](https://github.com/sonatype/nexus-public/tree/master/plugins/nexus-repository-conan).
 
 > **Filing issues:** Upgrade to the latest version of Nexus Repository Manager 3, to get the latest fixes and improvements, before filing any issues or feature requests at https://issues.sonatype.org/.
@@ -32,7 +32,7 @@
    * [Contribution Guidelines](#contribution-guidelines)
    * [Requirements](#requirements)
    * [Building](#building)
-* [Using JFrog Conan with Nexus Repository Manager 3](#using-jfrog-conan-with-nexus-repository-manager-3)
+* [Using Conan with Nexus Repository Manager 3](#using-conan-with-nexus-repository-manager-3)
 * [Installing the plugin](#installing-the-plugin)
    * [Permanent Reinstall](#permanent-reinstall)
 * [Installing the plugin in old NXRM versions](#installing-the-plugin-in-old-versions)
@@ -63,9 +63,9 @@ To build the project and generate the bundle use Maven
 
     mvn clean install
 
-If everything checks out, the bundle for JFrog Conan should be available in the `target` folder
+If everything checks out, the bundle for Conan should be available in the `target` folder
 
-## Using JFrog Conan with Nexus Repository Manager 3
+## Using Conan with Nexus Repository Manager 3
 
 [We have detailed instructions on how to get started here!](https://help.sonatype.com/repomanager3/formats/conan-repositories)
 
@@ -114,7 +114,7 @@ nexus.conan.hosted.enabled=true in NXRM's properties file.
 
 ### Installing the plugin in old versions
 
-For older versions there are a range of options for installing the JFrog Conan plugin. You'll need to build it first, and
+For older versions there are a range of options for installing the Conan plugin. You'll need to build it first, and
 then install the plugin with one of the options shown below:
 
 ### Easiest Install
@@ -164,13 +164,13 @@ This will cause the plugin to be loaded and started with each startup of Nexus R
 
 ## The Fine Print
 
-Starting from version 3.22 the JFrog Conan plugin is supported by Sonatype, but still is a contribution of ours
+Starting from version 3.22 the Conan plugin is supported by Sonatype, but still is a contribution of ours
 to the open source community (read: you!).
 
 Remember:
 
 * Use this contribution at the risk tolerance that you have
-* Do NOT file Sonatype support tickets related to JFrog Conan support
+* Do NOT file Sonatype support tickets related to Conan support
 * DO file issues here on GitHub, so that the community can pitch in
 
 Phew, that was easier than I thought. Last but not least of all:

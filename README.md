@@ -25,7 +25,7 @@
 > **Filing issues:** Upgrade to the latest version of Nexus Repository Manager 3, to get the latest fixes and improvements, before filing any issues or feature requests at https://issues.sonatype.org/.
 
 > **Upgrading:** If you are using a version prior to 3.20 and upgrade to a newer version you will not be able to install the community plugin. 
->No other changes are required, and your existing data will remain intact.
+>No other changes are required and your existing data will remain intact.
 
 # Table Of Contents
 * [Developing](#developing)

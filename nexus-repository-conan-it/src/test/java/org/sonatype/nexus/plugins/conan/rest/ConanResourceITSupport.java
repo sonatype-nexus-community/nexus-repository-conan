@@ -27,6 +27,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.sonatype.nexus.plugins.conan.internal.fixtures.RepositoryRuleConan;
 import org.sonatype.nexus.repository.rest.api.model.AbstractRepositoryApiRequest;
 import org.sonatype.nexus.repository.rest.api.model.CleanupPolicyAttributes;
+import org.sonatype.nexus.repository.rest.api.model.HostedStorageAttributes;
 import org.sonatype.nexus.repository.rest.api.model.HttpClientAttributes;
 import org.sonatype.nexus.repository.rest.api.model.HttpClientConnectionAttributes;
 import org.sonatype.nexus.repository.rest.api.model.HttpClientConnectionAuthenticationAttributes;
@@ -36,6 +37,7 @@ import org.sonatype.nexus.repository.rest.api.model.StorageAttributes;
 import org.sonatype.nexus.security.role.Role;
 import org.sonatype.nexus.testsuite.testsupport.RepositoryITSupport;
 import org.sonatype.nexus.testsuite.testsupport.fixtures.SecurityRule;
+import org.sonatype.repository.conan.api.ConanHostedRepositoryApiRequest;
 import org.sonatype.repository.conan.api.ConanProxyRepositoryApiRequest;
 import org.sonatype.repository.conan.internal.ConanFormat;
 
@@ -59,9 +61,11 @@ public class ConanResourceITSupport
 
   protected static final String PROXY_NAME = "conan-proxy";
 
+  protected static final String HOSTED_NAME = "conan-hosted";
+
   protected static final String REMOTE_URL = "http://example.com";
 
-  private static final String REPOSITORIES_API_URL = "service/rest/beta/repositories";
+  private static final String REPOSITORIES_API_URL = "service/rest/v1/repositories";
 
   private static final String UNRELATED_PRIVILEGE = "nx-analytics-all";
 
@@ -89,6 +93,14 @@ public class ConanResourceITSupport
     return new ConanProxyRepositoryApiRequest(PROXY_NAME, true, storage, cleanup,
         proxy, negativeCache,
         httpClient, null);
+  }
+
+  protected AbstractRepositoryApiRequest createHostedRequest(boolean strictContentTypeValidation) {
+    HostedStorageAttributes storage = new HostedStorageAttributes("default", strictContentTypeValidation, "ALLOW");
+    CleanupPolicyAttributes cleanup = new CleanupPolicyAttributes(Collections.emptyList());
+
+    // SET YOUR FORMAT DATA
+    return new ConanHostedRepositoryApiRequest(HOSTED_NAME, true, storage, cleanup);
   }
 
   private void prepareRequest(HttpEntityEnclosingRequestBase request, String url, Object body) throws Exception {

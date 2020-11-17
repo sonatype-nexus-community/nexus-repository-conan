@@ -12,6 +12,7 @@
  */
 package org.sonatype.nexus.plugins.conan.internal;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
@@ -22,11 +23,16 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.util.EntityUtils;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ConanClient
     extends FormatClientSupport
@@ -59,5 +65,15 @@ public class ConanClient
       response.setLocale(closeableHttpResponse.getLocale());
       return response;
     }
+  }
+
+  public HttpResponse put(final String path, final File file) throws Exception {
+    checkNotNull(path);
+    checkNotNull(file);
+
+    final HttpPut put = new HttpPut(repositoryBaseUri.resolve(path));
+    put.setEntity(new FileEntity(file, ContentType.create("application/octet-stream")));
+
+    return execute(put);
   }
 }

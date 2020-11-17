@@ -20,6 +20,7 @@ import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.repository.http.HttpResponses;
 import org.sonatype.nexus.repository.security.SecurityHandler;
 import org.sonatype.nexus.repository.view.Handler;
+import org.sonatype.nexus.repository.view.Matcher;
 import org.sonatype.nexus.repository.view.Route.Builder;
 import org.sonatype.nexus.repository.view.Router;
 import org.sonatype.nexus.repository.view.handlers.ExceptionHandler;
@@ -53,10 +54,14 @@ public class PingController
 
   private static Builder ping(final String version) {
     return new Builder().matcher(
-        and(
-            new ActionMatcher(GET),
-            new TokenMatcher(format(PING, version))
-        )
+        pingMatcher(version)
+    );
+  }
+
+  public static Matcher pingMatcher(final String version) {
+    return and(
+        new ActionMatcher(GET),
+        new TokenMatcher(format(PING, version))
     );
   }
 

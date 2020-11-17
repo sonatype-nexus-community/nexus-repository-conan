@@ -22,6 +22,7 @@ import org.sonatype.nexus.repository.http.PartialFetchHandler;
 import org.sonatype.nexus.repository.security.SecurityHandler;
 import org.sonatype.nexus.repository.storage.UnitOfWorkHandler;
 import org.sonatype.nexus.repository.view.Handler;
+import org.sonatype.nexus.repository.view.Matcher;
 import org.sonatype.nexus.repository.view.Route.Builder;
 import org.sonatype.nexus.repository.view.Router;
 import org.sonatype.nexus.repository.view.handlers.ConditionalRequestHandler;
@@ -76,10 +77,14 @@ public class UserController
    */
   private static Builder checkCredentials(final String version) {
     return new Builder().matcher(
-        and(
-            new ActionMatcher(GET),
-            new TokenMatcher(format(CHECK_CREDENTIALS_URL, version))
-        )
+        credentialsMatcher(version)
+    );
+  }
+
+  public static Matcher credentialsMatcher(final String version) {
+    return and(
+        new ActionMatcher(GET),
+        new TokenMatcher(format(CHECK_CREDENTIALS_URL, version))
     );
   }
 
@@ -88,10 +93,14 @@ public class UserController
    */
   private static Builder authenticate(final String version) {
     return new Builder().matcher(
-        and(
-            new ActionMatcher(GET),
-            new TokenMatcher(format(AUTHENTICATE_URL, version))
-        )
+        authenticateMatcher(version)
+    );
+  }
+
+  public static Matcher authenticateMatcher(final String version) {
+    return and(
+        new ActionMatcher(GET),
+        new TokenMatcher(format(AUTHENTICATE_URL, version))
     );
   }
 
